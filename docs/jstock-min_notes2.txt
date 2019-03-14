@@ -1,0 +1,132 @@
+**Additions:
+
+org.yccheok.jstock.gui.trading.*
+org.yccheok.jstock.trading.*
+
+org.yccheok.jstock.engine.yahoo.*
+org.yccheok.jstock.engine.DispType;
+org.yccheok.jstock.engine.EnumMapInstanceCreator
+org.yccheok.jstock.engine.GoogleCodeDatabaseRunnable
+org.yccheok.jstock.engine.GoggleCodeSQLiteOpenHelper
+org.yccheok.jstock.engine.IEX*
+org.yccheok.jstock.engine.Intraday
+org.yccheok.jstock.engine.YahooFinanceApi
+org.yccheok.jstock.engine.YahooFinanceApiV8
+org.yccheok.jstock.engine.YahooStockHistoryServer2
+
+**Removed:
+
+x org.yccheok.jstock.engine.GoogleStockServer
+x org.yccheok.jstock.engine.GoogleStockHistoryServer
+x org.yccheok.jstock.engine.StockNotFoundException (Causes No Errors. Left)
+x org.yccheok.jstock.engine.KLSEInfoStockHistoryServer
+x org.yccheok.jstock.engine.KLSEInfoStockServerFactory
+x org.yccheok.jstock.engine.YahooDividendServer
+x org.yccheok.jstock.engine.YahooStockFormat
+x org.yccheok.jstock.engine.YahooStockHistoryServer
+
+**Updates:
+
+==============
+Manual Updates: (Git Repository)
+** org.yccheok.jstock.engine.PriceSource
+** org.yccheok.jstock.engine.Country
+===============
+
+xx Replace: org.yccheok.jstock.engine.AbstractYahooStockHistoryServer
+xx Replace: org.yccheok.jstock.engine.AbstractYahooStockServer
+
+xx Replace: org.yccheok.jstock.engine.BrazilYahooStockServer
+xx Replace: org.yccheok.jstock.engine.BrazilYahooStockServerFactory
+xx Replace: org.yccheok.jstock.engine.DividendServer
+xx Replace: org.yccheok.jstock.engine.Factories
+xx Replace: org.yccheok.jstock.engine.GoogleStockServerFactory
+xxx Replace: org.ycceok.jstock.engine.Period
+xx Replace: org.yccheok.jstock.engine.RealTimeIndexMonitor
+xx Replace: org.yccheok.jstock.engine.RealTimeStockMonitor
+xx Replace: org.yccheok.jstock.engine.ResultType
+xx Replace: org.yccheok.jstock.engine.StatementsStockHistoryServer
+xx Replace: org.yccheok.jstock.engine.Stock
+
+xx Replace: org.yccheok.jstock.engine.StockHistoryServer
+xx Replace: org.yccheok.jstock.engine.StockServer
+x Replace: org.yccheok.jstock.engine.StockServerFactory
+xx Replace: org.yccheok.jstock.engine.Utils
+  org.yccheok.jstock.engine.Utils.clearGoogleCodeDatabaseCache();
+  org.yccheok.jstock.engine.Utils.clearAllIEXStockInfoDatabaseCaches();
+
+
+xx Replace: org.yccheok.jstock.engine.YahooStockServer
+xx Replace: org.yccheok.jstock.engine.YahooStockServerFactory
+
+new updates: (second pass)
+
+org.yccheok.jstock.engine.BrazilYahooStockHistoryServer
+org.hccheok.jstock.engine.StockHistoryMonitor
+
+Error Below: new updates: (third pass)
+
+org.yccheok.jstock.engine.Period
+org.yccheok.jstock.engine.SimpleDate
+Missing, but in 1.0.7.9 org.yccheok.jstock.engine.StockHistoryMonitor
+(Fixed All Lookup, History, Market Charts Working.)
+
+Error:
+Exception in thread "pool-14-thread-1" java.lang.NoSuchFieldError: calendar
+	at org.yccheok.jstock.engine.Utils.toBestPeriod(Utils.java:1180)
+	at org.yccheok.jstock.engine.YahooStockHistoryServer2.<init>(YahooStockHistoryServer2.java:56)
+	at org.yccheok.jstock.engine.YahooStockServerFactory.getStockHistoryServer(YahooStockServerFactory.java:62)
+	at org.yccheok.jstock.engine.StockHistoryMonitor$StockHistoryRunnable.run(StockHistoryMonitor.java:188)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:748)
+	
+Solutions: (Binary Library stock-min.jar)
+
+Start With All Engine Source Classes.
+Start removing known not additions and replacements.
+
+(Classes Kept From 1.0.7.9)
+
+AjaxGoogleSearchEngine.class
+AjaxGoogleSearchEngineMonitor.class
+AjaxStockInfoSearchEngine.class
+AjaxYahooSearchEngine.class
+AjaxYahooSearchEngineMonitor.class
+Board.class
+BucketList.class
+Code.class
+CodeBucketList.class
+Country.class
+Duration.class
+Index.class
+Industry.class
+Market.class
+MatchSetType.class
+MatchType.class
+Observer.class
+Pair.class
+*** Period.class Appears to the Cause. (Replaced)
+PinyinTSTSearchEngine
+PriceSource.class
+ResultSetType.class
+SearchEngine.class
+*** SimpleDate.class Appears to the Cause. (Replaced)
+StockEx.class
+StockFormat.class
+*** StockHistoryMonitor was missing. (Added)
+StockHistoryNoFoundException
+StockHistorySerializer
+StockInfo
+StockInfoDatabase
+StockNameDatabase
+StockNotFoundException (Not Used, but No Errors)
+StockServerFactory
+Subject
+Symbol
+TSTSearchEngine
+UnitedStatesGoogleFormatCodeLookup
+
+
+
+
