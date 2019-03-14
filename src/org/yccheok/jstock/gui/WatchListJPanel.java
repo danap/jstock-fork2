@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.04 03/13/2019
+ * Version 1.0.7.37.05 03/14/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,8 @@
 //         1.0.7.37.03 03/09/2019 Minor Formatting Changes. Returned Control of setDynamicChartVisible()
 //                                to jStockOptions, GUI, Show Intraday Chart.
 //         1.0.7.37.04 03/13/2019 Added Method initWatchList().
+//         1.0.7.37.05 03/14/2019 Method deleteSelectedRow() Removed Call to alertStateManager.clear
+//                                State().
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -93,7 +95,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.04 03/13/2019
+ * @version 1.0.7.37.05 03/14/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -463,7 +465,6 @@ public class WatchListJPanel extends JPanel
          JStock.instance().realTimeStockMonitor.removeStockCode(stock.code);
          JStock.instance().stockHistoryMonitor.removeStockCode(stock.code);
          tableModel.removeRow(modelIndex);
-         JStock.instance().alertStateManager.clearState(stock);
       }
 
       updateDynamicChart(null);
