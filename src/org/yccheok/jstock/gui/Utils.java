@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.06 03/11/2019
+ * Version 1.0.7.37.07 03/14/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,8 @@
 //                                loadFromLegacyGoogleCloud(), saveTo/LegacyGoogleDrive(),
 //                                insertFile(), & updateFile(). Methods promptOpen/SaveCSVAnd
 //                                ExcelFile() Commented xlsFilter & Use.
+//         1.0.7.37.07 03/14/2019 Commented All Imports for import org.yccheok.jstock.analysis.*.
+//                                Commented Methods getLastPriceRiseAbove/FallBelowIndicator().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -164,13 +166,13 @@ import org.apache.commons.lang.CharUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdesktop.jxlayer.JXLayer;
-import org.yccheok.jstock.analysis.Connection;
-import org.yccheok.jstock.analysis.DoubleConstantOperator;
-import org.yccheok.jstock.analysis.EqualityOperator;
-import org.yccheok.jstock.analysis.Indicator;
-import org.yccheok.jstock.analysis.OperatorIndicator;
-import org.yccheok.jstock.analysis.SinkOperator;
-import org.yccheok.jstock.analysis.StockOperator;
+//import org.yccheok.jstock.analysis.Connection;
+//import org.yccheok.jstock.analysis.DoubleConstantOperator;
+//import org.yccheok.jstock.analysis.EqualityOperator;
+//import org.yccheok.jstock.analysis.Indicator;
+//import org.yccheok.jstock.analysis.OperatorIndicator;
+//import org.yccheok.jstock.analysis.SinkOperator;
+//import org.yccheok.jstock.analysis.StockOperator;
 import org.yccheok.jstock.engine.*;
 import org.yccheok.jstock.internationalization.MessagesBundle;
 import org.yccheok.jstock.network.Utils.Type;
@@ -181,7 +183,7 @@ import org.yccheok.jstock.watchlist.WatchlistInfo;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.06 03/11/2019
+ * @version 1.0.7.37.07 03/14/2019
  * 
  */
 public class Utils {
@@ -1117,6 +1119,7 @@ public class Utils {
         return zombiePool;
     }
 
+    /*
     public static Indicator getLastPriceRiseAboveIndicator(double lastPrice)
     {
         final StockOperator stockOperator = new StockOperator();
@@ -1188,6 +1191,7 @@ public class Utils {
         
         return operatorIndicator;
     }
+    */
 
     public static String setDefaultLookAndFeel() {
         try {
