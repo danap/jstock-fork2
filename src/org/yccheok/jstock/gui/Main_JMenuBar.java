@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 1.7 03/10/2019
+// Version 1.8 03/14/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -48,6 +48,8 @@
 //         1.6 Removed All Aspects, Import, Calls for Design Feature Trading View.
 //         1.7 Methods fileOpenActionPerformed() & fileSaveAsActionPerformed() Removed
 //             Processing for XLS Files.
+//         1.8 Method fileSaveAsActionPerformed() Removed Conditional for jstock.
+//             indicatorScannerJPanel. Same in Method databaseActionPerormed().
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -103,7 +105,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 1.7 03/10/2019
+ * @version 1.8 03/14/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -729,8 +731,6 @@ public class Main_JMenuBar extends JMenuBar
 
       if (jstock.getSelectedComponent() == jstock.watchListPanel)
          suggestedFileName = GUIBundle.getString("MainFrame_Title");
-      else if (jstock.getSelectedComponent() == jstock.indicatorScannerJPanel)
-         suggestedFileName = GUIBundle.getString("IndicatorScannerJPanel_Title");
       else if (jstock.getSelectedComponent() == jstock.portfolioManagementJPanel)
          suggestedFileName = GUIBundle.getString("PortfolioManagementJPanel_Title");
       else
@@ -740,8 +740,7 @@ public class Main_JMenuBar extends JMenuBar
 
       File file = null;
       
-      if (jstock.getSelectedComponent() == jstock.watchListPanel
-          || jstock.getSelectedComponent() == jstock.indicatorScannerJPanel)
+      if (jstock.getSelectedComponent() == jstock.watchListPanel)
       {
          file = Utils.promptSaveCSVAndExcelJFileChooser(suggestedFileName);
 
@@ -751,8 +750,6 @@ public class Main_JMenuBar extends JMenuBar
             {
                if (jstock.getSelectedComponent() == jstock.watchListPanel)
                   status = jstock.saveAsCSVFile(file, false);
-               else if (jstock.getSelectedComponent() == jstock.indicatorScannerJPanel)
-                  status = jstock.indicatorScannerJPanel.saveAsCSVFile(file);
                else
                   assert (false);
             }
@@ -953,7 +950,6 @@ public class Main_JMenuBar extends JMenuBar
          assert (stockDatabaseJDialog.getResult() == jstock.getStockInfoDatabase());
          jstock.stockInfoDatabase = stockDatabaseJDialog.getResult();
          jstock.watchListPanel.setStockInfoDatabase(jstock.stockInfoDatabase);
-         jstock.indicatorPanel.setStockInfoDatabase(jstock.stockInfoDatabase);
          log.info("saveStockCodeAndSymbolDatabase...");
          saveDatabase();
       }
