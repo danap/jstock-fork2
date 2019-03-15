@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.20 03/13/2019
+ * Version 1.0.7.37.21 03/15/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,6 +135,14 @@
 //                                in Keys. Commented initJXLayerOnComboBox() & initExtraDatas(). Moved
 //                                initWatchList() aka initCSVWatchList() to watchListPanel. Made Class
 //                                Instance timestamp Protected.
+//         1.0.7.37.21 03/15/2019 Commented Class Instances indicatorPanel, indicatorScannerJPanel, stock
+//                                IndicatorIndex, indicatorScannerIndex, alertStateManager, systemTrayAlert
+//                                Pool & alertStateManagerObserver. Method init() Commented createStock
+//                                IndicatorEditor(), createIndicatorScannerJPanel(), initAlertStateManager(),
+//                                & initOthersStockHistoryMonitor(). Method handleJTabbedPaneStateChanged()
+//                                Commented indicatorPanel & indicatorScannerJPanel Same in save(), & 
+//                                Throughout As This Feature IndicatorEditor & IndicatorScanner Removed.
+//                                Same With AlertStateManager.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -181,7 +189,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.yccheok.jstock.analysis.Indicator;
+//import org.yccheok.jstock.analysis.Indicator;
 import org.yccheok.jstock.engine.Board;
 import org.yccheok.jstock.engine.Code;
 import org.yccheok.jstock.engine.Country;
@@ -224,13 +232,13 @@ import com.google.api.client.auth.oauth2.Credential;
  *
  * @author  doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.20 03/13/2019
+ * @version 1.0.7.37.21 03/15/2019
  */
 
 public class JStock extends javax.swing.JFrame {
 
    private static final long serialVersionUID = 3554990056522905135L;
-   public static final String VERSION = "1.0.7.37.20";
+   public static final String VERSION = "1.0.7.37.21";
    
    public static final class CSVWatchlist {
         public final TableModel tableModel;
@@ -266,8 +274,8 @@ public class JStock extends javax.swing.JFrame {
         //createLookAndFeelMenuItems();
         //rebuildCountryMenuItems(true);
 
-        createStockIndicatorEditor();
-        createIndicatorScannerJPanel();
+        //createStockIndicatorEditor();
+        //createIndicatorScannerJPanel();
         createPortfolioManagementJPanel();
 
         //createIconsAndToolTipTextForJTabbedPane();
@@ -279,7 +287,8 @@ public class JStock extends javax.swing.JFrame {
         //this.initExtraDatas();
         this.initStatusBar();
         this.initMarketJPanel();
-        this.initTableHeaderToolTips();
+        //this.initTableHeaderToolTips();
+        this.watchListPanel.initTableHeaderToolTips();
         this.initMyJXStatusBarExchangeRateLabelMouseAdapter();
         this.initMyJXStatusBarCountryLabelMouseAdapter();
         this.initMyJXStatusBarImageLabelMouseAdapter();
@@ -293,12 +302,12 @@ public class JStock extends javax.swing.JFrame {
         this.initExchangeRateMonitor();
         this.initRealTimeStockMonitor();
         this.watchListPanel.initWatchlist();
-        this.initAlertStateManager();
+        //this.initAlertStateManager();
         this.initDynamicCharts();
         this.initDynamicChartVisibility();
         //this.initAlwaysOnTop();
         this.initStockHistoryMonitor();
-        this.initOthersStockHistoryMonitor();
+        //this.initOthersStockHistoryMonitor();
         this.initGUIOptions();
         this.initChartJDialogOptions();
         //this.initLanguageMenuItemsSelection();        
@@ -673,6 +682,7 @@ public class JStock extends javax.swing.JFrame {
             menuBar.setEditMenuItems(true, true, true);
             watchListPanel.requestFocusOnJComboBox();
         }
+        /*
         else if (pane.getSelectedComponent() == this.indicatorPanel) {
             menuBar.setEditMenuItems(false, false, false);
         }
@@ -680,6 +690,7 @@ public class JStock extends javax.swing.JFrame {
                 || pane.getSelectedComponent() == this.portfolioManagementJPanel) {
             menuBar.setEditMenuItems(false,  false, true);
         }
+        */
         
         if (this.isStatusBarBusy == false) {
             this.setStatusBar(false, this.getBestStatusBarMessage());
@@ -735,8 +746,8 @@ public class JStock extends javax.swing.JFrame {
         this.saveGUIOptions();
         this.saveChartJDialogOptions();
         this.saveWatchlist();
-        this.indicatorPanel.saveAlertIndicatorProjectManager();
-        this.indicatorPanel.saveModuleIndicatorProjectManager();
+        //this.indicatorPanel.saveAlertIndicatorProjectManager();
+        //this.indicatorPanel.saveModuleIndicatorProjectManager();
         this.portfolioManagementJPanel.savePortfolio();
     }
 
@@ -779,7 +790,7 @@ public class JStock extends javax.swing.JFrame {
             }
             
             watchListPanel.dettachAllAndStopAutoCompleteJComboBox();
-            this.indicatorPanel.dettachAllAndStopAutoCompleteJComboBox();
+            //this.indicatorPanel.dettachAllAndStopAutoCompleteJComboBox();
             
             log.info("latestNewsTask stop...");
 
@@ -826,15 +837,19 @@ public class JStock extends javax.swing.JFrame {
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
         this.watchListPanel.getTable().getSelectionModel().clearSelection();
-        this.indicatorScannerJPanel.clearTableSelection();
+        //this.indicatorScannerJPanel.clearTableSelection();
         this.portfolioManagementJPanel.clearTableSelection();
         this.watchListPanel.updateDynamicChart(null);
     }//GEN-LAST:event_formMouseClicked
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        if (this.indicatorPanel.promptToSaveSignificantEdits()) {
+       /* 
+       if (this.indicatorPanel.promptToSaveSignificantEdits())
+        {
             this.dispose();
         }
+        */
+       this.dispose();
     }//GEN-LAST:event_formWindowClosing
 
     /**
@@ -1031,7 +1046,7 @@ public class JStock extends javax.swing.JFrame {
             stockHistoryMonitor.clearStockCodes();
         }
         final StockTableModel tableModel = (StockTableModel) watchListPanel.getTable().getModel();                                 
-        this.initAlertStateManager();
+        //this.initAlertStateManager();
 
         if (java.awt.EventQueue.isDispatchThread()) {
             tableModel.clearAllStocks();
@@ -1147,6 +1162,7 @@ public class JStock extends javax.swing.JFrame {
         jTabbedPane1.setToolTipTextAt(portfolioTabIndex, java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString("MainFrame_ManageYourRealTimePortfolioWhichEnableYouToTrackBuyAndSellRecords"));
     }
 
+    /*
     private void createStockIndicatorEditor() {
         indicatorPanel = new IndicatorPanel();
         stockIndicatorTabIndex = jTabbedPane1.getTabCount();
@@ -1163,10 +1179,13 @@ public class JStock extends javax.swing.JFrame {
         jTabbedPane1.setToolTipTextAt(indicatorScannerTabIndex, java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString("MainFrame_ScanThroughTheEntireStockMarketSoThatYouWillBeInformedWhatToSellOrBuy"));
         jTabbedPane1.addChangeListener(indicatorScannerJPanel);
     }
+    */
     
+    /*
     private void initTableHeaderToolTips() {
         watchListPanel.initTableHeaderToolTips();
     }
+    */
 
     protected void changeCountry(Country country) {
         if (country == null) {
@@ -1207,8 +1226,8 @@ public class JStock extends javax.swing.JFrame {
         // database, as it will be the most busy. Hence, we let the stock symbol
         // database to be the last, so that its interaction will overwrite the others.
         this.portfolioManagementJPanel.initPortfolio();
-        this.indicatorScannerJPanel.stop();
-        this.indicatorScannerJPanel.clear();
+        //this.indicatorScannerJPanel.stop();
+        //this.indicatorScannerJPanel.clear();
 
         this.initGoogleCodeDatabaseRunnable();
         this.initDatabase(true);
@@ -1216,7 +1235,7 @@ public class JStock extends javax.swing.JFrame {
         this.initRealTimeIndexMonitor();
         this.initMarketJPanel();
         this.initStockHistoryMonitor();
-        this.initOthersStockHistoryMonitor();
+        //this.initOthersStockHistoryMonitor();
         this.initExchangeRateMonitor();
         // Initialize real time monitor must come before initialize real time
         // stocks. We need to submit real time stocks to real time stock monitor.
@@ -1224,7 +1243,7 @@ public class JStock extends javax.swing.JFrame {
         // must be ready (initialized).
         this.initRealTimeStockMonitor();
         this.watchListPanel.initWatchlist();
-        this.initAlertStateManager();
+        //this.initAlertStateManager();
         this.initDynamicCharts();
         // this.initDynamicChartVisibility();
 
@@ -1363,6 +1382,7 @@ public class JStock extends javax.swing.JFrame {
         return false;
     }
     
+    /*
     private void update(final Indicator indicator, Boolean result)
     {
         final boolean flag = result;
@@ -1388,7 +1408,7 @@ public class JStock extends javax.swing.JFrame {
                 @Override
                 public void run() {
                     if (jStockOptions.isSoundEnabled()) {
-                        /* Non-blocking. */
+                        // Non-blocking.
                         Utils.playAlertSound();
 
                         try {
@@ -1407,9 +1427,11 @@ public class JStock extends javax.swing.JFrame {
             catch (java.util.concurrent.RejectedExecutionException exp) {
                 log.error(null, exp);
             }
-        }   /* if(this.jStockOptions.isSoundEnabled()) */
+        }   // if(this.jStockOptions.isSoundEnabled())
     }
+    */
 
+    /*
     private org.yccheok.jstock.engine.Observer<Indicator, Boolean> getAlertStateManagerObserver() {
         return new org.yccheok.jstock.engine.Observer<Indicator, Boolean>() {
             @Override
@@ -1418,6 +1440,7 @@ public class JStock extends javax.swing.JFrame {
             }
         };
     }
+    */
 
     // This is the workaround to overcome Erasure by generics. We are unable to make MainFrame to
     // two observers at the same time.
@@ -1727,7 +1750,7 @@ public class JStock extends javax.swing.JFrame {
                         JStock.this.stockInfoDatabase = tmp_stock_info_database;
                         JStock.this.stockNameDatabase = tmp_name_database;
                         JStock.this.watchListPanel.setStockInfoDatabase(JStock.this.stockInfoDatabase);
-                        JStock.this.indicatorPanel.setStockInfoDatabase(JStock.this.stockInfoDatabase);
+                        //JStock.this.indicatorPanel.setStockInfoDatabase(JStock.this.stockInfoDatabase);
 
                         return true;
                     }                
@@ -1800,7 +1823,7 @@ public class JStock extends javax.swing.JFrame {
                         // Register the auto complete JComboBox with latest database.
                         //((AutoCompleteJComboBox)JStock.this.jComboBox1).setStockInfoDatabase(JStock.this.stockInfoDatabase);
                         watchListPanel.setStockInfoDatabase(JStock.this.stockInfoDatabase);
-                        JStock.this.indicatorPanel.setStockInfoDatabase(JStock.this.stockInfoDatabase);
+                        //JStock.this.indicatorPanel.setStockInfoDatabase(JStock.this.stockInfoDatabase);
 
                         return true;
                     }
@@ -1889,7 +1912,7 @@ public class JStock extends javax.swing.JFrame {
 
         realTimeStockMonitor.attach(this.realTimeStockMonitorObserver);
 
-        this.indicatorScannerJPanel.initRealTimeStockMonitor();
+        //this.indicatorScannerJPanel.initRealTimeStockMonitor();
         this.portfolioManagementJPanel.initRealTimeStockMonitor();
     }
 
@@ -1936,7 +1959,7 @@ public class JStock extends javax.swing.JFrame {
     
     private void saveGUIOptions() {
         _saveGUIOptions();
-        this.indicatorScannerJPanel.saveGUIOptions();
+        //this.indicatorScannerJPanel.saveGUIOptions();
         this.portfolioManagementJPanel.saveGUIOptions();
     }
     
@@ -2008,7 +2031,7 @@ public class JStock extends javax.swing.JFrame {
         rebuildRealTimeStockMonitor();
         rebuildRealTimeIndexMonitor();
 
-        this.indicatorScannerJPanel.rebuildRealTimeStockMonitor();
+        //this.indicatorScannerJPanel.rebuildRealTimeStockMonitor();
         this.portfolioManagementJPanel.rebuildRealTimeStockMonitor();
         
         this.refreshAllRealTimeStockMonitors();
@@ -2126,16 +2149,20 @@ public class JStock extends javax.swing.JFrame {
         org.yccheok.jstock.gui.Utils.deleteAllOldFiles(new File(Utils.getHistoryDirectory(country)), 1);
     }
 
+    /*
     private void initAlertStateManager() {
         alertStateManager.clearState();
         alertStateManager.attach(alertStateManagerObserver);
     }
+    */
 
+    /*
     private void initOthersStockHistoryMonitor()
     {
         this.indicatorPanel.initStockHistoryMonitor();
         this.indicatorScannerJPanel.initStockHistoryMonitor();
     }
+    */
 
     // Do not combine initOthersStockHistoryMonitor with initStockHistoryMonitor. We need to be able to update
     // only MainFrame's history monitor, when we change the history duration option. Other's history monitors
@@ -2202,7 +2229,7 @@ public class JStock extends javax.swing.JFrame {
         Country country = this.jStockOptions.getCountry();
         this.watchListPanel.setGreedyEnabled(country);
         
-        this.indicatorPanel.initAjaxProvider();
+        //this.indicatorPanel.initAjaxProvider();
     }
 
     private void initGoogleCodeDatabaseRunnable() {
@@ -2337,7 +2364,7 @@ public class JStock extends javax.swing.JFrame {
                 this.stockInfoDatabase = null;
                 this.stockNameDatabase = null;
                 this.watchListPanel.setStockInfoDatabase(null);
-                this.indicatorPanel.setStockInfoDatabase(null);
+                //this.indicatorPanel.setStockInfoDatabase(null);
             }
             
             this.databaseTask = new DatabaseTask(readFromDisk);
@@ -2493,6 +2520,7 @@ public class JStock extends javax.swing.JFrame {
             return;
         }
 
+        /*
         final StockTableModel stockTableModel = (StockTableModel) watchListPanel.getTable().getModel();
 
         for (Stock stock : stocks) {
@@ -2538,6 +2566,7 @@ public class JStock extends javax.swing.JFrame {
                 alertStateManager.clearState(RISE_ABOVE_INDICATOR, stock);
             }
         }
+        */
     }
 
     public void updateStatusBarWithLastUpdateDateMessageIfPossible() {
@@ -2663,15 +2692,17 @@ public class JStock extends javax.swing.JFrame {
         return new javax.swing.ImageIcon(getClass().getResource(imageIcon));
     }
     
+    /*
     public IndicatorProjectManager getAlertIndicatorProjectManager()
     {
         return this.indicatorPanel.getAlertIndicatorProjectManager();
     }
+    */
     
     public void updateScanningSpeed(int speed) {
         this.realTimeStockMonitor.setDelay(speed);
         this.realTimeIndexMonitor.setDelay(speed);
-        this.indicatorScannerJPanel.updateScanningSpeed(speed);
+        //this.indicatorScannerJPanel.updateScanningSpeed(speed);
     }
 
     public void updateHistoryDuration(Duration historyDuration) {
@@ -2704,6 +2735,7 @@ public class JStock extends javax.swing.JFrame {
     public void repaintTable() {
         Component c = getSelectedComponent();
         
+        /*
         if(c instanceof IndicatorScannerJPanel) {
             indicatorScannerJPanel.repaintTable();
         }
@@ -2713,6 +2745,10 @@ public class JStock extends javax.swing.JFrame {
         else {
             watchListPanel.getTable().repaint();
         }
+        */
+        
+        if (c instanceof WatchListJPanel)
+           watchListPanel.getTable().repaint();
     }
     
     private void initMarketJPanel() {
@@ -2850,7 +2886,7 @@ public class JStock extends javax.swing.JFrame {
         if (_realTimeStockMonitor != null) {
             _realTimeStockMonitor.refresh();
         }
-        this.indicatorScannerJPanel.refreshRealTimeStockMonitor();
+        //this.indicatorScannerJPanel.refreshRealTimeStockMonitor();
         this.portfolioManagementJPanel.refreshRealTimeStockMonitor();
     }
 
@@ -2868,13 +2904,13 @@ public class JStock extends javax.swing.JFrame {
     private JPanel mainMarketPanel;
     private MarketJPanel marketJPanel;
     protected WatchListJPanel watchListPanel;
-    protected IndicatorPanel indicatorPanel;
-    protected IndicatorScannerJPanel indicatorScannerJPanel;
+    //protected IndicatorPanel indicatorPanel;
+    //protected IndicatorScannerJPanel indicatorScannerJPanel;
     protected PortfolioManagementJPanel portfolioManagementJPanel;
     
     private int watchListTabIndex;
-    private int stockIndicatorTabIndex;
-    private int indicatorScannerTabIndex;
+    //private int stockIndicatorTabIndex;
+    //private int indicatorScannerTabIndex;
     private int portfolioTabIndex;
     
     private static final Log log = LogFactory.getLog(JStock.class);
@@ -2901,15 +2937,15 @@ public class JStock extends javax.swing.JFrame {
     private UIOptions uiOptions;
     private ChartJDialogOptions chartJDialogOptions;
     
-    protected final AlertStateManager alertStateManager = new AlertStateManager();
-    private final ExecutorService systemTrayAlertPool = Executors.newFixedThreadPool(1);
+    //protected final AlertStateManager alertStateManager = new AlertStateManager();
+    //private final ExecutorService systemTrayAlertPool = Executors.newFixedThreadPool(1);
     private volatile ExecutorService stockInfoDatabaseMetaPool = Executors.newFixedThreadPool(1);
     private volatile ExecutorService singleThreadExecutor = Executors.newFixedThreadPool(1);
     
     private final org.yccheok.jstock.engine.Observer<RealTimeStockMonitor, RealTimeStockMonitor.Result> realTimeStockMonitorObserver = this.getRealTimeStockMonitorObserver();
     private final org.yccheok.jstock.engine.Observer<RealTimeIndexMonitor, java.util.List<Market>> realTimeIndexMonitorObserver = this.getRealTimeIndexMonitorObserver();
     private final org.yccheok.jstock.engine.Observer<StockHistoryMonitor, StockHistoryMonitor.StockHistoryRunnable> stockHistoryMonitorObserver = this.getStockHistoryMonitorObserver();
-    private final org.yccheok.jstock.engine.Observer<Indicator, Boolean> alertStateManagerObserver = this.getAlertStateManagerObserver();
+    //private final org.yccheok.jstock.engine.Observer<Indicator, Boolean> alertStateManagerObserver = this.getAlertStateManagerObserver();
 
     private final Executor zombiePool = Utils.getZoombiePool();
 
@@ -2935,8 +2971,8 @@ public class JStock extends javax.swing.JFrame {
      * Within syncrhonized block, call getStock (To get old stock), setStock and 
      * restore back old stock.
      */
-    private static final Indicator FALL_BELOW_INDICATOR = Utils.getLastPriceFallBelowIndicator(0.0);
-    private static final Indicator RISE_ABOVE_INDICATOR = Utils.getLastPriceRiseAboveIndicator(0.0);
+    //private static final Indicator FALL_BELOW_INDICATOR = Utils.getLastPriceFallBelowIndicator(0.0);
+    //private static final Indicator RISE_ABOVE_INDICATOR = Utils.getLastPriceRiseAboveIndicator(0.0);
 
     // Do we need to save user defined database when we switch country or close
     // this application?
