@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.07 03/14/2019
+ * Version 1.0.7.37.08 03/17/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,8 @@
 //                                ExcelFile() Commented xlsFilter & Use.
 //         1.0.7.37.07 03/14/2019 Commented All Imports for import org.yccheok.jstock.analysis.*.
 //                                Commented Methods getLastPriceRiseAbove/FallBelowIndicator().
+//         1.0.7.37.08 03/17/2019 Minor Formatting Changes, On Imports. Added Class Instance
+//                                setUIManagerFont().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -64,6 +66,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.xstream.XStream;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Container;
@@ -117,16 +120,19 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -141,16 +147,20 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.basic.BasicComboPopup;
+
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -165,7 +175,9 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.jdesktop.jxlayer.JXLayer;
+
 //import org.yccheok.jstock.analysis.Connection;
 //import org.yccheok.jstock.analysis.DoubleConstantOperator;
 //import org.yccheok.jstock.analysis.EqualityOperator;
@@ -1202,6 +1214,48 @@ public class Utils {
             log.error(null, exp);
         }
         return null;
+    }
+    
+    public static void setUIManagerFont(int fontSize)
+    {
+       // Method Instances
+       Object uiObject;
+       Font uiManagerFont;
+       UIDefaults uiDefaults;
+       
+       // Setup
+       uiObject = UIManager.get("Label.font");
+       
+       if (uiObject != null && uiObject instanceof Font)
+          uiManagerFont = (Font) uiObject;
+       else
+          return;
+       
+       if (uiManagerFont.getSize() == fontSize)
+          return;
+       
+       // Collect the UI Manager keys that are fonts
+       // and update them to the new font size.
+       
+       uiDefaults = UIManager.getLookAndFeelDefaults();
+       Set<Object> hash = uiDefaults.keySet();
+       Iterator<Object> iterator = hash.iterator();
+       
+       while (iterator.hasNext())
+       {
+          Object curObj = iterator.next();
+          // System.out.println("Utils setUIManager() " + curObj.toString());
+          
+          if (curObj.toString().indexOf("font") != -1)
+          { 
+             if (fontSize > 16)
+                UIManager.put(curObj, new FontUIResource(uiManagerFont.getName(),
+                                                         Font.PLAIN, fontSize));
+             else
+                UIManager.put(curObj, new FontUIResource(uiManagerFont.getName(),
+                                                         uiManagerFont.getStyle(), fontSize));
+          }
+       }
     }
 
     /*
