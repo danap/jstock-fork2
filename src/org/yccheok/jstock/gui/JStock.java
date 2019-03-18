@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.22 03/15/2019
+ * Version 1.0.7.37.24 03/18/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,6 +147,10 @@
 //                                Over 5000 Lines of Code Now Down to Around 2600. Still Not Done.
 //         1.0.7.37.23 03/17/2019 Formatted. Began Organizing Code. Removed Inner Classes DatabaseTake &
 //                                LatestNewsTask to Separate Classes to org.yccheok.jstock.gui.
+//         1.0.7.37.24 03/18/2019 Commented Unused Imports. Made Class Instance log & DatabaseTask,
+//                                Protected. Commented Methods initStatusBar(), & All initMyJXStatusBarXXX
+//                                MouseAdapter()s. Called All These Commented Method Directly to statusBar
+//                                Class, Where Moved. Changed Method initDatabase() to Protected. 
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -158,20 +162,22 @@ package org.yccheok.jstock.gui;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+//import java.awt.event.MouseAdapter;
+//import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentHashMap;
+//import java.util.concurrent.CancellationException;
+//import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -182,7 +188,7 @@ import javafx.application.Platform;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
@@ -227,7 +233,7 @@ import org.yccheok.jstock.gui.charting.ChartJDialogOptions;
 import org.yccheok.jstock.gui.charting.DynamicChart;
 import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
-import org.yccheok.jstock.internationalization.MessagesBundle;
+//import org.yccheok.jstock.internationalization.MessagesBundle;
 import org.yccheok.jstock.network.ProxyDetector;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -235,7 +241,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.22 03/15/2019
+ * @version 1.0.7.37.24 03/18/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -243,7 +249,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.22";
+   public static final String VERSION = "1.0.7.37.24";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -252,18 +258,17 @@ public class JStock extends javax.swing.JFrame
    private MarketJPanel marketJPanel;
    protected WatchListJPanel watchListPanel;
    protected PortfolioManagementJPanel portfolioManagementJPanel;
-
+   protected final MyJXStatusBar statusBar = new MyJXStatusBar();
+   
    private int watchListTabIndex;
    private int portfolioTabIndex;
-
-   private static final Log log = LogFactory.getLog(JStock.class);
-
-   protected final MyJXStatusBar statusBar = new MyJXStatusBar();
    private boolean isStatusBarBusy = false;
 
+   protected static final Log log = LogFactory.getLog(JStock.class);
+   
    // A set of stock history which we need to display
    // GUI on them, when user request explicitly.
-   protected final java.util.Set<Code> stockCodeHistoryGUI = new java.util.HashSet<>();
+   protected final Set<Code> stockCodeHistoryGUI = new HashSet<>();
 
    protected volatile StockInfoDatabase stockInfoDatabase = null;
    // StockNameDatabase is an optional item.
@@ -273,10 +278,11 @@ public class JStock extends javax.swing.JFrame
    private RealTimeIndexMonitor realTimeIndexMonitor = null;
    protected StockHistoryMonitor stockHistoryMonitor = null;
 
-   private DatabaseTask databaseTask = null;
+   protected DatabaseTask databaseTask = null;
    protected final Object databaseTaskMonitor = new Object();
 
    private LatestNewsTask latestNewsTask = null;
+   
    protected JStockOptions jStockOptions;
    private UIOptions uiOptions;
    private ChartJDialogOptions chartJDialogOptions;
@@ -296,8 +302,8 @@ public class JStock extends javax.swing.JFrame
 
    // Use ConcurrentHashMap, enable us able to read
    // and write using different threads.
-   protected final java.util.Map<Code, DynamicChart>
-                   dynamicCharts = new java.util.concurrent.ConcurrentHashMap<Code, DynamicChart>();
+   protected final Map<Code, DynamicChart>
+                   dynamicCharts = new ConcurrentHashMap<Code, DynamicChart>();
 
    // We have 720 (6 * 60 * 2) points per chart, based
    // on 10 seconds per points, with maximum 2 hours.
@@ -378,13 +384,13 @@ public class JStock extends javax.swing.JFrame
       initPreloadDatabase(false);
       initUIOptions();
       // this.initExtraDatas();
-      initStatusBar();
+      statusBar.initStatusBar();
       initMarketJPanel();
       // this.initTableHeaderToolTips();
       watchListPanel.initTableHeaderToolTips();
-      initMyJXStatusBarExchangeRateLabelMouseAdapter();
-      initMyJXStatusBarCountryLabelMouseAdapter();
-      initMyJXStatusBarImageLabelMouseAdapter();
+      statusBar.initMyJXStatusBarExchangeRateLabelMouseAdapter();
+      statusBar.initMyJXStatusBarCountryLabelMouseAdapter();
+      statusBar.initMyJXStatusBarImageLabelMouseAdapter();
       initStockInfoDatabaseMeta();
       initGoogleCodeDatabaseRunnable();
       initIEXStockInfoDatabaseRunnable();
@@ -1189,6 +1195,7 @@ public class JStock extends javax.swing.JFrame
       menuBar.setSelectedCountryItem(country);
    }
 
+   /*
    private MouseAdapter getMyJXStatusBarExchangeRateLabelMouseAdapter()
    {
       return new MouseAdapter()
@@ -1208,7 +1215,9 @@ public class JStock extends javax.swing.JFrame
          }
       };
    }
+   */
 
+   /*
    private MouseAdapter getMyJXStatusBarCountryLabelMouseAdapter()
    {
       return new MouseAdapter()
@@ -1229,7 +1238,9 @@ public class JStock extends javax.swing.JFrame
          }
       };
    }
+   */
 
+   /*
    private MouseAdapter getMyJXStatusBarImageLabelMouseAdapter()
    {
       return new MouseAdapter()
@@ -1321,6 +1332,7 @@ public class JStock extends javax.swing.JFrame
          }
       };
    }
+   */
 
    public StockInfoDatabase getStockInfoDatabase()
    {
@@ -1599,6 +1611,7 @@ public class JStock extends javax.swing.JFrame
       return new StockInfoDatabase(stocks);
    }
 
+   /*
    private void initMyJXStatusBarExchangeRateLabelMouseAdapter()
    {
       final MouseAdapter mouseAdapter = this.getMyJXStatusBarExchangeRateLabelMouseAdapter();
@@ -1616,6 +1629,7 @@ public class JStock extends javax.swing.JFrame
       final MouseAdapter mouseAdapter = this.getMyJXStatusBarImageLabelMouseAdapter();
       this.statusBar.addImageLabelMouseListener(mouseAdapter);
    }
+   */
 
    /**
     * Initializes currency exchange monitor.
@@ -2107,7 +2121,7 @@ public class JStock extends javax.swing.JFrame
       stockInfoDatabaseMetaPool.execute(runnable);
    }
 
-   private void initDatabase(boolean readFromDisk)
+   protected void initDatabase(boolean readFromDisk)
    {
       // Update GUI state.
       this.setStatusBar(true,
@@ -2532,6 +2546,7 @@ public class JStock extends javax.swing.JFrame
       dynamicCharts.clear();
    }
 
+   /*
    private void initStatusBar()
    {
       final String message = java.util.ResourceBundle.getBundle(
@@ -2544,6 +2559,7 @@ public class JStock extends javax.swing.JFrame
       statusBar.setMainMessage(message).setImageIcon(icon, iconMessage)
             .setCountryIcon(jStockOptions.getCountry().icon, jStockOptions.getCountry().humanString);
    }
+   */
 
    protected void refreshExchangeRateMonitor()
    {
@@ -2646,7 +2662,10 @@ public class JStock extends javax.swing.JFrame
        if (!uiManagerError.toString().isEmpty())
           log.error("JStock main(): " + uiManagerError);
        
-       // Start Application
+       /***********************************************************************
+        * Start Application.
+        **********************************************************************/
+       
        java.awt.EventQueue.invokeLater(new Runnable() {
            @Override
            public void run() {
@@ -2662,8 +2681,7 @@ public class JStock extends javax.swing.JFrame
                mainFrame.updateDividerLocation();
                mainFrame.watchListPanel.requestFocusOnJComboBox();
            }
-       });
-       
+       });  
    }
    
    public static final class CSVWatchlist
