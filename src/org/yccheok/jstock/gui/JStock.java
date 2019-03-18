@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.24 03/18/2019
+ * Version 1.0.7.37.25 03/18/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,7 +150,8 @@
 //         1.0.7.37.24 03/18/2019 Commented Unused Imports. Made Class Instance log & DatabaseTask,
 //                                Protected. Commented Methods initStatusBar(), & All initMyJXStatusBarXXX
 //                                MouseAdapter()s. Called All These Commented Method Directly to statusBar
-//                                Class, Where Moved. Changed Method initDatabase() to Protected. 
+//                                Class, Where Moved. Changed Method initDatabase() to Protected.
+//         1.0.7.37.25 03/18/2019 Cleaned Out Commented Code From 1.0.7.37.24.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -162,8 +163,6 @@ package org.yccheok.jstock.gui;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-//import java.awt.event.MouseAdapter;
-//import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -176,8 +175,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-//import java.util.concurrent.CancellationException;
-//import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -188,7 +185,6 @@ import javafx.application.Platform;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-//import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
@@ -233,7 +229,6 @@ import org.yccheok.jstock.gui.charting.ChartJDialogOptions;
 import org.yccheok.jstock.gui.charting.DynamicChart;
 import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
-//import org.yccheok.jstock.internationalization.MessagesBundle;
 import org.yccheok.jstock.network.ProxyDetector;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -241,7 +236,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.24 03/18/2019
+ * @version 1.0.7.37.25 03/18/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -249,7 +244,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.24";
+   public static final String VERSION = "1.0.7.37.25";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -1195,145 +1190,6 @@ public class JStock extends javax.swing.JFrame
       menuBar.setSelectedCountryItem(country);
    }
 
-   /*
-   private MouseAdapter getMyJXStatusBarExchangeRateLabelMouseAdapter()
-   {
-      return new MouseAdapter()
-      {
-         @Override
-         public void mouseClicked(MouseEvent e)
-         {
-            if (e.getClickCount() == 2)
-            {
-               // Popup dialog to select currency exchange option.
-               OptionsJDialog optionsJDialog = new OptionsJDialog(JStock.this, true);
-               optionsJDialog.setLocationRelativeTo(JStock.this);
-               optionsJDialog.set(jStockOptions);
-               optionsJDialog.select(GUIBundle.getString("OptionsJPanel_Wealth"));
-               optionsJDialog.setVisible(true);
-            }
-         }
-      };
-   }
-   */
-
-   /*
-   private MouseAdapter getMyJXStatusBarCountryLabelMouseAdapter()
-   {
-      return new MouseAdapter()
-      {
-         @Override
-         public void mouseClicked(MouseEvent e)
-         {
-            if (e.getClickCount() == 2)
-            {
-               CountryJDialog countryJDialog = new CountryJDialog(JStock.this, true);
-               countryJDialog.setLocationRelativeTo(JStock.this);
-               countryJDialog.setCountry(jStockOptions.getCountry());
-               countryJDialog.setVisible(true);
-
-               final Country country = countryJDialog.getCountry();
-               changeCountry(country);
-            }
-         }
-      };
-   }
-   */
-
-   /*
-   private MouseAdapter getMyJXStatusBarImageLabelMouseAdapter()
-   {
-      return new MouseAdapter()
-      {
-         @Override
-         public void mouseClicked(MouseEvent e)
-         {
-            if (e.getClickCount() == 2)
-            {
-               // Make sure no other task is running.
-               // Use local variable to be thread safe.
-               
-               final DatabaseTask task = JStock.this.databaseTask;
-               
-               if (task != null)
-               {
-                  if (task.isDone() == true)
-                  {
-                     // Task is done. But, does it success?
-                     boolean success = false;
-                     // Some developers suggest that check for isCancelled
-                     // before calling get
-                     // to avoid CancellationException. Others suggest that just
-                     // perform catch
-                     // on all Exceptions. I will do it both.
-                     if (task.isCancelled() == false)
-                     {
-                        try
-                        {
-                           success = task.get();
-                        }
-                        catch (InterruptedException ex){log.error(null, ex);}
-                        catch (ExecutionException ex){log.error(null, ex);}
-                        catch (CancellationException ex){log.error(null, ex);}
-                     }
-                     
-                     if (success == false)
-                     {
-                        // Fail. Automatically reload database for user. Need
-                        // not to prompt them message.
-                        // As, they do not have any database right now.
-                        JStock.this.initDatabase(true);
-
-                     }
-                     else
-                     {
-                        final int result = JOptionPane.showConfirmDialog(JStock.this,
-                           MessagesBundle.getString("question_message_perform_server_reconnecting"),
-                           MessagesBundle.getString("question_title_perform_server_reconnecting"),
-                           JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                        
-                        if (result == JOptionPane.YES_OPTION)
-                           JStock.this.initDatabase(false);
-                     }
-                  }
-                  else
-                  {
-                     // There is task still running. Ask user whether he wants
-                     // to stop it.
-                     final int result = JOptionPane.showConfirmDialog(JStock.this,
-                        MessagesBundle.getString("question_message_cancel_server_reconnecting"),
-                        MessagesBundle.getString("question_title_cancel_server_reconnecting"),
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-                     if (result == JOptionPane.YES_OPTION)
-                     {
-                        synchronized (JStock.this.databaseTaskMonitor)
-                        {
-                           JStock.this.databaseTask.cancel(true);
-                           JStock.this.databaseTask = null;
-                        }
-
-                        setStatusBar(false, GUIBundle.getString("MainFrame_NetworkError"));
-                        statusBar.setImageIcon(
-                           getImageIcon("/images/16x16/network-error.png"),
-                           java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
-                              "MainFrame_DoubleClickedToTryAgain"));
-                     }
-                  }
-               }
-               else
-               {
-                  // User cancels databaseTask explicitly. (Cancel while
-                  // JStock is fetching database from server). Let's read
-                  // from disk.
-                  initDatabase(true);
-               }
-            }
-         }
-      };
-   }
-   */
-
    public StockInfoDatabase getStockInfoDatabase()
    {
       return this.stockInfoDatabase;
@@ -1610,26 +1466,6 @@ public class JStock extends javax.swing.JFrame
       }
       return new StockInfoDatabase(stocks);
    }
-
-   /*
-   private void initMyJXStatusBarExchangeRateLabelMouseAdapter()
-   {
-      final MouseAdapter mouseAdapter = this.getMyJXStatusBarExchangeRateLabelMouseAdapter();
-      this.statusBar.addExchangeRateLabelMouseListener(mouseAdapter);
-   }
-
-   private void initMyJXStatusBarCountryLabelMouseAdapter()
-   {
-      final MouseAdapter mouseAdapter = this.getMyJXStatusBarCountryLabelMouseAdapter();
-      this.statusBar.addCountryLabelMouseListener(mouseAdapter);
-   }
-
-   private void initMyJXStatusBarImageLabelMouseAdapter()
-   {
-      final MouseAdapter mouseAdapter = this.getMyJXStatusBarImageLabelMouseAdapter();
-      this.statusBar.addImageLabelMouseListener(mouseAdapter);
-   }
-   */
 
    /**
     * Initializes currency exchange monitor.
@@ -2545,21 +2381,6 @@ public class JStock extends javax.swing.JFrame
    {
       dynamicCharts.clear();
    }
-
-   /*
-   private void initStatusBar()
-   {
-      final String message = java.util.ResourceBundle.getBundle(
-         "org/yccheok/jstock/data/gui").getString(
-            "MainFrame_ConnectingToStockServerToRetrieveStockInformation...");
-      final ImageIcon icon = getImageIcon("/images/16x16/network-connecting.png");
-      final String iconMessage = java.util.ResourceBundle.getBundle(
-         "org/yccheok/jstock/data/gui").getString("MainFrame_Connecting...");
-
-      statusBar.setMainMessage(message).setImageIcon(icon, iconMessage)
-            .setCountryIcon(jStockOptions.getCountry().icon, jStockOptions.getCountry().humanString);
-   }
-   */
 
    protected void refreshExchangeRateMonitor()
    {
