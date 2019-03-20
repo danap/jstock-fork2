@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2009 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 03/20/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,23 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui OptionsJPanel Class.
+//         1.0.7.37.01 03/20/2019 Commented Options Panels OptionsAlertJPanel, OptionsIndicator
+//                                JPanel, & OptionsUpdateJPanel Along Same Conditionals in
+//                                apply() in Addition to Large Font Option. Commented Instances
+//                                oldUseLargeFont & newUseLargeFont in apply(). DMP.
+//
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.gui;
 
@@ -29,6 +49,8 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
 /**
  *
  * @author  yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 03/20/2019
  */
 public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsObserver {
     
@@ -92,45 +114,45 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
     }
     
     private void initOptionsJPanels() {
-        optionsAlertJPanel = new OptionsAlertJPanel();
-        optionsIndicatorJPanel = new OptionsIndicatorJPanel();
+        //optionsAlertJPanel = new OptionsAlertJPanel();
+        //optionsIndicatorJPanel = new OptionsIndicatorJPanel();
         optionsNetworkJPanel = new OptionsNetworkJPanel();
         optionsSpeedJPanel = new OptionsSpeedJPanel();
         optionsColorJPanel = new OptionsColorJPanel();
         optionsBrokerJPanel = new OptionsBrokerJPanel();
         optionsSellAdvisorJPanel = new OptionsSellAdvisorJPanel();
         optionsGUIJPanel = new OptionGUIJPanel();
-        optionsUpdateJPanel = new OptionsUpdateJPanel();
+        //optionsUpdateJPanel = new OptionsUpdateJPanel();
 
         // The size of OptionsJPanel, will be determined by the first added panel.
         addButton(GUIBundle.getString("OptionsJPanel_Broker"), "/images/32x32/calc.png", optionsBrokerJPanel, jButtonBar1, buttonGroup1);
         addButton(GUIBundle.getString("OptionsJPanel_Wealth"), "/images/32x32/money3.png", optionsSellAdvisorJPanel, jButtonBar1, buttonGroup1);
-        addButton(GUIBundle.getString("OptionsJPanel_Alert"), "/images/32x32/bell.png", optionsAlertJPanel, jButtonBar1, buttonGroup1);
+        //addButton(GUIBundle.getString("OptionsJPanel_Alert"), "/images/32x32/bell.png", optionsAlertJPanel, jButtonBar1, buttonGroup1);
         addButton(GUIBundle.getString("OptionsJPanel_GUI"), "/images/32x32/kchart.png", optionsGUIJPanel, jButtonBar1, buttonGroup1);
         addButton(GUIBundle.getString("OptionsJPanel_Speed"), "/images/32x32/clock.png", optionsSpeedJPanel, jButtonBar1, buttonGroup1);
         addButton(GUIBundle.getString("OptionsJPanel_Color"), "/images/32x32/colors.png", optionsColorJPanel, jButtonBar1, buttonGroup1);
         addButton(GUIBundle.getString("OptionsJPanel_Network"), "/images/32x32/connect_to_network.png", optionsNetworkJPanel, jButtonBar1, buttonGroup1);
-        addButton(GUIBundle.getString("OptionsJPanel_Indicator"), "/images/32x32/find.png", optionsIndicatorJPanel, jButtonBar1, buttonGroup1);
-        addButton(GUIBundle.getString("OptionsJPanel_Update"), "/images/32x32/epiphany-download.png", optionsUpdateJPanel, jButtonBar1, buttonGroup1);
+        //addButton(GUIBundle.getString("OptionsJPanel_Indicator"), "/images/32x32/find.png", optionsIndicatorJPanel, jButtonBar1, buttonGroup1);
+        //addButton(GUIBundle.getString("OptionsJPanel_Update"), "/images/32x32/epiphany-download.png", optionsUpdateJPanel, jButtonBar1, buttonGroup1);
     }
 
     @Override
     public void set(JStockOptions jStockOptions) {
         optionsBrokerJPanel.set(jStockOptions);
         optionsColorJPanel.set(jStockOptions);
-        optionsAlertJPanel.set(jStockOptions);
+        //optionsAlertJPanel.set(jStockOptions);
         optionsNetworkJPanel.set(jStockOptions);
-        optionsIndicatorJPanel.set(jStockOptions);
+        //optionsIndicatorJPanel.set(jStockOptions);
         optionsSpeedJPanel.set(jStockOptions);       
         optionsSellAdvisorJPanel.set(jStockOptions);
         optionsGUIJPanel.set(jStockOptions);
-        optionsUpdateJPanel.set(jStockOptions);
+        //optionsUpdateJPanel.set(jStockOptions);
     }
 
     public void cancel() {
         optionsNetworkJPanel.cancel();
-        optionsAlertJPanel.cancel();
-        optionsUpdateJPanel.cancel();
+        //optionsAlertJPanel.cancel();
+        //optionsUpdateJPanel.cancel();
     }
 
     @Override
@@ -145,7 +167,7 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
             return false;
         }
 
-        final boolean oldUseLargeFont = jStockOptions.useLargeFont();        
+        //final boolean oldUseLargeFont = jStockOptions.useLargeFont();        
         if (optionsGUIJPanel.apply(jStockOptions) == false)
         {
             final JToggleButton button = map.get(GUIBundle.getString("OptionsJPanel_GUI"));
@@ -154,7 +176,7 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
             button.doClick();
             return false;
         }
-        final boolean newUseLargeFont = jStockOptions.useLargeFont();
+        //final boolean newUseLargeFont = jStockOptions.useLargeFont();
         
         if (optionsColorJPanel.apply(jStockOptions) == false)
         {
@@ -165,6 +187,7 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
             return false;
         }
         
+        /*
         if (optionsAlertJPanel.apply(jStockOptions) == false)
         {
             final JToggleButton button = map.get(GUIBundle.getString("OptionsJPanel_Alert"));
@@ -173,7 +196,9 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
             button.doClick();
             return false;
         }
+        */
 
+        /*
         if (optionsIndicatorJPanel.apply(jStockOptions) == false)
         {
             final JToggleButton button = map.get(GUIBundle.getString("OptionsJPanel_Indicator"));
@@ -182,6 +207,7 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
             button.doClick();
             return false;
         }
+        */
         
         if (optionsNetworkJPanel.apply(jStockOptions) == false)
         {
@@ -210,6 +236,7 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
             return false;
         }
 
+        /*
         if(optionsUpdateJPanel.apply(jStockOptions) == false)
         {
             final JToggleButton button = map.get(GUIBundle.getString("OptionsJPanel_Update"));
@@ -218,13 +245,16 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
             button.doClick();
             return false;
         }
+        */
         
+        /*
         if (oldUseLargeFont != newUseLargeFont) {
             final int result = JOptionPane.showConfirmDialog(this, MessagesBundle.getString("question_message_restart_now"), MessagesBundle.getString("question_title_restart_now"), JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) {
                 org.yccheok.jstock.gui.Utils.restartApplication(JStock.instance());
             }
         }
+        */
         
         return true;
     }
@@ -245,15 +275,15 @@ public class OptionsJPanel extends javax.swing.JPanel implements JStockOptionsOb
     }
 
     private Component currentComponent;
-    private OptionsAlertJPanel optionsAlertJPanel;
+    //private OptionsAlertJPanel optionsAlertJPanel;
     private OptionsNetworkJPanel optionsNetworkJPanel;
-    private OptionsIndicatorJPanel optionsIndicatorJPanel;
+    //private OptionsIndicatorJPanel optionsIndicatorJPanel;
     private OptionsSpeedJPanel optionsSpeedJPanel;
     private OptionsColorJPanel optionsColorJPanel;
     private OptionsBrokerJPanel optionsBrokerJPanel;
     private OptionsSellAdvisorJPanel optionsSellAdvisorJPanel;
     private OptionGUIJPanel optionsGUIJPanel;
-    private OptionsUpdateJPanel optionsUpdateJPanel;
+    //private OptionsUpdateJPanel optionsUpdateJPanel;
 
     private java.util.Map<String, JToggleButton> map = new java.util.HashMap<String, JToggleButton>();
     
