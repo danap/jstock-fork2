@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.05 03/14/2019
+ * Version 1.0.7.37.06 03/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,10 @@
 //         1.0.7.37.04 03/13/2019 Added Method initWatchList().
 //         1.0.7.37.05 03/14/2019 Method deleteSelectedRow() Removed Call to alertStateManager.clear
 //                                State().
+//         1.0.7.37.06 03/21/2019 Added Class Method displayHistoryCharts(). Referenced in Place of
+//                                JStock.instance() of Same. Method createPopupMenu() actionPerformed()
+//                                for Stock News Added Code Directly to Find Table Row & Redirect to
+//                                JStock.instance().displayStockNews().
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -95,7 +99,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.05 03/14/2019
+ * @version 1.0.7.37.06 03/21/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -417,7 +421,7 @@ public class WatchListJPanel extends JPanel
       }
       else if (KeyEvent.VK_ENTER == evt.getKeyCode())
       {
-         JStock.instance().displayHistoryCharts();
+         displayHistoryCharts();
          return;
       }
       else if (evt.isActionKey())
@@ -435,6 +439,24 @@ public class WatchListJPanel extends JPanel
          }
          else
             updateDynamicChart(null);
+      }
+   }
+   
+   //==============================================================
+   // Class method to display a frame of the selected(s) news.
+   //==============================================================
+   
+   private void displayHistoryCharts()
+   {
+      int rows[] = watchListTable.getSelectedRows();
+      
+      final StockTableModel tableModel = (StockTableModel) watchListTable.getModel();
+
+      for (int row : rows)
+      {
+         final int modelIndex = watchListTable.getRowSorter().convertRowIndexToModel(row);
+         Stock stock = tableModel.getStock(modelIndex);
+         JStock.instance().displayHistoryChart(StockInfo.newInstance(stock));
       }
    }
 
@@ -658,7 +680,7 @@ public class WatchListJPanel extends JPanel
          {
             // by definition of a dbl-click this will always only show one chart
             // because the dbl-click action cannot have multiple items selected
-            JStock.instance().displayHistoryCharts();
+            displayHistoryCharts();
          }
       }
 
@@ -700,7 +722,7 @@ public class WatchListJPanel extends JPanel
             @Override
             public void actionPerformed(ActionEvent evt)
             {
-               JStock.instance().displayHistoryCharts();
+               displayHistoryCharts();
             }
          });
 
@@ -713,7 +735,16 @@ public class WatchListJPanel extends JPanel
             @Override
             public void actionPerformed(ActionEvent evt)
             {
-               JStock.instance().displayStocksNews();
+               //JStock.instance().displayStocksNews();
+               int rows[] = watchListTable.getSelectedRows();
+               final StockTableModel tableModel = (StockTableModel) watchListTable.getModel();
+
+               for (int row : rows)
+               {
+                  final int modelIndex = watchListTable.getRowSorter().convertRowIndexToModel(row);
+                  final Stock stock = tableModel.getStock(modelIndex);
+                  JStock.instance().displayStockNews(StockInfo.newInstance(stock));
+               }
             }
          });
          popup.add(menuItem);
