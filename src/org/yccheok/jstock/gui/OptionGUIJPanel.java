@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 03/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +19,32 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui OptionsGUIJPanel Class.
+//         1.0.7.37.01 02/14/2019 Commented Class Instance jCheckBox2, useLargeFont,
+//                                & Replaced With fontSizeSpinner.
+//
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.gui;
+
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 03/21/2019
  */
 public class OptionGUIJPanel extends javax.swing.JPanel implements JStockOptionsObserver {
 
@@ -53,7 +76,9 @@ public class OptionGUIJPanel extends javax.swing.JPanel implements JStockOptions
         jPanel4 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
         jPanel5 = new javax.swing.JPanel();
-        jCheckBox2 = new javax.swing.JCheckBox();
+        //jCheckBox2 = new javax.swing.JCheckBox();
+        javax.swing.SpinnerNumberModel fontSizeSpinnerModel = new SpinnerNumberModel(12, 8, 24, 1);
+        fontSizeSpinner = new JSpinner(fontSizeSpinnerModel);
 
         setLayout(new java.awt.BorderLayout());
 
@@ -150,7 +175,10 @@ public class OptionGUIJPanel extends javax.swing.JPanel implements JStockOptions
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("OptionsGUIJPanel_Font"))); // NOI18N
 
-        jCheckBox2.setText(bundle.getString("OptionsGUIJPanel_UseLargeFont")); // NOI18N
+        javax.swing.JPanel fontPanel = new javax.swing.JPanel();
+        fontPanel.add(new javax.swing.JLabel("Font Size"));
+        fontPanel.add(fontSizeSpinner);
+        fontPanel.add(new javax.swing.JLabel("(Restart Required)"));
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -158,14 +186,16 @@ public class OptionGUIJPanel extends javax.swing.JPanel implements JStockOptions
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jCheckBox2)
+                //.addComponent(jCheckBox2)
+                .addComponent(fontPanel)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jCheckBox2)
+                //.addComponent(jCheckBox2)
+                .addComponent(fontPanel)
                 .addContainerGap())
         );
 
@@ -204,7 +234,8 @@ public class OptionGUIJPanel extends javax.swing.JPanel implements JStockOptions
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
+    //private javax.swing.JCheckBox jCheckBox2;
+    private javax.swing.JSpinner fontSizeSpinner;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -238,7 +269,8 @@ public class OptionGUIJPanel extends javax.swing.JPanel implements JStockOptions
         
         jCheckBox1.setSelected(jStockOptions.isDynamicChartVisible());
         
-        jCheckBox2.setSelected(jStockOptions.useLargeFont());
+        //jCheckBox2.setSelected(jStockOptions.useLargeFont());
+        fontSizeSpinner.setValue(jStockOptions.getFontSize());
     }
 
     @Override
@@ -261,7 +293,8 @@ public class OptionGUIJPanel extends javax.swing.JPanel implements JStockOptions
         
         jStockOptions.setDynamicChartVisible(jCheckBox1.isSelected());
         
-        jStockOptions.setUseLargeFont(jCheckBox2.isSelected());
+        //jStockOptions.setUseLargeFont(jCheckBox2.isSelected());
+        jStockOptions.setFontSize(Integer.parseInt(fontSizeSpinner.getValue().toString())); 
         
         return true;
     }
