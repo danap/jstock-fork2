@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 03/09/2019
+ * Version 1.0.7.37.02 03/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,21 @@
 //                                Associated Imports Required. Commented Class Istances
 //                                driveWealthBuy/SellOption & Their Associated Getter/
 //                                Setters.
+//         1.0.7.37.02 03/21/2019 Commented Alert Instances popupMessage, soundEnabled,
+//                                sendEmail, email, & CCEmail Along With Associated Getter/
+//                                Setters Other. Commented Indicator Instance singleIndicatorAlert,
+//                                Along With Associated Getter/Setters Other. Commented Update
+//                                isAutoUpdateNewsEnabled, & newsID Along With Getter/Setters
+//                                Other. Removed Class Instances googleUsername, googlePassword,
+//                                rememberGoogleAccountEnabled. Removed Instance looknFeel &
+//                                Associated Getter/Setters. Added Class Instance fontSize &
+//                                Getter/Setters. Removed Class Instances isChatEnabled, chatUsername,
+//                                chatPassword, isChatSoundNotificationEnabled, isChatFlashNotification
+//                                Enabled, chatSystemMessageColor, chatOwnMessageColor, chatOther
+//                                & MessageColor Along With Getter/Setters Other. Commented Deprecated
+//                                Instances. What a Mess of Code, Added DEFAULT_FONTSIZE. Commented
+//                                Methods inSensitiveCopy/Clone(). Commented useLargeFonts &
+//                                Associated setUseLargeFont().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -62,7 +77,7 @@ import org.yccheok.jstock.portfolio.DecimalPlace;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 03/09/2019
+ * @version 1.0.7.37.02 03/21/2019
  */
 public class JStockOptions {
     /*
@@ -128,6 +143,8 @@ public class JStockOptions {
         Dark
     }
     
+    public static final int DEFAULT_FONTSIZE = 12;
+    
     public static final java.awt.Color DEFAULT_NORMAL_TEXT_FOREGROUND_COLOR = Color.BLACK;
     public static final java.awt.Color DEFAULT_HIGHER_NUMERICAL_VALUE_FOREGROUND_COLOR = new java.awt.Color(50, 150, 0);
     public static final java.awt.Color DEFAULT_LOWER_NUMERICAL_VALUE_FOREGROUND_COLOR = new java.awt.Color(200, 0, 50);
@@ -154,10 +171,10 @@ public class JStockOptions {
     
     /** Creates a new instance of JStockOptions */
     public JStockOptions() {
-        this.popupMessage = true;
-        this.sendEmail = false;
-        this.CCEmail = "";
-        this.singleIndicatorAlert = true;
+        //this.popupMessage = true;
+        //this.sendEmail = false;
+        //this.CCEmail = "";
+        //this.singleIndicatorAlert = true;
         this.proxyServer = "";
         this.proxyPort = -1;
         // In milliseconds.
@@ -165,10 +182,11 @@ public class JStockOptions {
         this.indicatorScanningSpeed = 30*1000;
         // In seconds.
         this.alertSpeed = 5;
-        this.looknFeel = null;
+        //this.looknFeel = null;
+        fontSize = DEFAULT_FONTSIZE;
         this.alwaysOnTop = false;
         this.country = Country.UnitedState;
-        this.soundEnabled = false;
+        //this.soundEnabled = false;
 
         this.normalTextForegroundColor = DEFAULT_NORMAL_TEXT_FOREGROUND_COLOR;
         this.higherNumericalValueForegroundColor = DEFAULT_HIGHER_NUMERICAL_VALUE_FOREGROUND_COLOR;
@@ -182,25 +200,25 @@ public class JStockOptions {
         this.autoUpdateBackgroundColor = DEFAULT_AUTO_UPDATE_BACKGROUND_COLOR;
 
         this.enableColorAlert = false;
-        this.fallBelowAlertForegroundColor = DEFAULT_FALL_BELOW_ALERT_FOREGROUND_COLOR;
+        //this.fallBelowAlertForegroundColor = DEFAULT_FALL_BELOW_ALERT_FOREGROUND_COLOR;
         this.fallBelowAlertBackgroundColor = DEFAULT_FALL_BELOW_ALERT_BACKGROUND_COLOR;
         this.riseAboveAlertForegroundColor = DEFAULT_RISE_ABOVE_ALERT_FOREGROUND_COLOR;
         this.riseAboveAlertBackgroundColor = DEFAULT_RISE_ABOVE_ALERT_BACKGROUND_COLOR;
 
-        this.isAutoUpdateNewsEnabled = true;
-        this.newsID = "";
+        //this.isAutoUpdateNewsEnabled = true;
+        //this.newsID = "";
 
         this.historyDuration = DEFAULT_HISTORY_DURATION;
 
-        this.isChatEnabled = false;
-        this.chatUsername = "";
-        this.chatPassword = "";
-        this.isChatFlashNotificationEnabled = true;
-        this.isChatSoundNotificationEnabled = true;
+        //this.isChatEnabled = false;
+        //this.chatUsername = "";
+        //this.chatPassword = "";
+        //this.isChatFlashNotificationEnabled = true;
+        //this.isChatSoundNotificationEnabled = true;
 
-        this.chatSystemMessageColor = DEFAULT_CHAT_SYSTEM_MESSAGE_COLOR;
-        this.chatOwnMessageColor = DEFAULT_CHAT_OWN_MESSAGE_COLOR;
-        this.chatOtherMessageColor = DEFAULT_CHAT_OTHER_MESSAGE_COLOR;
+        //this.chatSystemMessageColor = DEFAULT_CHAT_SYSTEM_MESSAGE_COLOR;
+        //this.chatOwnMessageColor = DEFAULT_CHAT_OWN_MESSAGE_COLOR;
+        //this.chatOtherMessageColor = DEFAULT_CHAT_OTHER_MESSAGE_COLOR;
 
         this.yellowInformationBoxOption = DEFAULT_YELLOW_INFORMATION_BOX_OPTION;
         this.stockInputSuggestionListOption = DEFAULT_STOCK_INPUT_SUGGESTION_LIST_OPTION;
@@ -212,27 +230,27 @@ public class JStockOptions {
         initRecentCountries();
     }
 
-    private boolean soundEnabled;
-    private boolean singleIndicatorAlert;
-    private boolean popupMessage;
-    private boolean sendEmail;
+    //private boolean soundEnabled;
+    //private boolean singleIndicatorAlert;
+    //private boolean popupMessage;
+    //private boolean sendEmail;
     
-    @Deprecated
-    private transient String email;
-    @Deprecated
-    private transient String emailPassword;
+    //@Deprecated
+    //private transient String email;
+    //@Deprecated
+    //private transient String emailPassword;
     
-    private String CCEmail;
-    @Deprecated
-    private transient String googleCalendarUsername;
-    @Deprecated
-    private transient String googleCalendarPassword;
-    @Deprecated
-    private transient boolean SMSEnabled;
-    @Deprecated
-    private transient boolean passwordProtectedIndicator;
-    @Deprecated
-    private transient String indicatorPassword;
+    //private String CCEmail;
+    //@Deprecated
+    //private transient String googleCalendarUsername;
+    //@Deprecated
+    //private transient String googleCalendarPassword;
+    //@Deprecated
+    //private transient boolean SMSEnabled;
+    //@Deprecated
+    //private transient boolean passwordProtectedIndicator;
+    //@Deprecated
+    //private transient String indicatorPassword;
     private String proxyServer;
     private int proxyPort;
     
@@ -245,8 +263,10 @@ public class JStockOptions {
     private int alertSpeed;
     // Opps! Spelling mistake (Should be lookNFeel). However, due to XML
     // serialization compatibility, we decide not to fix it.
-    private String looknFeel;
+    //private String looknFeel;
     private boolean alwaysOnTop;
+    
+    private int fontSize;
 
     private Color normalTextForegroundColor;
     private Color lowerNumericalValueForegroundColor;
@@ -255,10 +275,10 @@ public class JStockOptions {
     private Color secondRowBackgroundColor;
     private Color autoUpdateForegroundColor;
     private Color autoUpdateBackgroundColor;
-    @Deprecated
-    private transient Color alertForegroundColor;
-    @Deprecated
-    private transient Color alertBackgroundColor;
+    //@Deprecated
+    //private transient Color alertForegroundColor;
+    //@Deprecated
+    //private transient Color alertBackgroundColor;
     // As replacement for alertForegroundColor and alertBackgroundColor.
     private Color fallBelowAlertForegroundColor;
     private Color fallBelowAlertBackgroundColor;
@@ -270,28 +290,28 @@ public class JStockOptions {
 
     private List<BrokingFirm> brokingFirms = new ArrayList<BrokingFirm>();
     private int selectedBrokingFirmIndex = -1;
-    @Deprecated
-    private transient boolean isAutoBrokerFeeCalculationEnabled = false;
+    //@Deprecated
+    //private transient boolean isAutoBrokerFeeCalculationEnabled = false;
     
     private double expectedProfitPercentage = 10.0;
 
     private Country country;
 
-    private boolean isAutoUpdateNewsEnabled;
-    @Deprecated
-    private transient long newsVersion;
-    private String newsID;
+    //private boolean isAutoUpdateNewsEnabled;
+    //@Deprecated
+    //private transient long newsVersion;
+    //private String newsID;
 
     private int historyDuration; /* In years */
 
-    private boolean isChatEnabled = false;
-    private String chatUsername = "";
-    private String chatPassword = "";
-    private boolean isChatSoundNotificationEnabled = true;
-    private boolean isChatFlashNotificationEnabled = true;
-    private Color chatSystemMessageColor;
-    private Color chatOwnMessageColor;
-    private Color chatOtherMessageColor;
+    //private boolean isChatEnabled = false;
+    //private String chatUsername = "";
+    //private String chatPassword = "";
+    //private boolean isChatSoundNotificationEnabled = true;
+    //private boolean isChatFlashNotificationEnabled = true;
+    //private Color chatSystemMessageColor;
+    //private Color chatOwnMessageColor;
+    //private Color chatOtherMessageColor;
 
     // We want to avoid from having too frequent credentials creation during
     // runtime. We will immediately contruct credentials, once we load the
@@ -307,21 +327,21 @@ public class JStockOptions {
     //private DriveWealthBuySellOption driveWealthBuyOption = null;
     //private DriveWealthBuySellOption driveWealthSellOption = null;
     
-    @Deprecated
-    private transient boolean rememberGoogleAccountEnabled = false;
-    @Deprecated
-    private transient String googleUsername = "";
-    @Deprecated
-    private transient String googlePassword = "";
+    //@Deprecated
+    //private transient boolean rememberGoogleAccountEnabled = false;
+    //@Deprecated
+    //private transient String googleUsername = "";
+    //@Deprecated
+    //private transient String googlePassword = "";
 
     // Remember where we save/open the last file.
     private String lastFileIODirectory = System.getProperty("user.home");
     private String lastFileNameExtensionDescription = "CSV Documents (*.csv)";
 
-    @Deprecated
-    private transient Map<Country, Class> primaryStockServerFactoryClasses = new EnumMap<Country, Class>(Country.class);
-    @Deprecated
-    private transient Boolean primaryStockServerFactoryClassesIsValidForMalaysia = true;
+    //@Deprecated
+    //private transient Map<Country, Class> primaryStockServerFactoryClasses = new EnumMap<Country, Class>(Country.class);
+    //@Deprecated
+    //private transient Boolean primaryStockServerFactoryClassesIsValidForMalaysia = true;
     
     // Remember the last view page.
     private int lastSelectedPageIndex = 0;
@@ -329,15 +349,15 @@ public class JStockOptions {
     private int lastSelectedBuyPortfolioChartIndex = 0;
     
     // Use -1 to indicate unlimited SMS per day.
-    @Deprecated
-    private transient int maxSMSPerDay = -1;
+    //@Deprecated
+    //private transient int maxSMSPerDay = -1;
 
-    @Deprecated
-    private transient String portfolioName = org.yccheok.jstock.portfolio.Utils.getDefaultPortfolioName();
+    //@Deprecated
+    //private transient String portfolioName = org.yccheok.jstock.portfolio.Utils.getDefaultPortfolioName();
     private Map<Country, String> portfolioNames = new EnumMap<Country, String>(Country.class);
 
-    @Deprecated
-    private transient String watchlistName = org.yccheok.jstock.watchlist.Utils.getDefaultWatchlistName();
+    //@Deprecated
+    //private transient String watchlistName = org.yccheok.jstock.watchlist.Utils.getDefaultWatchlistName();
     private Map<Country, String> watchlistNames = new EnumMap<Country, String>(Country.class);
     
     private YellowInformationBoxOption yellowInformationBoxOption = YellowInformationBoxOption.Follow;
@@ -359,11 +379,11 @@ public class JStockOptions {
 
     private Map<Country, Country> localCurrencyCountries = new EnumMap<Country, Country>(Country.class);
 
-    @Deprecated
-    private transient Map<Country, Boolean> penceToPoundConversionEnabled = new EnumMap<Country, Boolean>(Country.class);
+    //@Deprecated
+    //private transient Map<Country, Boolean> penceToPoundConversionEnabled = new EnumMap<Country, Boolean>(Country.class);
     
-    @Deprecated
-    private transient Map<Country, Boolean> fourDecimalPlacesEnabled = new EnumMap<Country, Boolean>(Country.class);
+    //@Deprecated
+    //private transient Map<Country, Boolean> fourDecimalPlacesEnabled = new EnumMap<Country, Boolean>(Country.class);
     
     private Map<Country, DecimalPlace> decimalPlaces = new EnumMap<>(Country.class);
     
@@ -375,7 +395,7 @@ public class JStockOptions {
     
     private boolean isFeeCalculationEnabled = false;
         
-    private boolean useLargeFont = false;
+    //private boolean useLargeFont = false;
     
     private boolean isDynamicChartVisible = false;
     
@@ -384,9 +404,10 @@ public class JStockOptions {
     private long iexStockInfoDBMeta = 0;
     
     // Will be used by LoadFromCloudDialog.
+    /*
     public void insensitiveCopy(JStockOptions jStockOptions) {
         this.singleIndicatorAlert = jStockOptions.singleIndicatorAlert;
-        this.popupMessage = jStockOptions.popupMessage;
+        //this.popupMessage = jStockOptions.popupMessage;
 
         //this.sendEmail = jStockOptions.sendEmail;
         //this.email = jStockOptions.email;
@@ -456,7 +477,7 @@ public class JStockOptions {
         //this.driveWealthBuyOption = jStockOptions.driveWealthBuyOption;
         //this.driveWealthSellOption = jStockOptions.driveWealthSellOption;
 
-        /* For UK client. */
+        // For UK client. 
         //this.penceToPoundConversionEnabled = jStockOptions.penceToPoundConversionEnabled;
         
         this.decimalPlaces = jStockOptions.decimalPlaces;
@@ -511,15 +532,18 @@ public class JStockOptions {
         
         //this.iexStockInfoDBMeta = jStockOptions.iexStockInfoDBMeta;
     }
+    */
 
     // User may not trust us to store their password in cloud server. To avoid
     // from getting trouble, we will clone another copy of JStockOptions, which
     // doesn't contain sensitive data.
+    /*
     public JStockOptions insensitiveClone() {
         final JStockOptions jStockOptions = new JStockOptions();
         jStockOptions.insensitiveCopy(this);
         return jStockOptions;
     }
+    */
 
     private void initRecentCountries() {
         if (this.recentCountries == null) {
@@ -584,25 +608,35 @@ public class JStockOptions {
             historyDuration = DEFAULT_HISTORY_DURATION;
         }
 
+        /*
         if (getChatUsername() == null) {
             setChatUsername("");
         }
+        */
 
+        /*
         if (getChatPassword() == null) {
             setChatPassword("");
         }
+        */
 
+        /*
         if (this.getChatSystemMessageColor() == null) {
             this.setChatSystemMessageColor(DEFAULT_CHAT_SYSTEM_MESSAGE_COLOR);
         }
+        */
 
+        /*
         if (this.getChatOwnMessageColor() == null) {
             this.setChatOwnMessageColor(DEFAULT_CHAT_OWN_MESSAGE_COLOR);
         }
+        */
 
+        /*
         if (this.getChatOtherMessageColor() == null) {
             this.setChatOtherMessageColor(DEFAULT_CHAT_OTHER_MESSAGE_COLOR);
         }
+        */
 
         if (this.getFallBelowAlertForegroundColor() == null) {
             this.setFallBelowAlertForegroundColor(DEFAULT_FALL_BELOW_ALERT_FOREGROUND_COLOR);
@@ -646,9 +680,11 @@ public class JStockOptions {
             this.watchlistNames = new EnumMap<Country, String>(Country.class);
         }
 
+        /*
         if (this.getNewsID() == null) {
             this.setNewsID("");
         }
+        */
 
         if (this.yellowInformationBoxOption == null) {
             this.yellowInformationBoxOption = YellowInformationBoxOption.Follow;
@@ -658,9 +694,11 @@ public class JStockOptions {
             this.stockInputSuggestionListOption = StockInputSuggestionListOption.OneColumn;
         }
 
+        /*
         if (this.getCCEmail() == null) {
             this.setCCEmail("");
         }
+        */
 
         if (this.getLocale() == null) {
             this.setLocale(Locale.getDefault());
@@ -768,6 +806,15 @@ public class JStockOptions {
         return this.brokingFirms.get(this.selectedBrokingFirmIndex);
     }
     
+    public int getFontSize() {
+       return fontSize;
+    }
+    
+    public void setFontSize(int value) {
+       fontSize = value;
+    }
+    
+    /*
     public String getLooknFeel() {
         return looknFeel;
     }
@@ -775,6 +822,7 @@ public class JStockOptions {
     public void setLooknFeel(String looknFeel) {
         this.looknFeel = looknFeel;
     }
+    */
 
     public boolean isAlwaysOnTop() {
         return alwaysOnTop;
@@ -784,6 +832,7 @@ public class JStockOptions {
         this.alwaysOnTop = alwaysOnTop;
     }
 
+    /*
     public boolean isSingleIndicatorAlert() {
         return singleIndicatorAlert;
     }
@@ -791,7 +840,9 @@ public class JStockOptions {
     public void setSingleIndicatorAlert(boolean singleIndicatorAlert) {
         this.singleIndicatorAlert = singleIndicatorAlert;
     }
+    */
     
+    /*
     public boolean isPopupMessage() {
         return popupMessage;
     }
@@ -807,6 +858,7 @@ public class JStockOptions {
     public void setSendEmail(boolean sendEmail) {
         this.sendEmail = sendEmail;
     }
+    */
 
     public String getProxyServer() {
         return proxyServer;
@@ -912,11 +964,14 @@ public class JStockOptions {
         this.enableColorChange = enableColorChange;
     }
     
+    /*
     public boolean isAutoUpdateNewsEnabled()
     {
         return this.isAutoUpdateNewsEnabled;
     }
+    */
 
+    /*
     public boolean isChatEnabled() {
         return this.isChatEnabled;
     }
@@ -928,12 +983,16 @@ public class JStockOptions {
     public boolean isChatFlashNotificationEnabled() {
         return this.isChatFlashNotificationEnabled;
     }
+    */
     
+    /*
     public void setAutoUpdateNewsEnabled(boolean isAutoUpdateNewsEnabled)
     {
         this.isAutoUpdateNewsEnabled = isAutoUpdateNewsEnabled;
     }
+    */
 
+    /*
     public void setChatEnabled(boolean isChatEnabled) {
         this.isChatEnabled = isChatEnabled;
     }
@@ -945,6 +1004,7 @@ public class JStockOptions {
     public void setChatSoundNotificationEnabled(boolean isChatSoundNotificationEnabled) {
         this.isChatSoundNotificationEnabled = isChatSoundNotificationEnabled;
     }
+    */
 
     public double getExpectedProfitPercentage() {
         return expectedProfitPercentage;
@@ -979,72 +1039,92 @@ public class JStockOptions {
     /**
      * @return the chatUsername
      */
+    /*
     public String getChatUsername() {
         return chatUsername;
     }
+    */
 
     /**
      * @param chatUsername the chatUsername to set
      */
+    /*
     public void setChatUsername(String chatUsername) {
         this.chatUsername = chatUsername;
     }
+    */
 
     /**
      * @return the chatSystemMessageColor
      */
+    /*
     public Color getChatSystemMessageColor() {
         return chatSystemMessageColor;
     }
+    */
 
     /**
      * @param chatSystemMessageColor the chatSystemMessageColor to set
      */
+    /*
     public void setChatSystemMessageColor(Color chatSystemMessageColor) {
         this.chatSystemMessageColor = chatSystemMessageColor;
     }
+    */
 
     /**
      * @return the chatOwnMessageColor
      */
+    /*
     public Color getChatOwnMessageColor() {
         return chatOwnMessageColor;
     }
+    */
 
     /**
      * @param chatOwnMessageColor the chatOwnMessageColor to set
      */
+    /*
     public void setChatOwnMessageColor(Color chatOwnMessageColor) {
         this.chatOwnMessageColor = chatOwnMessageColor;
     }
+    */
 
     /**
      * @return the chatOtherMessageColor
      */
+    /*
     public Color getChatOtherMessageColor() {
         return chatOtherMessageColor;
     }
+    */
 
     /**
      * @param chatOtherMessageColor the chatOtherMessageColor to set
      */
+    /*
     public void setChatOtherMessageColor(Color chatOtherMessageColor) {
         this.chatOtherMessageColor = chatOtherMessageColor;
     }
+    */
 
     /**
      * @return the chatPassword
      */
+    /*
     public String getChatPassword() {
         return chatPassword;
     }
+    */
 
     /**
      * @param chatPassword the chatPassword to set
      */
+    /*
     public void setChatPassword(String chatPassword) {
         this.chatPassword = chatPassword;
     }
+    */
 
     /**
      * @return the enableColorAlert
@@ -1277,16 +1357,20 @@ public class JStockOptions {
     /**
      * @return the newsID
      */
+    /*
     public String getNewsID() {
         return newsID;
     }
+    */
 
     /**
      * @param newsID the newsID to set
      */
+    /*
     public void setNewsID(String newsID) {
         this.newsID = newsID;
     }
+    */
 
     public DecimalPlace getDecimalPlace(/*Country country*/) {
         DecimalPlace decimalPlace = this.decimalPlaces.get(this.country);
@@ -1324,16 +1408,20 @@ public class JStockOptions {
     /**
      * @return the soundEnabled
      */
+    /*
     public boolean isSoundEnabled() {
         return soundEnabled;
     }
+    */
 
     /**
      * @param soundEnabled the soundEnabled to set
      */
+    /*
     public void setSoundEnabled(boolean soundEnabled) {
         this.soundEnabled = soundEnabled;
     }
+    */
 
     /**
      * @param c the country to get
@@ -1427,16 +1515,20 @@ public class JStockOptions {
     /**
      * @return the CCEmail
      */
+    /*
     public String getCCEmail() {
         return CCEmail;
     }
+    */
 
     /**
      * @param CCEmail the CCEmail to set
      */
+    /*
     public void setCCEmail(String CCEmail) {
         this.CCEmail = CCEmail;
     }
+    */
 
     /**
      * @return the locale
@@ -1572,7 +1664,8 @@ public class JStockOptions {
     }
 
     public boolean useLargeFont() {
-        return useLargeFont;
+        //return useLargeFont;
+        return true;
     }
     
     /**
@@ -1589,9 +1682,11 @@ public class JStockOptions {
         this.isFeeCalculationEnabled = isFeeCalculationEnabled;
     } 
 
+    /*
     public void setUseLargeFont(boolean useLargeFont) {
         this.useLargeFont = useLargeFont;
     }
+    */
     
     /**
      * @param isDynamicChartVisible the isDynamicChartVisible to set
