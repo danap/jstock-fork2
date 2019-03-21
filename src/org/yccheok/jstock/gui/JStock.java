@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.25 03/18/2019
+ * Version 1.0.7.37.26 03/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,6 +152,10 @@
 //                                MouseAdapter()s. Called All These Commented Method Directly to statusBar
 //                                Class, Where Moved. Changed Method initDatabase() to Protected.
 //         1.0.7.37.25 03/18/2019 Cleaned Out Commented Code From 1.0.7.37.24.
+//         1.0.7.37.26 03/21/2019 Commented Class Instance latestNewsTask, Along With initLatestNewsTask()
+//                                in init(). Method formWindowClosed() Removed Shutting Down latestNewsTask.
+//                                Method update() Cleaned Up, Commented, Alert for Popup Message & Sound.
+//                                Method main() Apply Font Used jStockOptions.getFontSize().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -236,7 +240,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.25 03/18/2019
+ * @version 1.0.7.37.26 03/21/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -244,7 +248,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.25";
+   public static final String VERSION = "1.0.7.37.26";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -276,7 +280,7 @@ public class JStock extends javax.swing.JFrame
    protected DatabaseTask databaseTask = null;
    protected final Object databaseTaskMonitor = new Object();
 
-   private LatestNewsTask latestNewsTask = null;
+   //private LatestNewsTask latestNewsTask = null;
    
    protected JStockOptions jStockOptions;
    private UIOptions uiOptions;
@@ -392,7 +396,10 @@ public class JStock extends javax.swing.JFrame
       initDatabase(true);
       initAjaxProvider();
       initRealTimeIndexMonitor();
-      initLatestNewsTask();
+      
+      // *** Checks Update News
+      //initLatestNewsTask();
+      
       initExchangeRateMonitor();
       initRealTimeStockMonitor();
       watchListPanel.initWatchlist();
@@ -842,10 +849,12 @@ public class JStock extends javax.swing.JFrame
          watchListPanel.dettachAllAndStopAutoCompleteJComboBox();
          // this.indicatorPanel.dettachAllAndStopAutoCompleteJComboBox();
 
+         /*
          log.info("latestNewsTask stop...");
 
          if (this.latestNewsTask != null)
             this.latestNewsTask.cancel(true);
+         */
 
          _stockInfoDatabaseMetaPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 
@@ -1795,6 +1804,7 @@ public class JStock extends javax.swing.JFrame
          jStockOptions.getHistoryDuration()));
    }
 
+   /*
    public void initLatestNewsTask()
    {
       if (jStockOptions.isAutoUpdateNewsEnabled() == true)
@@ -1825,6 +1835,7 @@ public class JStock extends javax.swing.JFrame
          }
       }
    }
+   */
 
    private void initAjaxProvider()
    {
@@ -2159,8 +2170,8 @@ public class JStock extends javax.swing.JFrame
       } /* for (Stock stock : stocks) */
 
       // No alert is needed. Early return.
-      if ((jStockOptions.isPopupMessage() == false) && (jStockOptions.isSoundEnabled() == false))
-         return;
+      //if ((jStockOptions.isPopupMessage() == false) && (jStockOptions.isSoundEnabled() == false))
+      //   return;
    }
 
    public void updateStatusBarWithLastUpdateDateMessageIfPossible()
@@ -2472,7 +2483,7 @@ public class JStock extends javax.swing.JFrame
        try
        {
           UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-          Utils.setUIManagerFont(14);
+          Utils.setUIManagerFont(jStockOptions.getFontSize());
        }
        catch (ClassNotFoundException e){uiManagerError.append(e.toString());}
        catch (InstantiationException e){uiManagerError.append(e.toString());}
