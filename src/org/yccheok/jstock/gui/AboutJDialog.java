@@ -3,7 +3,7 @@
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.02 02/24/2019
+ * Version 1.0.7.37.03 03/22/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@
 //                                Image to Clearly Indicate Fork.
 //         1.0.7.37.02 02/24/2019 Method initComponents() Corrected jEditorPane3 Website Github
 //                                jstock-fork.
+//         1.0.7.37.03 03/22/2019 Method initComponents() Updated jEditorPane3 Website Github
+//                                jstock-fork2.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -51,7 +53,7 @@ import org.yccheok.jstock.internationalization.GUIBundle;
  *
  * @author  yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.02 02/24/2019
+ * @version 1.0.7.37.03 03/22/2019
  * 
  */
 public class AboutJDialog extends javax.swing.JDialog {
@@ -115,7 +117,7 @@ public class AboutJDialog extends javax.swing.JDialog {
         jEditorPane3.setBackground(new java.awt.Color(240, 240, 240));
         jEditorPane3.setContentType("text/html"); // NOI18N
         //jEditorPane3.setText(bundle.getString("AboutJDialog_Homepage")); // NOI18N
-        jEditorPane3.setText("<html><body><b><font size='+1'><a href='https://github.com/danap/jstock-fork/'>JStock-Fork</a></font></b></body></html>");
+        jEditorPane3.setText("<html><body><b><font size='+1'><a href='https://github.com/danap/jstock-fork2/'>JStock-Fork2</a></font></b></body></html>");
 
         jEditorPane3.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
