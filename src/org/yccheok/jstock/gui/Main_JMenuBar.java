@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 1.8 03/14/2019
+// Version 1.9 03/22/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,6 +50,8 @@
 //             Processing for XLS Files.
 //         1.8 Method fileSaveAsActionPerformed() Removed Conditional for jstock.
 //             indicatorScannerJPanel. Same in Method databaseActionPerormed().
+//         1.9 Commented in Constructor Setting Font, Changed Slightly JMenu Font
+//             Derivative to Bold, Along With Added to helpMenu.
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -57,7 +59,6 @@
 
 package org.yccheok.jstock.gui;
 
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -105,7 +106,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 1.8 03/14/2019
+ * @version 1.9 03/22/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -155,6 +156,7 @@ public class Main_JMenuBar extends JMenuBar
 
       // JMenu Bar for the Frame.
       setBorder(BorderFactory.createEtchedBorder());
+      //setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD, (getFont().getSize() + 2)));
 
       // Creating the File, Edit, Country, Language, Database,
       // WatchList, Portfolio, Options, and Help Menus.
@@ -203,7 +205,8 @@ public class Main_JMenuBar extends JMenuBar
       // File Menu
 
       fileMenu = new JMenu(bundle.getString("MainFrame_File"));
-      fileMenu.setFont(fileMenu.getFont().deriveFont(Font.BOLD));
+      fileMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                       getFont().getSize()));
 
       // Open
       menuItem = new JMenuItem(bundle.getString("MainFrame_Open..."));
@@ -257,7 +260,8 @@ public class Main_JMenuBar extends JMenuBar
       // Edit Menu
 
       editMenu = new JMenu(bundle.getString("MainFrame_Edit"));
-      editMenu.setFont(editMenu.getFont().deriveFont(Font.BOLD));
+      editMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                       getFont().getSize()));
 
       // Add Stocks
       menuItem = new JMenuItem(bundle.getString("MainFrame_AddStocks..."));
@@ -315,7 +319,9 @@ public class Main_JMenuBar extends JMenuBar
       countriesButtonGroup = new ButtonGroup();
 
       countryMenu = new JMenu(bundle.getString("MainFrame_Country"));
-      countryMenu.setFont(countryMenu.getFont().deriveFont(Font.BOLD));
+      countryMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                          getFont().getSize()));
+      
       countryMenu.addMenuListener(new MenuListener()
       {
          public void menuCanceled(MenuEvent evt) {}
@@ -393,7 +399,8 @@ public class Main_JMenuBar extends JMenuBar
       // Language Menu
 
       languageMenu = new JMenu(bundle.getString("MainFrame_Language"));
-      languageMenu.setFont(languageMenu.getFont().deriveFont(Font.BOLD));
+      languageMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                           getFont().getSize()));
       languageButtonGroup = new ButtonGroup();
 
       ActionListener languageActionListener = new ActionListener()
@@ -508,7 +515,8 @@ public class Main_JMenuBar extends JMenuBar
       // Database Menu
 
       databaseMenu = new JMenu(bundle.getString("MainFrame_Database"));
-      databaseMenu.setFont(databaseMenu.getFont().deriveFont(Font.BOLD));
+      databaseMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                           getFont().getSize()));
 
       menuItem = new JMenuItem(bundle.getString("MainFrame_StockDatabase..."));
       menuItem.addActionListener(new java.awt.event.ActionListener()
@@ -535,7 +543,8 @@ public class Main_JMenuBar extends JMenuBar
       // WatchList Menu
 
       watchListMenu = new JMenu(bundle.getString("MainFrame_Watchlist"));
-      watchListMenu.setFont(watchListMenu.getFont().deriveFont(Font.BOLD));
+      watchListMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                            getFont().getSize()));
 
       watchListMenu.addMenuListener(new MenuListener()
       {
@@ -564,7 +573,8 @@ public class Main_JMenuBar extends JMenuBar
       // Portfolio Menu
 
       portfolioMenu = new JMenu(bundle.getString("MainFrame_Portfolio"));
-      portfolioMenu.setFont(portfolioMenu.getFont().deriveFont(Font.BOLD));
+      portfolioMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                            getFont().getSize()));
 
       portfolioMenu.addMenuListener(new MenuListener()
       {
@@ -599,7 +609,9 @@ public class Main_JMenuBar extends JMenuBar
       // Options Menu
 
       optionsMenu = new JMenu(bundle.getString("MainFrame_Options"));
-
+      optionsMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                          getFont().getSize()));
+      
       menuItem = new JMenuItem(bundle.getString("MainFrame_Options..."));
       menuItem.addActionListener(new ActionListener()
       {
@@ -672,6 +684,8 @@ public class Main_JMenuBar extends JMenuBar
       // Help Menu
       
       helpMenu = new JMenu(bundle.getString("MainFrame_Help"));
+      helpMenu.setFont(getFont().deriveFont(getFont().getStyle() | java.awt.Font.BOLD,
+                       getFont().getSize()));
 
       menuItem = new JMenuItem(bundle.getString("MainFrame_About..."));
       menuItem.addActionListener(new java.awt.event.ActionListener()
