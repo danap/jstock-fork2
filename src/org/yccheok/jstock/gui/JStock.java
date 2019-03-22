@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.26 03/21/2019
+ * Version 1.0.7.37.27 03/22/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,6 +156,11 @@
 //                                in init(). Method formWindowClosed() Removed Shutting Down latestNewsTask.
 //                                Method update() Cleaned Up, Commented, Alert for Popup Message & Sound.
 //                                Method main() Apply Font Used jStockOptions.getFontSize().
+//         1.0.7.37.27 03/22/2019 Cleaned Out Commented Code From 1.0.7.37.26. Method init() Commented
+//                                createPortfolioManagementJPanel() & Moved That Code to initComponents().
+//                                Removed saveWatchList() & Referenced to saveCSVWatchList() & Corrected
+//                                Spelling. Removed displayHistoryCharts() & displayStockNews() Moved
+//                                to WatchListJPanel. 
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -240,7 +245,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.26 03/21/2019
+ * @version 1.0.7.37.27 03/22/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -248,7 +253,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.26";
+   public static final String VERSION = "1.0.7.37.27";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -279,8 +284,6 @@ public class JStock extends javax.swing.JFrame
 
    protected DatabaseTask databaseTask = null;
    protected final Object databaseTaskMonitor = new Object();
-
-   //private LatestNewsTask latestNewsTask = null;
    
    protected JStockOptions jStockOptions;
    private UIOptions uiOptions;
@@ -377,7 +380,7 @@ public class JStock extends javax.swing.JFrame
       // rebuildCountryMenuItems(true);
       // createStockIndicatorEditor();
       // createIndicatorScannerJPanel();
-      createPortfolioManagementJPanel();
+      // createPortfolioManagementJPanel();
       // createIconsAndToolTipTextForJTabbedPane();
       // this.createSystemTrayIcon();
       initPreloadDatabase(false);
@@ -657,12 +660,18 @@ public class JStock extends javax.swing.JFrame
 
       watchListPanel = new WatchListJPanel();
       watchListTabIndex = jTabbedPane1.getTabCount();
-      jTabbedPane1.addTab(bundle.getString("MainFrame_Title"), watchListPanel); // NOI18N
+      jTabbedPane1.addTab(bundle.getString("MainFrame_Title"), watchListPanel);
       jTabbedPane1.setIconAt(watchListTabIndex, this.getImageIcon("/images/16x16/stock_timezone.png"));
-      jTabbedPane1.setToolTipTextAt(
-         watchListTabIndex,
-         java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
-            "MainFrame_WatchYourFavoriteStockMovement"));
+      jTabbedPane1.setToolTipTextAt(watchListTabIndex, ResourceBundle.getBundle(
+         "org/yccheok/jstock/data/gui").getString("MainFrame_WatchYourFavoriteStockMovement"));
+      
+      portfolioManagementJPanel = new PortfolioManagementJPanel();
+      portfolioTabIndex = jTabbedPane1.getTabCount();
+      jTabbedPane1.addTab(GUIBundle.getString("PortfolioManagementJPanel_Title"), portfolioManagementJPanel);
+      jTabbedPane1.setIconAt(portfolioTabIndex, this.getImageIcon("/images/16x16/calc.png"));
+      jTabbedPane1.setToolTipTextAt(portfolioTabIndex, ResourceBundle.getBundle(
+         "org/yccheok/jstock/data/gui").getString(
+            "MainFrame_ManageYourRealTimePortfolioWhichEnableYouToTrackBuyAndSellRecords"));
 
       getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
@@ -799,7 +808,7 @@ public class JStock extends javax.swing.JFrame
       this.saveUIOptions();
       this.saveGUIOptions();
       this.saveChartJDialogOptions();
-      this.saveWatchlist();
+      this.saveCSVWatchlist();
       this.portfolioManagementJPanel.savePortfolio();
    }
 
@@ -847,14 +856,6 @@ public class JStock extends javax.swing.JFrame
          }
 
          watchListPanel.dettachAllAndStopAutoCompleteJComboBox();
-         // this.indicatorPanel.dettachAllAndStopAutoCompleteJComboBox();
-
-         /*
-         log.info("latestNewsTask stop...");
-
-         if (this.latestNewsTask != null)
-            this.latestNewsTask.cancel(true);
-         */
 
          _stockInfoDatabaseMetaPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 
@@ -910,7 +911,7 @@ public class JStock extends javax.swing.JFrame
    {
       assert (SwingUtilities.isEventDispatchThread());
       // Save current watchlist.
-      JStock.this.saveWatchlist();
+      JStock.this.saveCSVWatchlist();
       // Save current GUI options.
       // Do not call MainFrame.this.saveGUIOptions() (Pay note on the
       // underscore)
@@ -1126,17 +1127,6 @@ public class JStock extends javax.swing.JFrame
       return this.portfolioManagementJPanel;
    }
 
-   private void createPortfolioManagementJPanel()
-   {
-      portfolioManagementJPanel = new PortfolioManagementJPanel();
-      portfolioTabIndex = jTabbedPane1.getTabCount();
-      jTabbedPane1.addTab(GUIBundle.getString("PortfolioManagementJPanel_Title"), portfolioManagementJPanel);
-      jTabbedPane1.setIconAt(portfolioTabIndex, this.getImageIcon("/images/16x16/calc.png"));
-      jTabbedPane1.setToolTipTextAt(portfolioTabIndex, ResourceBundle.getBundle(
-         "org/yccheok/jstock/data/gui").getString(
-            "MainFrame_ManageYourRealTimePortfolioWhichEnableYouToTrackBuyAndSellRecords"));
-   }
-
    protected void changeCountry(Country country)
    {
       if (country == null)
@@ -1162,7 +1152,7 @@ public class JStock extends javax.swing.JFrame
 
       /* Need to save chart dialog options? */
 
-      saveWatchlist();
+      saveCSVWatchlist();
       this.portfolioManagementJPanel.savePortfolio();
 
       jStockOptions.setCountry(country);
@@ -1294,37 +1284,10 @@ public class JStock extends javax.swing.JFrame
       }
    }
 
-   public void displayHistoryCharts()
-   {
-      int rows[] = watchListPanel.getTable().getSelectedRows();
-      
-      final StockTableModel tableModel = (StockTableModel) watchListPanel.getTable().getModel();
-
-      for (int row : rows)
-      {
-         final int modelIndex = watchListPanel.getTable().getRowSorter().convertRowIndexToModel(row);
-         Stock stock = tableModel.getStock(modelIndex);
-         displayHistoryChart(StockInfo.newInstance(stock));
-      }
-   }
-
    public void displayStockNews(StockInfo stockInfo)
    {
       assert (SwingUtilities.isEventDispatchThread());
       new StockNewsJFrame(this, stockInfo, stockInfo.symbol + " (" + stockInfo.code + ")");
-   }
-
-   protected void displayStocksNews()
-   {
-      int rows[] = watchListPanel.getTable().getSelectedRows();
-      final StockTableModel tableModel = (StockTableModel) watchListPanel.getTable().getModel();
-
-      for (int row : rows)
-      {
-         final int modelIndex = watchListPanel.getTable().getRowSorter().convertRowIndexToModel(row);
-         final Stock stock = tableModel.getStock(modelIndex);
-         displayStockNews(StockInfo.newInstance(stock));
-      }
    }
 
    protected static boolean saveStockNameDatabaseAsCSV(Country country, StockNameDatabase stockNameDatabase)
@@ -1707,17 +1670,12 @@ public class JStock extends javax.swing.JFrame
          org.yccheok.jstock.watchlist.Utils.getWatchlistFile(directory), true);
    }
 
-   private boolean saveCSVWathclist()
+   private boolean saveCSVWatchlist()
    {
       final String directory = org.yccheok.jstock.watchlist.Utils.getWatchlistDirectory();
       final TableModel tableModel = watchListPanel.getTable().getModel();
       CSVWatchlist csvWatchlist = CSVWatchlist.newInstance(tableModel);
       return JStock.saveCSVWatchlist(directory, csvWatchlist);
-   }
-
-   private boolean saveWatchlist()
-   {
-      return this.saveCSVWathclist();
    }
 
    private static java.util.List<Pair<Code, Symbol>> getUserDefinedPair(StockInfoDatabase stockInfoDatabase)
@@ -1803,39 +1761,6 @@ public class JStock extends javax.swing.JFrame
       stockHistoryMonitor.setDuration(Duration.getTodayDurationByYears(
          jStockOptions.getHistoryDuration()));
    }
-
-   /*
-   public void initLatestNewsTask()
-   {
-      if (jStockOptions.isAutoUpdateNewsEnabled() == true)
-      {
-         if (latestNewsTask == null)
-         {
-            latestNewsTask = new LatestNewsTask(this, log);
-            latestNewsTask.execute();
-         }
-      }
-      else
-      {
-         final LatestNewsTask oldLatestNewsTask = latestNewsTask;
-         if (oldLatestNewsTask != null)
-         {
-            zombiePool.execute(new Runnable()
-            {
-               @Override
-               public void run()
-               {
-                  log.info("Prepare to shut down " + oldLatestNewsTask + "...");
-                  oldLatestNewsTask.cancel(true);
-                  log.info("Shut down " + oldLatestNewsTask + " peacefully.");
-               }
-            });
-
-            latestNewsTask = null;
-         }
-      }
-   }
-   */
 
    private void initAjaxProvider()
    {
@@ -2168,10 +2093,6 @@ public class JStock extends javax.swing.JFrame
             dynamicChart.addPriceObservation(stock.getTimestamp(), stock.getLastPrice());
          }
       } /* for (Stock stock : stocks) */
-
-      // No alert is needed. Early return.
-      //if ((jStockOptions.isPopupMessage() == false) && (jStockOptions.isSoundEnabled() == false))
-      //   return;
    }
 
    public void updateStatusBarWithLastUpdateDateMessageIfPossible()
