@@ -1,7 +1,7 @@
 **Additions:
 
-org.yccheok.jstock.gui.trading.*
-org.yccheok.jstock.trading.*
+org.yccheok.jstock.gui.trading.* (Removed None Has Source)
+org.yccheok.jstock.trading.* (Removed None Has Source)
 
 org.yccheok.jstock.engine.yahoo.*
 org.yccheok.jstock.engine.DispType;
@@ -126,6 +126,31 @@ Subject
 Symbol
 TSTSearchEngine
 UnitedStatesGoogleFormatCodeLookup
+
+Modified Classes: (See docs/rmObjects Removed Classes/Libraries)
+
+org.yccheok.jstock.file.Statements
+
+org.yccheok.jstock.gui.AboutJDialog
+org.yccheok.jstock.gui.AutoCompleteJComboBox
+org.yccheok.jstock.gui.IndicatorScannerJPanel
+org.yccheok.jstock.gui.JStock
+org.yccheok.jstock.gui.PortfolioManagementJPanel
+org.yccheok.jstock.gui.StockJDialog
+org.yccheok.jstock.gui.StockOptions
+org.yccheok.jstock.gui.Utils
+
+org.yccheok.jstock.gui.charting.ChartJDialog
+
+org.yccheok.jstock.network.Utils
+
+Added Classes:
+
+org.yccheok.jstock.gui.WatchListJPanel
+org.yccheok.jstock.gui.Main_JMenuBar
+org.yccheok.jstock.gui.DatabaseTask (Extracted From JStock)
+org.yccheok.jstock.gui.LatestNewsTask (Extracted From JStock)
+
 
 
 
