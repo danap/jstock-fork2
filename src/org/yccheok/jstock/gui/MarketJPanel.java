@@ -3,7 +3,7 @@
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 03/22/2019
+ * Version 1.0.7.37.02 03/25/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,9 @@
 //         1.0.7.37.01 03/22/2019 Method initAccordingToCountry() Added Border Elements
 //                                to Components. Method init() Centered leftPanel. Now
 //                                its a Center Panel.
+//         1.0.7.37.02 03/25/2019 Method initComponents() leftPanel Change Set Border.
+//                                Added Class Method setCountry() to Properly Handle
+//                                Country Changes.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -61,7 +64,7 @@ import org.yccheok.jstock.internationalization.GUIBundle;
  *
  * @author  yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 03/01/2019
+ * @version 1.0.7.37.02 03/25/2019
  */
 public class MarketJPanel extends javax.swing.JPanel {
 
@@ -83,6 +86,9 @@ public class MarketJPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         leftPanel = new javax.swing.JPanel();
+        leftPanel.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+           javax.swing.BorderFactory.createRaisedSoftBevelBorder(),
+           javax.swing.BorderFactory.createEmptyBorder(4, 0, 4, 0)));
 
         setLayout(new java.awt.BorderLayout());
         add(leftPanel, java.awt.BorderLayout.CENTER);
@@ -164,6 +170,14 @@ public class MarketJPanel extends javax.swing.JPanel {
 
     public Country getCountry() {
         return this.country;
+    }
+    
+    protected void setCountry(Country country) {
+       this.country = country;
+       
+       leftPanel.removeAll();
+       initAccordingToCountry(country);
+       revalidate();  
     }
     
     private Country country = null;
