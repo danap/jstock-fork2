@@ -3,7 +3,7 @@
  * Copyright (C) 2011 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 03/18/2019
+ * Version 1.0.7.37.02 03/25/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,9 @@
 //
 // Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui MyJXStatusBar Class.
 //         1.0.7.37.01 03/18/2019 Added Class Methods initStatusBar(), All initMyJXStatusBar
-//                     XXXMouseAdapter()s, & getMyJXStatusBarXXXMouseAdapter()s.
+//                                XXXMouseAdapter()s, & getMyJXStatusBarXXXMouseAdapter()s.
+//         1.0.7.37.02 03/25/2019 Changed All init Methods to Private & Called Directly
+//                                Only From Constructor.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -54,7 +56,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 03/18/2019
+ * @version 1.0.7.37.02 03/25/2019
  */
 public class MyJXStatusBar extends JXStatusBar {
     
@@ -84,9 +86,14 @@ public class MyJXStatusBar extends JXStatusBar {
         this.add(exchangeRateLabel, c3);
         this.add(countryLabel, c4);
         this.add(imageLabel, c5);
+        
+        initStatusBar();
+        initMyJXStatusBarExchangeRateLabelMouseAdapter();
+        initMyJXStatusBarCountryLabelMouseAdapter();
+        initMyJXStatusBarImageLabelMouseAdapter();
     }
     
-    protected void initStatusBar()
+    private void initStatusBar()
     {
        final String message = java.util.ResourceBundle.getBundle(
           "org/yccheok/jstock/data/gui").getString(
@@ -100,7 +107,7 @@ public class MyJXStatusBar extends JXStatusBar {
                              JStock.instance().getJStockOptions().getCountry().humanString);
     }
     
-    protected void initMyJXStatusBarExchangeRateLabelMouseAdapter()
+    private void initMyJXStatusBarExchangeRateLabelMouseAdapter()
     {
        final MouseAdapter mouseAdapter = this.getMyJXStatusBarExchangeRateLabelMouseAdapter();
        addExchangeRateLabelMouseListener(mouseAdapter);
@@ -126,7 +133,7 @@ public class MyJXStatusBar extends JXStatusBar {
        };
     }
 
-    protected void initMyJXStatusBarCountryLabelMouseAdapter()
+    private void initMyJXStatusBarCountryLabelMouseAdapter()
     {
        final MouseAdapter mouseAdapter = this.getMyJXStatusBarCountryLabelMouseAdapter();
        addCountryLabelMouseListener(mouseAdapter);
@@ -153,7 +160,7 @@ public class MyJXStatusBar extends JXStatusBar {
        };
     }
 
-    protected void initMyJXStatusBarImageLabelMouseAdapter()
+    private void initMyJXStatusBarImageLabelMouseAdapter()
     {
        final MouseAdapter mouseAdapter = this.getMyJXStatusBarImageLabelMouseAdapter();
        addImageLabelMouseListener(mouseAdapter);
