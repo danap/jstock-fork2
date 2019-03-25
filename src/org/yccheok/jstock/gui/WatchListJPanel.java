@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.06 03/21/2019
+ * Version 1.0.7.37.07 03/25/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@
 //                                JStock.instance() of Same. Method createPopupMenu() actionPerformed()
 //                                for Stock News Added Code Directly to Find Table Row & Redirect to
 //                                JStock.instance().displayStockNews().
+//         1.0.7.37.07 03/25/2019 Made initTableHeaderToolTips() Private & Called Only From Constructor.
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -99,7 +100,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.06 03/21/2019
+ * @version 1.0.7.37.07 03/25/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -201,6 +202,8 @@ public class WatchListJPanel extends JPanel
       chartPanel.add(dynamicChartsPanel);
 
       add(chartPanel, BorderLayout.SOUTH);
+      
+      initTableHeaderToolTips();
    }
 
    //==============================================================
@@ -277,7 +280,7 @@ public class WatchListJPanel extends JPanel
    // table tooltips.
    //==============================================================
 
-   protected void initTableHeaderToolTips()
+   private void initTableHeaderToolTips()
    {
       JTableHeader header = watchListTable.getTableHeader();
 
