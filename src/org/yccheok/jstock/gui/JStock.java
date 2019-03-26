@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.28 03/25/2019
+ * Version 1.0.7.37.29 03/26/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,7 +173,7 @@
 //                                loadUserDefinedDatabaseFromCSV(), loadStockNameDatabaseFromCSV(), & load
 //                                StockInfoDatabaseFromCSV() to DatabaseTask Where They Belong. Commented
 //                                initMarketJPanel() & initPreloadDatabase(), Just Confusing Trash Coding.
-//                                
+//         1.0.7.37.29 03/26/2019 Cleaned Out Commented Code From 1.0.7.37.28.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -217,7 +217,6 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.yccheok.jstock.engine.Board;
 import org.yccheok.jstock.engine.Code;
 import org.yccheok.jstock.engine.Country;
 import org.yccheok.jstock.engine.Duration;
@@ -225,7 +224,6 @@ import org.yccheok.jstock.engine.Factories;
 import org.yccheok.jstock.engine.GoogleCodeDatabaseRunnable;
 import org.yccheok.jstock.engine.IEXStockInfoDatabaseRunnable;
 import org.yccheok.jstock.engine.Index;
-//import org.yccheok.jstock.engine.Industry;
 import org.yccheok.jstock.engine.Market;
 import org.yccheok.jstock.engine.Pair;
 import org.yccheok.jstock.engine.PriceSource;
@@ -239,7 +237,6 @@ import org.yccheok.jstock.engine.StockInfo;
 import org.yccheok.jstock.engine.StockInfoDatabase;
 import org.yccheok.jstock.engine.StockNameDatabase;
 import org.yccheok.jstock.engine.Symbol;
-//import org.yccheok.jstock.file.Atom;
 import org.yccheok.jstock.file.GUIBundleWrapper;
 import org.yccheok.jstock.file.Statement;
 import org.yccheok.jstock.file.Statements;
@@ -257,7 +254,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.28 03/25/2019
+ * @version 1.0.7.37.29 03/26/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -265,16 +262,14 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.28";
+   public static final String VERSION = "1.0.7.37.29";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
 
-   //private JPanel mainMarketPanel;
    private MarketJPanel marketJPanel;
    protected WatchListJPanel watchListPanel;
    protected PortfolioManagementJPanel portfolioManagementJPanel;
-   //protected final MyJXStatusBar statusBar = new MyJXStatusBar();
    protected MyJXStatusBar statusBar;
    
    private int watchListTabIndex;
@@ -406,7 +401,6 @@ public class JStock extends javax.swing.JFrame
       {
          public void mouseClicked(java.awt.event.MouseEvent evt)
          {
-            //formMouseClicked(evt);
             watchListPanel.getTable().getSelectionModel().clearSelection();
             portfolioManagementJPanel.clearTableSelection();
             watchListPanel.updateDynamicChart(null);
@@ -427,7 +421,7 @@ public class JStock extends javax.swing.JFrame
 
          public void windowDeiconified(java.awt.event.WindowEvent evt)
          {
-            // formWindowDeiconified(evt);
+            // Nothing to Do.
          }
 
          public void windowIconified(java.awt.event.WindowEvent evt)
@@ -463,37 +457,18 @@ public class JStock extends javax.swing.JFrame
       
       
       
-      //statusBar.initStatusBar();
-      //initMarketJPanel();
-      // this.initTableHeaderToolTips();
-      //watchListPanel.initTableHeaderToolTips();
-      //statusBar.initMyJXStatusBarExchangeRateLabelMouseAdapter();
-      //statusBar.initMyJXStatusBarCountryLabelMouseAdapter();
-      //statusBar.initMyJXStatusBarImageLabelMouseAdapter();
       initStockInfoDatabaseMeta();
       initGoogleCodeDatabaseRunnable();
       initIEXStockInfoDatabaseRunnable();
       initDatabase(true);
       initAjaxProvider();
       initRealTimeIndexMonitor();
-      
-      // *** Checks Update News
-      //initLatestNewsTask();
-      
       initStockHistoryMonitor();
       initExchangeRateMonitor();
       initRealTimeStockMonitor();
       watchListPanel.initWatchlist();
-      // initAlertStateManager();
       initDynamicCharts();
       initDynamicChartVisibility();
-      // initAlwaysOnTop();
-      //initStockHistoryMonitor();
-      // initOthersStockHistoryMonitor();
-      //initGUIOptions();
-      //initChartJDialogOptions();
-      // initLanguageMenuItemsSelection();
-      // initJXLayerOnJComboBox();
       watchListPanel.addAutoCompleteComboBox();
       initKeyBindings();
 
@@ -802,8 +777,6 @@ public class JStock extends javax.swing.JFrame
       }
    }
    
-   
-
    protected boolean openAsCSVFile(File file)
    {
       final Statements statements = Statements.newInstanceFromCSVFile(file);
@@ -996,29 +969,6 @@ public class JStock extends javax.swing.JFrame
       // Final clean up.
       System.exit(0);
    }
-
-   /*
-   private void formWindowIconified(java.awt.event.WindowEvent evt)
-   {
-      // Calling setVisible(false) will cause modal dialog box to be unblocked
-      // for JDialog.setVisible(true). This will happen in Linux system where
-      // user are allowed to minimize window even there is a modal JDialog box
-      // We have no solution at current moment.
-      //
-
-      if (Utils.isWindows())
-         this.setVisible(false);
-   }
-   */
-
-   /*
-   private void formMouseClicked(java.awt.event.MouseEvent evt)
-   {
-      this.watchListPanel.getTable().getSelectionModel().clearSelection();
-      this.portfolioManagementJPanel.clearTableSelection();
-      this.watchListPanel.updateDynamicChart(null);
-   }
-   */
 
    /**
     * Activate specified watchlist.
@@ -1293,7 +1243,6 @@ public class JStock extends javax.swing.JFrame
       this.initDatabase(true);
       this.initAjaxProvider();
       this.initRealTimeIndexMonitor();
-      //this.initMarketJPanel();
       this.initStockHistoryMonitor();
       this.initExchangeRateMonitor();
       // Initialize real time monitor must come before initialize real time
@@ -1454,117 +1403,6 @@ public class JStock extends javax.swing.JFrame
       return result;
    }
 
-   /*
-   protected java.util.List<Pair<Code, Symbol>> loadUserDefinedDatabaseFromCSV(Country country)
-   {
-      final File userDefinedDatabaseCSVFile = new File(org.yccheok.jstock.gui.Utils.getUserDataDirectory()
-                                                       + country + File.separator + "database"
-                                                       + File.separator + "user-defined-database.csv");
-
-      if (!userDefinedDatabaseCSVFile.exists())
-         return new ArrayList<Pair<Code, Symbol>>();
-
-      Statements statements = Statements.newInstanceFromCSVFile(userDefinedDatabaseCSVFile);
-      
-      if (statements.getType() != Statement.Type.UserDefinedDatabase)
-         return new ArrayList<Pair<Code, Symbol>>();
-      
-      java.util.List<Pair<Code, Symbol>> pairs = new ArrayList<Pair<Code, Symbol>>();
-      
-      for (int i = 0, ei = statements.size(); i < ei; i++)
-      {
-         Statement statement = statements.get(i);
-         Atom atom0 = statement.getAtom(0);
-         Atom atom1 = statement.getAtom(1);
-         Code code = Code.newInstance(atom0.getValue().toString());
-         Symbol symbol = Symbol.newInstance(atom1.getValue().toString());
-
-         pairs.add(new Pair<Code, Symbol>(code, symbol));
-      }
-      return pairs;
-   }
-   */
-
-   /*
-   protected StockNameDatabase loadStockNameDatabaseFromCSV(Country country)
-   {
-      final File stockNameDatabaseCSVFile = new File(org.yccheok.jstock.gui.Utils.getUserDataDirectory()
-                                                     + country + File.separator + "database" + File.separator
-                                                     + "stock-name-database.csv");
-
-      Statements statements = Statements.newInstanceFromCSVFile(stockNameDatabaseCSVFile);
-      
-      if (statements.getType() != Statement.Type.StockNameDatabase)
-         return null;
-      
-      java.util.List<Stock> stocks = new ArrayList<Stock>();
-      
-      for (int i = 0, ei = statements.size(); i < ei; i++)
-      {
-         Statement statement = statements.get(i);
-         Atom atom0 = statement.getAtom(0);
-         Atom atom1 = statement.getAtom(1);
-         Code code = Code.newInstance(atom0.getValue().toString());
-         String name = atom1.getValue().toString();
-
-         // Symbol doesn't matter. Just provide a dummy value for it.
-         Stock stock = Stock.builder(code, Symbol.newInstance(code.toString())).name(name).build();
-         stocks.add(stock);
-      }
-      return new StockNameDatabase(stocks);
-   }
-   */
-
-   /*
-   protected StockInfoDatabase loadStockInfoDatabaseFromCSV(Country country)
-   {
-      final File stockInfoDatabaseCSVFile = org.yccheok.jstock.engine.Utils.getStockInfoDatabaseFile(country);
-
-      Statements statements = Statements.newInstanceFromCSVFile(stockInfoDatabaseCSVFile);
-      
-      if (statements.getType() != Statement.Type.StockInfoDatabase)
-         return null;
-      
-      java.util.List<Stock> stocks = new ArrayList<Stock>();
-      
-      for (int i = 0, ei = statements.size(); i < ei; i++)
-      {
-         Statement statement = statements.get(i);
-         Atom atom0 = statement.getAtom(0);
-         Atom atom1 = statement.getAtom(1);
-         Atom atom2 = statement.getAtom(2);
-         Atom atom3 = statement.getAtom(3);
-
-         Code code = Code.newInstance(atom0.getValue().toString());
-         Symbol symbol = Symbol.newInstance(atom1.getValue().toString());
-         Industry industry = Industry.Unknown;
-         Board board = Board.Unknown;
-         
-         try
-         {
-            industry = Industry.valueOf(atom2.getValue().toString());
-         }
-         catch (Exception exp)
-         {
-            log.error(null, exp);
-         }
-         
-         try
-         {
-            board = Board.valueOf(atom3.getValue().toString());
-         }
-         catch (Exception exp)
-         {
-            log.error(null, exp);
-         }
-
-         Stock stock = Stock.builder(code, symbol).board(board).industry(industry).build();
-         stocks.add(stock);
-      }
-      return new StockInfoDatabase(stocks);
-   }
-   */
-
    /**
     * Initializes currency exchange monitor.
     */
@@ -1635,11 +1473,7 @@ public class JStock extends javax.swing.JFrame
 
       this.portfolioManagementJPanel.initRealTimeStockMonitor();
    }
-
    
-
-   
-
    private void saveUIOptions()
    {
       File file = new File(UserDataDirectory.Config.get() + UserDataFile.UIOptionsJson.get());
@@ -1675,9 +1509,7 @@ public class JStock extends javax.swing.JFrame
       File f = new File(UserDataDirectory.Config.get() + UserDataFile.MainFrameXml.get());
       return Utils.toXML(guiOptions, f);
    }
-
    
-
    /**
     * Initialize JStock options.
     */
@@ -2359,26 +2191,6 @@ public class JStock extends javax.swing.JFrame
       if (c instanceof WatchListJPanel)
          watchListPanel.getTable().repaint();
    }
-
-   /*
-   private void initMarketJPanel()
-   {
-      if (marketJPanel != null)
-         mainMarketPanel.remove(marketJPanel);
-
-      marketJPanel = new MarketJPanel(jStockOptions.getCountry());
-      mainMarketPanel.add(marketJPanel);
-      mainMarketPanel.revalidate();
-   }
-   */
-
-   /*
-   protected void initPreloadDatabase(boolean overWrite)
-   {
-      // No overwrite.
-      Utils.extractZipFile("database" + File.separator + "database.zip", overWrite);
-   }
-*/
 
    public Component getSelectedComponent()
    {
