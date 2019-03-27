@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 03/27/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,20 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui OptionsNetworkJPanel Class.
+//         1.0.7.37.01 03/27/2019 Commented All Components Associated With NTLM.
+//
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.gui;
 
@@ -41,6 +58,8 @@ import org.yccheok.jstock.network.ProxyDetector;
 /**
  *
  * @author  yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 03/27/2019
  */
 public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOptionsObserver {
     
@@ -61,11 +80,11 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
                 final boolean oldIsProxyAuthEnabled = JStock.instance().getJStockOptions().isProxyAuthEnabled();
 
                 // Set new proxy auth information.
-                final String newProxyAuthUsername = jTextField2.getText() != null ? jTextField2.getText() : "";
-                final String newProxyAuthPassword = Utils.encrypt(new String(jPasswordField1.getPassword()));                
-                JStock.instance().getJStockOptions().setProxyAuthUserName(newProxyAuthUsername);
-                JStock.instance().getJStockOptions().setProxyAuthPassword(newProxyAuthPassword);
-                JStock.instance().getJStockOptions().setIsProxyAuthEnabled(jCheckBox1.isSelected());
+                //final String newProxyAuthUsername = jTextField2.getText() != null ? jTextField2.getText() : "";
+                //final String newProxyAuthPassword = Utils.encrypt(new String(jPasswordField1.getPassword()));                
+                //JStock.instance().getJStockOptions().setProxyAuthUserName(newProxyAuthUsername);
+                //JStock.instance().getJStockOptions().setProxyAuthPassword(newProxyAuthPassword);
+                //JStock.instance().getJStockOptions().setIsProxyAuthEnabled(jCheckBox1.isSelected());
 
                 // Set new proxy server information.
                 if ((jTextField1.getText().length() > 0) && org.yccheok.jstock.engine.Utils.isValidPortNumber(jFormattedTextField1.getText())) {
@@ -205,12 +224,12 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
         jPanel4 = new javax.swing.JPanel();
         jComboBox1 = new javax.swing.JComboBox();
         jPanel6 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jTextField2 = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jPasswordField1 = new javax.swing.JPasswordField();
+        //jPanel3 = new javax.swing.JPanel();
+        //jCheckBox1 = new javax.swing.JCheckBox();
+        //jTextField2 = new javax.swing.JTextField();
+        //jLabel5 = new javax.swing.JLabel();
+        //jLabel6 = new javax.swing.JLabel();
+        //jPasswordField1 = new javax.swing.JPasswordField();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -238,6 +257,7 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
 
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("OptionsNetworkJPanel_ProxyServer"))); // NOI18N
 
+        /*
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("NT LAN Manager (NTLM)"));
 
         jCheckBox1.setText(bundle.getString("OptionsNetworkJPanel_EnableNTLM")); // NOI18N
@@ -287,6 +307,7 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
                             .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
+        */
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("OptionsNetworkJPanel_Server"))); // NOI18N
 
@@ -364,7 +385,7 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    //.addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -373,7 +394,7 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                //.addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -443,9 +464,11 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
         else
             jFormattedTextField1.setText("");
 
+        /*
         this.jCheckBox1.setSelected(jStockOptions.isProxyAuthEnabled());
         this.jTextField2.setText(jStockOptions.getProxyAuthUserName());
         this.jPasswordField1.setText(Utils.decrypt(jStockOptions.getProxyAuthPassword()));
+        */
         initJComboBox(jStockOptions);
 
         updateGUIState();
@@ -476,9 +499,9 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
         
         jStockOptions.setProxyPort(port);
 
-        jStockOptions.setIsProxyAuthEnabled(this.jCheckBox1.isSelected());
-        jStockOptions.setProxyAuthUserName(jTextField2.getText());
-        jStockOptions.setProxyAuthPassword(Utils.encrypt(new String(jPasswordField1.getPassword())));
+        //jStockOptions.setIsProxyAuthEnabled(this.jCheckBox1.isSelected());
+        //jStockOptions.setProxyAuthUserName(jTextField2.getText());
+        //jStockOptions.setProxyAuthPassword(Utils.encrypt(new String(jPasswordField1.getPassword())));
         
         Country country = jStockOptions.getCountry();
         String priceSourceName = getPriceSourceEntryValues(country)[this.jComboBox1.getSelectedIndex()];
@@ -499,15 +522,15 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
         // Whether test network connection thread is done or not started yet.
         final boolean isTestConnectionDone = (testConnectionSwingWorker == null || testConnectionSwingWorker.isDone());
 
-        final boolean state = jCheckBox1.isSelected();
-        jTextField2.setEnabled(state & isTestConnectionDone);
-        jPasswordField1.setEnabled(state & isTestConnectionDone);
-        this.jLabel5.setEnabled(state);
-        this.jLabel6.setEnabled(state);
+        //final boolean state = jCheckBox1.isSelected();
+        //jTextField2.setEnabled(state & isTestConnectionDone);
+        //jPasswordField1.setEnabled(state & isTestConnectionDone);
+        //this.jLabel5.setEnabled(state);
+        //this.jLabel6.setEnabled(state);
 
         this.jTextField1.setEnabled(isTestConnectionDone);
         this.jFormattedTextField1.setEnabled(isTestConnectionDone);
-        this.jCheckBox1.setEnabled(isTestConnectionDone);
+        //this.jCheckBox1.setEnabled(isTestConnectionDone);
         this.jButton1.setEnabled(isTestConnectionDone);
         this.jButton2.setEnabled(isTestConnectionDone);
         jLabel7.setVisible(!isTestConnectionDone);
@@ -545,25 +568,25 @@ public class OptionsNetworkJPanel extends javax.swing.JPanel implements JStockOp
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JCheckBox jCheckBox1;
+    //private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JFormattedTextField jFormattedTextField1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    //private javax.swing.JLabel jLabel5;
+    //private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
+    //private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JPasswordField jPasswordField1;
+    //private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    //private javax.swing.JTextField jTextField2;
     private org.jdesktop.swingx.JXHeader jXHeader1;
     // End of variables declaration//GEN-END:variables
     
