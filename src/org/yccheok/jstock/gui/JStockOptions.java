@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.02 03/21/2019
+ * Version 1.0.7.37.03 03/28/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,10 @@
 //                                Instances. What a Mess of Code, Added DEFAULT_FONTSIZE. Commented
 //                                Methods inSensitiveCopy/Clone(). Commented useLargeFonts &
 //                                Associated setUseLargeFont().
+//         1.0.7.37.03 03/28/2019 Added Class Instance DEFAULT_SCANNING_SPEED & MINIMUM_SCANNING_SPEED.
+//                                Used Former in Constructor & Latter as a Conditional Check in
+//                                setScanningSpeed(). Method getPriceSource() Adding Logging for
+//                                Selected country.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -77,7 +81,7 @@ import org.yccheok.jstock.portfolio.DecimalPlace;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.02 03/21/2019
+ * @version 1.0.7.37.03 03/28/2019
  */
 public class JStockOptions {
     /*
@@ -143,6 +147,8 @@ public class JStockOptions {
         Dark
     }
     
+    public static final int DEFAULT_SCANNING_SPEED = 5*60*1000;
+    public static final int MINIMUM_SCANNING_SPEED = 1*60*1000;
     public static final int DEFAULT_FONTSIZE = 12;
     
     public static final java.awt.Color DEFAULT_NORMAL_TEXT_FOREGROUND_COLOR = Color.BLACK;
@@ -178,7 +184,7 @@ public class JStockOptions {
         this.proxyServer = "";
         this.proxyPort = -1;
         // In milliseconds.
-        this.scanningSpeed = 1*60*1000;
+        this.scanningSpeed = DEFAULT_SCANNING_SPEED;
         this.indicatorScanningSpeed = 30*1000;
         // In seconds.
         this.alertSpeed = 5;
@@ -893,7 +899,10 @@ public class JStockOptions {
     }
     
     public void setScanningSpeed(int scanningSpeed) {
-        this.scanningSpeed = scanningSpeed;
+        if (scanningSpeed < MINIMUM_SCANNING_SPEED)
+           this.scanningSpeed = MINIMUM_SCANNING_SPEED;
+        else
+           this.scanningSpeed = scanningSpeed;
     }
     
     public void setAlertSpeed(int alertSpeed) {
@@ -1394,10 +1403,21 @@ public class JStockOptions {
     }
     
     public PriceSource getPriceSource(Country country) {
-        final PriceSource priceSource = this.priceSources.get(country);
-        if (priceSource == null) {
-            return org.yccheok.jstock.engine.Utils.getDefaultPriceSource(country);
+        PriceSource priceSource;
+        String message;
+        
+        priceSource = this.priceSources.get(country);
+        message = " ";
+        
+        if (priceSource == null)
+        {
+            priceSource = org.yccheok.jstock.engine.Utils.getDefaultPriceSource(country);
+            message = " Default: ";
         }
+            
+        if (this.country.name().equals(country.name()))
+           JStock.log.info("JStockOptions getPriceSource() " + country.name() + message + priceSource.name());                                       
+        
         return priceSource;
     }
     
