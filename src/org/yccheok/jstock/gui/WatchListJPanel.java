@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.07 03/25/2019
+ * Version 1.0.7.37.08 03/29/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@
 //                                for Stock News Added Code Directly to Find Table Row & Redirect to
 //                                JStock.instance().displayStockNews().
 //         1.0.7.37.07 03/25/2019 Made initTableHeaderToolTips() Private & Called Only From Constructor.
+//         1.0.7.37.08 03/29/2019 Added Methods saveCSVWatchlist().
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -96,11 +97,12 @@ import org.yccheok.jstock.engine.Symbol;
 import org.yccheok.jstock.gui.charting.DynamicChart;
 import org.yccheok.jstock.gui.table.NonNegativeDoubleEditor;
 import org.yccheok.jstock.internationalization.GUIBundle;
+import org.yccheok.jstock.watchlist.CSVWatchList;
 import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.07 03/25/2019
+ * @version 1.0.7.37.08 03/29/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -621,6 +623,31 @@ public class WatchListJPanel extends JPanel
    protected JTable getTable()
    {
       return watchListTable;
+   }
+   
+   //==============================================================
+   // Class methods to save the stock list table in CSV format.
+   //
+   // The CVSWatchList class only purpose appears be for checking
+   // if the table is null, throws illegal arguments exception.
+   //==============================================================
+   
+   protected boolean saveCSVWatchlist()
+   {
+      final String directory = org.yccheok.jstock.watchlist.Utils.getWatchlistDirectory();
+      
+      return saveCSVWatchlist(directory, new CSVWatchList(watchListTable.getModel()));
+   }
+   
+   public boolean saveCSVWatchlist(String directory, CSVWatchList csvWatchlist)
+   {
+      assert (directory.endsWith(File.separator));
+      
+      if (org.yccheok.jstock.gui.Utils.createCompleteDirectoryHierarchyIfDoesNotExist(directory) == false)
+         return false;
+      
+      return JStock.saveAsCSVFile(csvWatchlist,
+         org.yccheok.jstock.watchlist.Utils.getWatchlistFile(directory), true);
    }
    
    //==============================================================
