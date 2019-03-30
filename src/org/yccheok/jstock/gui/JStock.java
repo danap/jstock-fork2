@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.29 03/26/2019
+ * Version 1.0.7.37.30 03/30/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,6 +174,16 @@
 //                                StockInfoDatabaseFromCSV() to DatabaseTask Where They Belong. Commented
 //                                initMarketJPanel() & initPreloadDatabase(), Just Confusing Trash Coding.
 //         1.0.7.37.29 03/26/2019 Cleaned Out Commented Code From 1.0.7.37.28.
+//         1.0.7.37.30 03/30/2019 Continued Organizing Ordering Methods. Moved getStockOptionsViaXML(),
+//                                initJStockOptions(), & initStockInfoDatabaseMeta(). Modified jStockOptions.
+//                                scanningSpeed as Needed in initJStockOptions(). Method initComponents()
+//                                Added portfolioManagementJPanel.updateDividerLocation() Directly Rather
+//                                Than in main(), Commented That Same Method Here. Method initKeyBindings()
+//                                & update() Removed Reference to, THIS, Class as JStock.instance(). All
+//                                of a Classes Instances & Methods Do Not Need to Be Referenced by Either
+//                                this.xxx or That Horrible Coding Decision. Commented Methods saveCSV
+//                                Watchlist() & private saveAsCSVFile(), Referenced to watchListPanel.
+//                                Added Method getWatchListPanel() & Commented Inner Class CSVWatchlist.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -248,13 +258,14 @@ import org.yccheok.jstock.gui.charting.DynamicChart;
 import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
 import org.yccheok.jstock.network.ProxyDetector;
+import org.yccheok.jstock.watchlist.CSVWatchList;
 
 import com.google.api.client.auth.oauth2.Credential;
 
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.29 03/26/2019
+ * @version 1.0.7.37.30 03/30/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -262,7 +273,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.29";
+   public static final String VERSION = "1.0.7.37.30";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -378,9 +389,64 @@ public class JStock extends javax.swing.JFrame
       return MainFrameHolder.INSTANCE;
    }
    
-   /**
-    * Initialize this MainFrame based on the JStockOptions.
-    */
+   //==============================================================
+   // Method to load via XML or create as needed JStockOptions.
+   //==============================================================
+   
+   private static JStockOptions getJStockOptionsViaXML()
+   {
+      // Method Instances.
+      File optionsFile;
+      JStockOptions jStockOptions;
+      
+      optionsFile = new File(UserDataDirectory.Config.get() + UserDataFile.OptionsXml.get());
+      jStockOptions = Utils.fromXML(JStockOptions.class, optionsFile);
+      
+      if (jStockOptions == null)
+         jStockOptions = new JStockOptions();
+      
+      return jStockOptions;
+   }
+   
+   //==============================================================
+   // Initialize jStockOptions and assigning price source.
+   //==============================================================
+   
+   private void initJStockOptions(JStockOptions jStockOptions)
+   {
+      this.jStockOptions = jStockOptions;
+
+      /* Hard core fix. */
+      if (this.jStockOptions.getScanningSpeed() < JStockOptions.MINIMUM_SCANNING_SPEED)
+         this.jStockOptions.setScanningSpeed(JStockOptions.DEFAULT_SCANNING_SPEED);
+
+      // Proxy
+      final String proxyHost = this.jStockOptions.getProxyServer();
+      final int proxyPort = this.jStockOptions.getProxyPort();
+
+      if ((proxyHost.length() > 0) && (org.yccheok.jstock.engine.Utils.isValidPortNumber(proxyPort)))
+      {
+         System.getProperties().put("http.proxyHost", proxyHost);
+         System.getProperties().put("http.proxyPort", "" + proxyPort);
+      }
+      else
+      {
+         System.getProperties().remove("http.proxyHost");
+         System.getProperties().remove("http.proxyPort");
+      }
+
+      // Assigns price source to each country in engine.Factories,
+      // either default or menu selected Country and network option
+      // Price Source.
+      
+      Utils.updateFactoriesPriceSource();
+   }
+   
+   //==============================================================
+   // Initialize this MainFrame based on the JStockOptions and
+   // other configuration files.
+   //==============================================================
+   
    private void init()
    {
       // Method Instances.
@@ -444,7 +510,8 @@ public class JStock extends javax.swing.JFrame
       
       // Extract, if does not exists, zipped file of stock listing
       // company names and other attributes by country to user's
-      // directory under, .jstock. These are files in csv format.
+      // directory under, .jstock. These are files in csv format
+      // and provided in database/database.zip.
       
       Utils.extractZipFile(DatabaseTask.ZIP_DATABASE_FILE_NAME, false);
       
@@ -560,6 +627,8 @@ public class JStock extends javax.swing.JFrame
 
       getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
       
+      portfolioManagementJPanel.updateDividerLocation();
+      
       // MenuBar
       menuBar = new Main_JMenuBar(bundle, log);
       setJMenuBar(menuBar);
@@ -587,7 +656,8 @@ public class JStock extends javax.swing.JFrame
    
    //==============================================================
    // Method to setup the GU options associated with Locale and
-   // JTableOptions having do with names, sizes for the Watch List. 
+   // JTableOptions having do with names, column view/sizes for the
+   // Watch List. 
    //==============================================================
    
    private void initGUIOptions()
@@ -626,8 +696,144 @@ public class JStock extends javax.swing.JFrame
          log.info("chartJDialogOptions loaded from " + f.toString() + " successfully.");   
    }
    
+   //==============================================================
+   // Method reads local configuration file stock-info-database-meta.json
+   // with com.google.gson.GsonBuilder, package gson-2.6.2.jar,
+   // containing Country with a ID, then compares to appengine
+   // Internet same file. If there is a difference then updates
+   // via download to a temporary csv file, that is used to update
+   // country configuaration folder database/stock-info-database.csv.
+   // Selected country has database reinitialized, as needed,
+   // with call to initDatabase(true). 
+   //==============================================================
    
-   
+   private void initStockInfoDatabaseMeta()
+   {
+      Runnable runnable = new Runnable()
+      {
+         @Override
+         public void run()
+         {
+            // Read existing stock-info-database-meta.json
+            final Map<Country, Long> localStockInfoDatabaseMeta = Utils.loadStockInfoDatabaseMeta(Utils
+                  .getStockInfoDatabaseMetaFile());
+
+            // Uses Github to serve as source of files.
+            // https://raw.githubusercontent.com/yccheok/jstock/master/appengine/jstock-static/war/
+            // stocks_information/stock-info-database-meta.json
+            
+            final String location = org.yccheok.jstock.network.Utils
+                  .getURL(org.yccheok.jstock.network.Utils.Type.STOCK_INFO_DATABASE_META);
+
+            final String json = Utils.downloadAsString(location);
+            
+            if (json.isEmpty())
+               log.info("JStock initStockInfoDatabase() Download:stock-info-database-meta.json EMPTY");
+            else
+               log.info("JStock initStockInfoDatabase() Download:stock-info-database-meta.json SUCCESSFUL");
+               
+            
+            final Map<Country, Long> latestStockInfoDatabaseMeta = Utils.loadStockInfoDatabaseMeta(json);
+            final Map<Country, Long> successStockInfoDatabaseMeta = new EnumMap<Country, Long>(Country.class);
+
+            boolean needToInitDatabase = false;
+
+            // Build up list of stock-info-database.csv that needed to be
+            // updated.
+            for (Map.Entry<Country, Long> entry : latestStockInfoDatabaseMeta.entrySet())
+            {
+               if (Thread.currentThread().isInterrupted() || stockInfoDatabaseMetaPool == null)
+                  break;
+
+               Country country = entry.getKey();
+               Long latest = entry.getValue();
+               Long local = localStockInfoDatabaseMeta.get(country);
+               
+               // log.info("latest:local " + country + ":" + latest + ":" + local);
+
+               if (false == latest.equals(local))
+               {
+                  final String stocksCSVZipFileLocation = org.yccheok.jstock.engine.Utils
+                        .getStocksCSVZipFileLocation(country);
+                  
+                  // https://raw.githubusercontent.com/yccheok/jstock/master/appengine/jstock-static/war/
+                  // stocks_information/unitedstate/stocks.zip
+                  log.info("JStock initStockInfoDatabase() latest!=locale stocksCSVZipFileLocation: "
+                           + stocksCSVZipFileLocation);
+
+                  final File zipFile = Utils.downloadAsTempFile(stocksCSVZipFileLocation);
+
+                  if (zipFile == null)
+                     continue;
+
+                  File tempZipDirectory = null;
+
+                  try
+                  {
+                     tempZipDirectory = java.nio.file.Files.createTempDirectory(null).toFile();
+
+                     if (false == Utils.extractZipFile(zipFile, tempZipDirectory.getAbsolutePath(), true))
+                        continue;
+
+                     File file = new File(tempZipDirectory, "stocks.csv");
+
+                     final java.util.List<Stock> stocks = org.yccheok.jstock.engine.Utils
+                           .getStocksFromCSVFile(file);
+
+                     if (false == stocks.isEmpty())
+                     {
+                        final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = org.yccheok.jstock.engine.Utils
+                              .toStockDatabase(stocks, country);
+
+                        final boolean success = JStock.saveStockInfoDatabaseAsCSV(country,
+                           stockDatabase.first);
+
+                        if (stockDatabase.second != null)
+                           JStock.saveStockNameDatabaseAsCSV(country, stockDatabase.second);
+
+                        if (success)
+                        {
+                           successStockInfoDatabaseMeta.put(country, latest);
+                           
+                           if (country == jStockOptions.getCountry())
+                              needToInitDatabase = true;
+                        }
+                     }
+                  }
+                  catch (IOException ex)
+                  {
+                     log.error(null, ex);
+                  }
+                  finally
+                  {
+                     if (tempZipDirectory != null)
+                        Utils.deleteDir(tempZipDirectory, true);
+                  }
+               }
+            }
+
+            if (successStockInfoDatabaseMeta.isEmpty())
+               return;
+
+            // Retain old meta value.
+            for (Map.Entry<Country, Long> entry : localStockInfoDatabaseMeta.entrySet())
+            {
+               Country country = entry.getKey();
+               Long old = entry.getValue();
+
+               if (false == successStockInfoDatabaseMeta.containsKey(country))
+                  successStockInfoDatabaseMeta.put(country, old);
+            }
+
+            Utils.saveStockInfoDatabaseMeta(Utils.getStockInfoDatabaseMetaFile(),
+               successStockInfoDatabaseMeta);
+
+            if (needToInitDatabase)
+               initDatabase(true);
+         }
+      };
+      stockInfoDatabaseMetaPool.execute(runnable);
+   }
    
    
    
@@ -660,7 +866,7 @@ public class JStock extends javax.swing.JFrame
          @Override
          public void actionPerformed(ActionEvent e)
          {
-            if (JStock.instance().getSelectedComponent() != watchListPanel)
+            if (getSelectedComponent() != watchListPanel)
             {
                // The page is not active. Make it active.
                jTabbedPane1.setSelectedIndex(watchListTabIndex);
@@ -678,7 +884,7 @@ public class JStock extends javax.swing.JFrame
          @Override
          public void actionPerformed(ActionEvent e)
          {
-            if (JStock.instance().getSelectedComponent() != JStock.instance().portfolioManagementJPanel)
+            if (getSelectedComponent() != portfolioManagementJPanel)
             {
                // The page is not active. Make it active.
                JStock.this.jTabbedPane1.setSelectedIndex(portfolioTabIndex);
@@ -895,7 +1101,8 @@ public class JStock extends javax.swing.JFrame
       this.saveUIOptions();
       this.saveGUIOptions();
       this.saveChartJDialogOptions();
-      this.saveCSVWatchlist();
+      //this.saveCSVWatchlist();
+      this.watchListPanel.saveCSVWatchlist();
       this.portfolioManagementJPanel.savePortfolio();
    }
 
@@ -979,7 +1186,8 @@ public class JStock extends javax.swing.JFrame
    {
       assert (SwingUtilities.isEventDispatchThread());
       // Save current watchlist.
-      JStock.this.saveCSVWatchlist();
+      //JStock.this.saveCSVWatchlist();
+      watchListPanel.saveCSVWatchlist();
       // Save current GUI options.
       // Do not call MainFrame.this.saveGUIOptions() (Pay note on the
       // underscore)
@@ -1021,6 +1229,7 @@ public class JStock extends javax.swing.JFrame
       this.setStatusBar(false, this.getBestStatusBarMessage());
    }
 
+   /*
    private static boolean saveAsCSVFile(CSVWatchlist csvWatchlist, File file, boolean languageIndependent)
    {
       final org.yccheok.jstock.file.Statements statements = org.yccheok.jstock.file.Statements
@@ -1028,33 +1237,25 @@ public class JStock extends javax.swing.JFrame
       assert (statements != null);
       return statements.saveAsCSVFile(file);
    }
+   */
 
    protected boolean saveAsCSVFile(File file, boolean languageIndependent)
    {
       final TableModel tableModel = watchListPanel.getTable().getModel();
-      CSVWatchlist csvWatchlist = CSVWatchlist.newInstance(tableModel);
-      return saveAsCSVFile(csvWatchlist, file, languageIndependent);
+      //CSVWatchlist csvWatchlist = CSVWatchlist.newInstance(tableModel);
+      CSVWatchList csvWatchlist = new CSVWatchList(tableModel);
+      return WatchListJPanel.saveAsCSVFile(csvWatchlist, file, languageIndependent);
    }
 
-   private static JStockOptions getJStockOptionsViaXML()
-   {
-      final File f = new File(UserDataDirectory.Config.get() + UserDataFile.OptionsXml.get());
-      JStockOptions jStockOptions = Utils.fromXML(JStockOptions.class, f);
-      
-      if (jStockOptions == null)
-      {
-         // JStockOptions's file not found. Perhaps this is the first time we
-         // run JStock.
-         jStockOptions = new JStockOptions();
-      }
-      return jStockOptions;
-   }
+   
 
    // Restore the last saved divider location for portfolio management panel.
+   /*
    private void updateDividerLocation()
    {
       this.portfolioManagementJPanel.updateDividerLocation();
    }
+   */
 
    protected void clearAllStocks()
    {
@@ -1190,6 +1391,11 @@ public class JStock extends javax.swing.JFrame
       }
    }
 
+   public WatchListJPanel getWatchListPanel()
+   {
+      return this.watchListPanel;
+   }
+   
    public PortfolioManagementJPanel getPortfolioManagementJPanel()
    {
       return this.portfolioManagementJPanel;
@@ -1220,8 +1426,9 @@ public class JStock extends javax.swing.JFrame
 
       /* Need to save chart dialog options? */
 
-      saveCSVWatchlist();
-      this.portfolioManagementJPanel.savePortfolio();
+      //saveCSVWatchlist();
+      watchListPanel.saveCSVWatchlist();
+      portfolioManagementJPanel.savePortfolio();
 
       jStockOptions.setCountry(country);
       jStockOptions.addRecentCountry(country);
@@ -1510,33 +1717,7 @@ public class JStock extends javax.swing.JFrame
       return Utils.toXML(guiOptions, f);
    }
    
-   /**
-    * Initialize JStock options.
-    */
-   public void initJStockOptions(JStockOptions jStockOptions)
-   {
-      this.jStockOptions = jStockOptions;
-
-      /* Hard core fix. */
-      if (this.jStockOptions.getScanningSpeed() == 0)
-         this.jStockOptions.setScanningSpeed(1 * 60 * 1000);
-
-      final String proxyHost = this.jStockOptions.getProxyServer();
-      final int proxyPort = this.jStockOptions.getProxyPort();
-
-      if ((proxyHost.length() > 0) && (org.yccheok.jstock.engine.Utils.isValidPortNumber(proxyPort)))
-      {
-         System.getProperties().put("http.proxyHost", proxyHost);
-         System.getProperties().put("http.proxyPort", "" + proxyPort);
-      }
-      else
-      {
-         System.getProperties().remove("http.proxyHost");
-         System.getProperties().remove("http.proxyPort");
-      }
-
-      Utils.updateFactoriesPriceSource();
-   }
+   
 
    public void updatePriceSource(Country country, PriceSource priceSource)
    {
@@ -1568,7 +1749,9 @@ public class JStock extends javax.swing.JFrame
          _realTimeIndexMonitor.rebuild();
    }
 
-   public static boolean saveCSVWatchlist(String directory, CSVWatchlist csvWatchlist)
+   //public static boolean saveCSVWatchlist(String directory, CSVWatchlist csvWatchlist)
+   /*
+   public static boolean saveCSVWatchlist(String directory, CVSWatchList csvWatchlist)
    {
       assert (directory.endsWith(File.separator));
       
@@ -1578,14 +1761,18 @@ public class JStock extends javax.swing.JFrame
       return JStock.saveAsCSVFile(csvWatchlist,
          org.yccheok.jstock.watchlist.Utils.getWatchlistFile(directory), true);
    }
-
+   */
+   
+/*
    private boolean saveCSVWatchlist()
    {
       final String directory = org.yccheok.jstock.watchlist.Utils.getWatchlistDirectory();
       final TableModel tableModel = watchListPanel.getTable().getModel();
-      CSVWatchlist csvWatchlist = CSVWatchlist.newInstance(tableModel);
+      //CSVWatchlist csvWatchlist = CSVWatchlist.newInstance(tableModel);
+      CVSWatchList csvWatchlist = new CVSWatchList(tableModel);
       return JStock.saveCSVWatchlist(directory, csvWatchlist);
    }
+   */
 
    private static java.util.List<Pair<Code, Symbol>> getUserDefinedPair(StockInfoDatabase stockInfoDatabase)
    {
@@ -1691,116 +1878,7 @@ public class JStock extends javax.swing.JFrame
          singleThreadExecutor.submit(new IEXStockInfoDatabaseRunnable());
    }
 
-   private void initStockInfoDatabaseMeta()
-   {
-      Runnable runnable = new Runnable()
-      {
-         @Override
-         public void run()
-         {
-            // Read existing stock-info-database-meta.json
-            final Map<Country, Long> localStockInfoDatabaseMeta = Utils.loadStockInfoDatabaseMeta(Utils
-                  .getStockInfoDatabaseMetaFile());
-
-            final String location = org.yccheok.jstock.network.Utils
-                  .getURL(org.yccheok.jstock.network.Utils.Type.STOCK_INFO_DATABASE_META);
-
-            final String json = Utils.downloadAsString(location);
-            final Map<Country, Long> latestStockInfoDatabaseMeta = Utils.loadStockInfoDatabaseMeta(json);
-            final Map<Country, Long> successStockInfoDatabaseMeta = new EnumMap<Country, Long>(Country.class);
-
-            boolean needToInitDatabase = false;
-
-            // Build up list of stock-info-database.csv that needed to be
-            // updated.
-            for (Map.Entry<Country, Long> entry : latestStockInfoDatabaseMeta.entrySet())
-            {
-               if (Thread.currentThread().isInterrupted() || stockInfoDatabaseMetaPool == null)
-                  break;
-
-               Country country = entry.getKey();
-               Long latest = entry.getValue();
-               Long local = localStockInfoDatabaseMeta.get(country);
-
-               if (false == latest.equals(local))
-               {
-                  final String stocksCSVZipFileLocation = org.yccheok.jstock.engine.Utils
-                        .getStocksCSVZipFileLocation(country);
-
-                  final File zipFile = Utils.downloadAsTempFile(stocksCSVZipFileLocation);
-
-                  if (zipFile == null)
-                     continue;
-
-                  File tempZipDirectory = null;
-
-                  try
-                  {
-                     tempZipDirectory = java.nio.file.Files.createTempDirectory(null).toFile();
-
-                     if (false == Utils.extractZipFile(zipFile, tempZipDirectory.getAbsolutePath(), true))
-                        continue;
-
-                     File file = new File(tempZipDirectory, "stocks.csv");
-
-                     final java.util.List<Stock> stocks = org.yccheok.jstock.engine.Utils
-                           .getStocksFromCSVFile(file);
-
-                     if (false == stocks.isEmpty())
-                     {
-                        final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = org.yccheok.jstock.engine.Utils
-                              .toStockDatabase(stocks, country);
-
-                        final boolean success = JStock.saveStockInfoDatabaseAsCSV(country,
-                           stockDatabase.first);
-
-                        if (stockDatabase.second != null)
-                           JStock.saveStockNameDatabaseAsCSV(country, stockDatabase.second);
-
-                        if (success)
-                        {
-                           successStockInfoDatabaseMeta.put(country, latest);
-                           
-                           if (country == jStockOptions.getCountry())
-                              needToInitDatabase = true;
-                        }
-                     }
-                  }
-                  catch (IOException ex)
-                  {
-                     log.error(null, ex);
-                  }
-                  finally
-                  {
-                     if (tempZipDirectory != null)
-                        Utils.deleteDir(tempZipDirectory, true);
-                  }
-               }
-            }
-
-            if (successStockInfoDatabaseMeta.isEmpty())
-               return;
-
-            // Retain old meta value.
-            for (Map.Entry<Country, Long> entry : localStockInfoDatabaseMeta.entrySet())
-            {
-               Country country = entry.getKey();
-               Long old = entry.getValue();
-
-               if (false == successStockInfoDatabaseMeta.containsKey(country))
-                  successStockInfoDatabaseMeta.put(country, old);
-            }
-
-            Utils.saveStockInfoDatabaseMeta(Utils.getStockInfoDatabaseMetaFile(),
-               successStockInfoDatabaseMeta);
-
-            if (needToInitDatabase)
-               initDatabase(true);
-         }
-      };
-
-      stockInfoDatabaseMetaPool.execute(runnable);
-   }
+   
 
    protected void initDatabase(boolean readFromDisk)
    {
@@ -1915,7 +1993,7 @@ public class JStock extends javax.swing.JFrame
          ((StockTableModel) watchListPanel.getTable().getModel()).setTimestamp(this.timestamp);
       }
 
-      JStock.instance().updateStatusBarWithLastUpdateDateMessageIfPossible();
+      updateStatusBarWithLastUpdateDateMessageIfPossible();
 
       // Do it in GUI event dispatch thread. Otherwise, we may face deadlock.
       // For example, we lock the jTable, and try to remove the stock from the
@@ -2312,24 +2390,29 @@ public class JStock extends javax.swing.JFrame
         * Start Application.
         **********************************************************************/
        
-       java.awt.EventQueue.invokeLater(new Runnable() {
+       java.awt.EventQueue.invokeLater(new Runnable()
+       {
            @Override
-           public void run() {
-               final JStock mainFrame = JStock.instance();
+           public void run()
+           {
+              // This is just crap.
+              final JStock mainFrame = JStock.instance();
                
-               // We need to first assign jStockOptions to mainFrame, as during
-               // Utils.migrateXMLToCSVPortfolios, we will be accessing mainFrame's
-               // jStockOptions.
-               mainFrame.initJStockOptions(jStockOptions);
+              // We need to first assign jStockOptions to mainFrame, as during
+              // Utils.migrateXMLToCSVPortfolios, we will be accessing mainFrame's
+              // jStockOptions. Not quite, if better design would have been
+              // implemented.
                
-               mainFrame.init();
-               mainFrame.setVisible(true);
-               mainFrame.updateDividerLocation();
-               mainFrame.watchListPanel.requestFocusOnJComboBox();
+              mainFrame.initJStockOptions(jStockOptions);
+               
+              mainFrame.init();
+              mainFrame.setVisible(true);
+              mainFrame.watchListPanel.requestFocusOnJComboBox();
            }
-       });  
+       }); 
    }
    
+   /*
    public static final class CSVWatchlist
    {
       public final TableModel tableModel;
@@ -2347,4 +2430,6 @@ public class JStock extends javax.swing.JFrame
          return new CSVWatchlist(tableModel);
       }
    }
+   */
+   
 }
