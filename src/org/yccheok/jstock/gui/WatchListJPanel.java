@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.08 03/29/2019
+ * Version 1.0.7.37.09 03/31/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@
 //                                JStock.instance().displayStockNews().
 //         1.0.7.37.07 03/25/2019 Made initTableHeaderToolTips() Private & Called Only From Constructor.
 //         1.0.7.37.08 03/29/2019 Added Methods saveCSVWatchlist().
+//         1.0.7.37.09 03/31/2019 Imported watchlist.Utils & Added Method saveAsCSVFile().
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -102,7 +103,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.08 03/29/2019
+ * @version 1.0.7.37.09 03/31/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -634,7 +635,7 @@ public class WatchListJPanel extends JPanel
    
    protected boolean saveCSVWatchlist()
    {
-      final String directory = org.yccheok.jstock.watchlist.Utils.getWatchlistDirectory();
+      final String directory = Utils.getWatchlistDirectory();
       
       return saveCSVWatchlist(directory, new CSVWatchList(watchListTable.getModel()));
    }
@@ -646,8 +647,15 @@ public class WatchListJPanel extends JPanel
       if (org.yccheok.jstock.gui.Utils.createCompleteDirectoryHierarchyIfDoesNotExist(directory) == false)
          return false;
       
-      return JStock.saveAsCSVFile(csvWatchlist,
-         org.yccheok.jstock.watchlist.Utils.getWatchlistFile(directory), true);
+      return saveAsCSVFile(csvWatchlist, Utils.getWatchlistFile(directory), true);
+   }
+   
+   protected static boolean saveAsCSVFile(CSVWatchList csvWatchlist, File file, boolean languageIndependent)
+   {
+      final org.yccheok.jstock.file.Statements statements = org.yccheok.jstock.file.Statements
+            .newInstanceFromTableModel(csvWatchlist.tableModel, languageIndependent);
+      assert (statements != null);
+      return statements.saveAsCSVFile(file);
    }
    
    //==============================================================
