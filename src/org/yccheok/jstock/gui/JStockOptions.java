@@ -1416,7 +1416,7 @@ public class JStockOptions {
         }
             
         if (this.country.name().equals(country.name()))
-           JStock.log.info("JStockOptions getPriceSource() " + country.name() + message + priceSource.name());                                       
+           JStock.log.info("PriceSource: " + country.name() + message + priceSource.name());                                       
         
         return priceSource;
     }
