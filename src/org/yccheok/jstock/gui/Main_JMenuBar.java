@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 1.9 03/22/2019
+// Version 2.0 04/01/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,6 +52,7 @@
 //             indicatorScannerJPanel. Same in Method databaseActionPerormed().
 //         1.9 Commented in Constructor Setting Font, Changed Slightly JMenu Font
 //             Derivative to Bold, Along With Added to helpMenu.
+//         2.0 Added Method buildCountryMenuItems().
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -65,6 +66,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -106,7 +109,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 1.9 03/22/2019
+ * @version 2.0 04/01/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -188,7 +191,8 @@ public class Main_JMenuBar extends JMenuBar
       logoIconItem.setBorder(BorderFactory.createLoweredBevelBorder());
       add(logoIconItem);
       
-      rebuildCountryMenuItems(true);
+      //rebuildCountryMenuItems(false);
+      buildCountryMenuItems();
    }
 
    //==============================================================
@@ -1129,12 +1133,61 @@ public class Main_JMenuBar extends JMenuBar
 
    //==============================================================
    // Class Method to Rebuild the Countries in the Country menu.
+   // This was used to control the supported country menu items
+   // available to the user. The only countries list that do not
+   // have markets are Czech & Hungary. It also controlled this
+   // list as unmodified one. See buildCountryMenuItems().
    //==============================================================
 
    private void rebuildCountryMenuItems(boolean useCache)
    {
+      // This was not in 1.0.7.9. Czech & Hungary remove only. 
       final List<Country> countries = Utils.getSupportedStockMarketCountries(useCache);
 
+      countryMenu.removeAll();
+
+      for (Enumeration<AbstractButton> e = countriesButtonGroup.getElements(); e.hasMoreElements();)
+         countriesButtonGroup.remove(e.nextElement());
+
+      Map<Continent, JMenu> menus = new EnumMap<>(Continent.class);
+      for (final Continent continent : Continent.values())
+      {
+         JMenu jMenu = new JMenu(continent.name());
+         countryMenu.add(jMenu);
+         menus.put(continent, jMenu);
+      }
+
+      for (final Country country : countries)
+      {
+         JMenu jMenu = menus.get(Continent.toContinent(country));
+
+         // Ugly fix on spelling mistake.
+         final JMenuItem mi = (JRadioButtonMenuItem) jMenu.add(new JRadioButtonMenuItem(country.humanString,
+                                                                                        country.icon));
+
+         countriesButtonGroup.add(mi);
+         mi.addActionListener(new ActionListener()
+         {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+               jstock.changeCountry(country);
+            }
+         });
+
+         if (jstock.getJStockOptions().getCountry() == country)
+            ((JRadioButtonMenuItem) mi).setSelected(true);
+      }
+   }
+   
+   private void buildCountryMenuItems()
+   {
+      List<Country> countries = new ArrayList<Country>(Arrays.asList(Country.values()));
+      
+      // Czech and Hungary are only for currency exchange purpose.
+      countries.remove(Country.Czech);
+      countries.remove(Country.Hungary);
+      
       countryMenu.removeAll();
 
       for (Enumeration<AbstractButton> e = countriesButtonGroup.getElements(); e.hasMoreElements();)
