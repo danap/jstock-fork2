@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.30 03/30/2019
+ * Version 1.0.7.37.31 04/01/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,6 +184,10 @@
 //                                this.xxx or That Horrible Coding Decision. Commented Methods saveCSV
 //                                Watchlist() & private saveAsCSVFile(), Referenced to watchListPanel.
 //                                Added Method getWatchListPanel() & Commented Inner Class CSVWatchlist.
+//         1.0.7.37.31 04/01/2019 Cleaned Out Commented Code From 1.0.7.37.30. Moved initKeyBindings()
+//                                Ordering With Setup of Frame. Moved initGoogleCodeDatabaseRunnable()
+//                                & initIEXStockInfoDatabaseRunnable() to Method Order Sequencing. Modified
+//                                tabListsNaviagtion() to Simplify initKeyBindings().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -195,6 +199,7 @@ package org.yccheok.jstock.gui;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -231,8 +236,6 @@ import org.yccheok.jstock.engine.Code;
 import org.yccheok.jstock.engine.Country;
 import org.yccheok.jstock.engine.Duration;
 import org.yccheok.jstock.engine.Factories;
-import org.yccheok.jstock.engine.GoogleCodeDatabaseRunnable;
-import org.yccheok.jstock.engine.IEXStockInfoDatabaseRunnable;
 import org.yccheok.jstock.engine.Index;
 import org.yccheok.jstock.engine.Market;
 import org.yccheok.jstock.engine.Pair;
@@ -265,7 +268,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.30 03/30/2019
+ * @version 1.0.7.37.31 04/01/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -273,7 +276,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.30";
+   public static final String VERSION = "1.0.7.37.31";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -463,16 +466,6 @@ public class JStock extends javax.swing.JFrame
       
       setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
       
-      addMouseListener(new java.awt.event.MouseAdapter()
-      {
-         public void mouseClicked(java.awt.event.MouseEvent evt)
-         {
-            watchListPanel.getTable().getSelectionModel().clearSelection();
-            portfolioManagementJPanel.clearTableSelection();
-            watchListPanel.updateDynamicChart(null);
-         }
-      });
-      
       addWindowListener(new java.awt.event.WindowAdapter()
       {
          public void windowClosed(java.awt.event.WindowEvent evt)
@@ -503,6 +496,18 @@ public class JStock extends javax.swing.JFrame
          }
       });
       
+      initKeyBindings();
+      
+      addMouseListener(new java.awt.event.MouseAdapter()
+      {
+         public void mouseClicked(java.awt.event.MouseEvent evt)
+         {
+            watchListPanel.getTable().getSelectionModel().clearSelection();
+            portfolioManagementJPanel.clearTableSelection();
+            watchListPanel.updateDynamicChart(null);
+         }
+      });
+      
       // Start Initializing components and other
       // requirements.
       
@@ -522,22 +527,24 @@ public class JStock extends javax.swing.JFrame
       initGUIOptions();
       initChartJDialogOptions();
       
-      
+      // Comment Here
       
       initStockInfoDatabaseMeta();
       initGoogleCodeDatabaseRunnable();
       initIEXStockInfoDatabaseRunnable();
       initDatabase(true);
       initAjaxProvider();
+      
       initRealTimeIndexMonitor();
       initStockHistoryMonitor();
       initExchangeRateMonitor();
       initRealTimeStockMonitor();
+      
       watchListPanel.initWatchlist();
       initDynamicCharts();
       initDynamicChartVisibility();
       watchListPanel.addAutoCompleteComboBox();
-      initKeyBindings();
+      //initKeyBindings();
 
       // Turn to the last viewed page.
       final int lastSelectedPageIndex = getJStockOptions().getLastSelectedPageIndex();
@@ -569,6 +576,90 @@ public class JStock extends javax.swing.JFrame
       installShutdownHook();
 
       BackwardCompatible.removeGoogleCodeDatabaseIfNecessary();
+   }
+   
+   //==============================================================
+   // Method to allow selecting WatchList & Portfolio Tabs via the
+   // keyboard. Also will toggle between lists for each tab.
+   //==============================================================
+   
+   private void initKeyBindings()
+   {
+      KeyStroke watchlistNavigationKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_W,
+         java.awt.event.InputEvent.CTRL_MASK);
+      getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(watchlistNavigationKeyStroke,
+            "watchlistNavigation");
+      
+      KeyStroke portfolioNavigationKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_P,
+         java.awt.event.InputEvent.CTRL_MASK);
+      getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(portfolioNavigationKeyStroke,
+         "portfolioNavigation");
+      
+      getRootPane().getActionMap().put("watchlistNavigation", new AbstractAction()
+      {
+         private static final long serialVersionUID = 5097111889683602733L;
+
+         @Override
+         public void actionPerformed(ActionEvent e)
+         {
+            tabListsNavigation("watchlist", org.yccheok.jstock.watchlist.Utils.getWatchlistNames());
+         }
+      });
+      getRootPane().getActionMap().put("portfolioNavigation", new AbstractAction()
+      {
+         private static final long serialVersionUID = -4296921725513282997L;
+
+         @Override
+         public void actionPerformed(ActionEvent e)
+         {
+            tabListsNavigation("portfolio", org.yccheok.jstock.portfolio.Utils.getPortfolioNames());
+         }
+      });
+   }
+   
+   private void tabListsNavigation(String sourceKey, java.util.List<String> tabListNames)
+   {  
+      // Method Instances.
+      String listName;
+      int index;
+      
+      if (sourceKey.equals("portfolio") && getSelectedComponent() != portfolioManagementJPanel)
+      {
+         jTabbedPane1.setSelectedIndex(portfolioTabIndex);
+         return;
+      }
+      
+      if (sourceKey.equals("watchlist") && getSelectedComponent() != watchListPanel)
+      {
+         jTabbedPane1.setSelectedIndex(watchListTabIndex);
+         return;
+      }
+      
+      if (tabListNames.size() <= 1)
+         return;
+      
+      if (getSelectedComponent() == watchListPanel)
+         listName = getJStockOptions().getWatchlistName();
+      else if (getSelectedComponent() == portfolioManagementJPanel)
+         listName = getJStockOptions().getPortfolioName();
+      else
+         return;
+      
+      index = 0;
+
+      for (; index < tabListNames.size(); index++)
+         if (tabListNames.get(index).equals(listName))
+         {
+            index++;
+            if (index >= tabListNames.size())
+               index = 0;
+            break;
+         }
+      
+      if (getSelectedComponent() == watchListPanel)
+         selectActiveWatchlist(tabListNames.get(index));
+      else
+         selectActivePortfolio(tabListNames.get(index));
    }
    
    //==============================================================
@@ -704,7 +795,7 @@ public class JStock extends javax.swing.JFrame
    // via download to a temporary csv file, that is used to update
    // country configuaration folder database/stock-info-database.csv.
    // Selected country has database reinitialized, as needed,
-   // with call to initDatabase(true). 
+   // with call to initDatabase(true).
    //==============================================================
    
    private void initStockInfoDatabaseMeta()
@@ -835,103 +926,49 @@ public class JStock extends javax.swing.JFrame
       stockInfoDatabaseMetaPool.execute(runnable);
    }
    
+   //==============================================================
+   // See docs notes engine fabrication.
+   //==============================================================
    
-   
-   
-   
-   
-   
-   
-   
+   private void initGoogleCodeDatabaseRunnable()
+   { 
+      /*
+      final Country country = jStockOptions.getCountry();
 
-   
-   
-   
-   private void initKeyBindings()
-   {
-      KeyStroke watchlistNavigationKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W,
-         java.awt.event.InputEvent.CTRL_MASK);
-      getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(watchlistNavigationKeyStroke,
-            "watchlistNavigation");
-      
-      KeyStroke portfolioNavigationKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P,
-         java.awt.event.InputEvent.CTRL_MASK);
-      getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(portfolioNavigationKeyStroke,
-         "portfolioNavigation");
-      
-      getRootPane().getActionMap().put("watchlistNavigation", new AbstractAction()
+      if (org.yccheok.jstock.engine.Utils.isGoogleCodeDatabaseRequired(country))
       {
-         private static final long serialVersionUID = 5097111889683602733L;
-
-         @Override
-         public void actionPerformed(ActionEvent e)
-         {
-            if (getSelectedComponent() != watchListPanel)
-            {
-               // The page is not active. Make it active.
-               jTabbedPane1.setSelectedIndex(watchListTabIndex);
-               return;
-            }
-            
-            // Select last saved tab list.
-            tabListsNavigation(org.yccheok.jstock.watchlist.Utils.getWatchlistNames());
-         }
-      });
-      getRootPane().getActionMap().put("portfolioNavigation", new AbstractAction()
-      {
-         private static final long serialVersionUID = -4296921725513282997L;
-
-         @Override
-         public void actionPerformed(ActionEvent e)
-         {
-            if (getSelectedComponent() != portfolioManagementJPanel)
-            {
-               // The page is not active. Make it active.
-               JStock.this.jTabbedPane1.setSelectedIndex(portfolioTabIndex);
-               return;
-            }
-
-            // Select last saved tab list.
-            tabListsNavigation(org.yccheok.jstock.portfolio.Utils.getPortfolioNames());
-         }
-      });
-   }
-   
-   // Selects default, last used when closed tab list item.
-   private void tabListsNavigation(java.util.List<String> tabListNames)
-   {  
-      // Method Instances.
-      String listName;
-      int index;
-      
-      if (tabListNames.size() <= 1)
-         return;
-      
-      if (getSelectedComponent() == watchListPanel)
-         listName = getJStockOptions().getWatchlistName();
-      else if (getSelectedComponent() == portfolioManagementJPanel)
-         listName = getJStockOptions().getPortfolioName();
-      else
-         return;
-      
-      index = 0;
-
-      for (; index < tabListNames.size(); index++)
-      {
-         if (tabListNames.get(index).equals(listName))
-         {
-            index++;
-            if (index >= tabListNames.size())
-               index = 0;
-            break;
-         }
+          this.singleThreadExecutor.submit(new GoogleCodeDatabaseRunnable(country));
       }
-      
-      if (getSelectedComponent() == watchListPanel)
-         selectActiveWatchlist(tabListNames.get(index));
-      else
-         selectActivePortfolio(tabListNames.get(index));
+      */ 
    }
+   
+   //==============================================================
+   // See docs notes engine fabrication.
+   //==============================================================
+   
+   private void initIEXStockInfoDatabaseRunnable()
+   {
+      /*
+      if (IEXStockInfoDatabaseRunnable.needToBuild())
+         singleThreadExecutor.submit(new IEXStockInfoDatabaseRunnable());
+      */
+   }
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   
+   
+   
+   
+   
 
    // Register a hook to save app settings when quit via the app menu.
    // This is in Mac OSX only.
@@ -1229,16 +1266,6 @@ public class JStock extends javax.swing.JFrame
       this.setStatusBar(false, this.getBestStatusBarMessage());
    }
 
-   /*
-   private static boolean saveAsCSVFile(CSVWatchlist csvWatchlist, File file, boolean languageIndependent)
-   {
-      final org.yccheok.jstock.file.Statements statements = org.yccheok.jstock.file.Statements
-            .newInstanceFromTableModel(csvWatchlist.tableModel, languageIndependent);
-      assert (statements != null);
-      return statements.saveAsCSVFile(file);
-   }
-   */
-
    protected boolean saveAsCSVFile(File file, boolean languageIndependent)
    {
       final TableModel tableModel = watchListPanel.getTable().getModel();
@@ -1246,16 +1273,6 @@ public class JStock extends javax.swing.JFrame
       CSVWatchList csvWatchlist = new CSVWatchList(tableModel);
       return WatchListJPanel.saveAsCSVFile(csvWatchlist, file, languageIndependent);
    }
-
-   
-
-   // Restore the last saved divider location for portfolio management panel.
-   /*
-   private void updateDividerLocation()
-   {
-      this.portfolioManagementJPanel.updateDividerLocation();
-   }
-   */
 
    protected void clearAllStocks()
    {
@@ -1717,8 +1734,6 @@ public class JStock extends javax.swing.JFrame
       return Utils.toXML(guiOptions, f);
    }
    
-   
-
    public void updatePriceSource(Country country, PriceSource priceSource)
    {
       Factories.INSTANCE.updatePriceSource(country, priceSource);
@@ -1748,31 +1763,6 @@ public class JStock extends javax.swing.JFrame
       if (_realTimeIndexMonitor != null)
          _realTimeIndexMonitor.rebuild();
    }
-
-   //public static boolean saveCSVWatchlist(String directory, CSVWatchlist csvWatchlist)
-   /*
-   public static boolean saveCSVWatchlist(String directory, CVSWatchList csvWatchlist)
-   {
-      assert (directory.endsWith(File.separator));
-      
-      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(directory) == false)
-         return false;
-      
-      return JStock.saveAsCSVFile(csvWatchlist,
-         org.yccheok.jstock.watchlist.Utils.getWatchlistFile(directory), true);
-   }
-   */
-   
-/*
-   private boolean saveCSVWatchlist()
-   {
-      final String directory = org.yccheok.jstock.watchlist.Utils.getWatchlistDirectory();
-      final TableModel tableModel = watchListPanel.getTable().getModel();
-      //CSVWatchlist csvWatchlist = CSVWatchlist.newInstance(tableModel);
-      CVSWatchList csvWatchlist = new CVSWatchList(tableModel);
-      return JStock.saveCSVWatchlist(directory, csvWatchlist);
-   }
-   */
 
    private static java.util.List<Pair<Code, Symbol>> getUserDefinedPair(StockInfoDatabase stockInfoDatabase)
    {
@@ -1863,22 +1853,6 @@ public class JStock extends javax.swing.JFrame
       Country country = this.jStockOptions.getCountry();
       this.watchListPanel.setGreedyEnabled(country);
    }
-
-   private void initGoogleCodeDatabaseRunnable()
-   {
-      final Country country = jStockOptions.getCountry();
-
-      if (org.yccheok.jstock.engine.Utils.isGoogleCodeDatabaseRequired(country))
-         this.singleThreadExecutor.submit(new GoogleCodeDatabaseRunnable(country));
-   }
-
-   private void initIEXStockInfoDatabaseRunnable()
-   {
-      if (IEXStockInfoDatabaseRunnable.needToBuild())
-         singleThreadExecutor.submit(new IEXStockInfoDatabaseRunnable());
-   }
-
-   
 
    protected void initDatabase(boolean readFromDisk)
    {
@@ -2411,25 +2385,4 @@ public class JStock extends javax.swing.JFrame
            }
        }); 
    }
-   
-   /*
-   public static final class CSVWatchlist
-   {
-      public final TableModel tableModel;
-
-      private CSVWatchlist(TableModel tableModel)
-      {
-         if (tableModel == null)
-            throw new java.lang.IllegalArgumentException();
-         
-         this.tableModel = tableModel;
-      }
-
-      public static CSVWatchlist newInstance(TableModel tableModel)
-      {
-         return new CSVWatchlist(tableModel);
-      }
-   }
-   */
-   
 }
