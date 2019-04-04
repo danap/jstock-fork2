@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.02 03/23/2019
+ * Version 1.0.7.37.03 04/07/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,9 @@
 //                                Class Methods loadStockInfo/NameDatabaseFromCSV(). Added
 //                                Method loadUserDefinedDatabaseFromCSV(). Added Class Instance
 //                                ZIP_DATABASE_FILE_NAME.
+//         1.0.7.37.03 04/07/2019 Methods loadStockInfo/NameDatabaseFromCSV() Commented on the
+//                                Change From 1.0.7.9 to 1.7.0.37 on Assignment of stock via
+//                                Changes in Class Stock.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -74,7 +77,7 @@ import org.yccheok.jstock.internationalization.GUIBundle;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.02 03/23/2019
+ * @version 1.0.7.37.03 04/07/2019
  */
 
 class DatabaseTask extends SwingWorker<Boolean, Void>
@@ -376,6 +379,8 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
             log.error(null, exp);
          }
 
+         // 1.0.9 (Not Visible in 1.0.9.37, replaced with Stock.builder().)
+         // Stock stock = new Stock.Builder(code, symbol).board(board).industry(industry).build();
          Stock stock = Stock.builder(code, symbol).board(board).industry(industry).build();
          stocks.add(stock);
       }
@@ -404,6 +409,8 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
          String name = atom1.getValue().toString();
 
          // Symbol doesn't matter. Just provide a dummy value for it.
+         // 1.0.9 (Not Visible in 1.0.9.37, replaced with Stock.builder().)
+         // Stock stock = new Stock.Builder(code, symbol).board(board).industry(industry).build();
          Stock stock = Stock.builder(code, Symbol.newInstance(code.toString())).name(name).build();
          stocks.add(stock);
       }
