@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.31 04/01/2019
+ * Version 1.0.7.37.32 04/04/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,6 +188,13 @@
 //                                Ordering With Setup of Frame. Moved initGoogleCodeDatabaseRunnable()
 //                                & initIEXStockInfoDatabaseRunnable() to Method Order Sequencing. Modified
 //                                tabListsNaviagtion() to Simplify initKeyBindings().
+//         1.0.7.37.32 04/04/2019 Minor Cleanup. Method initChartJDialogOption() Commented Logging Info.
+//                                Method initStockInfoDatabaseMeta() Additional Comments & Conditional
+//                                Logic Simplification. Commented Methods Instance needToInitDatabase.
+//                                Moved initDatabase() to Proper Order Sequencing & Commented its Purpose.
+//                                Method changeCountry() Commented Calling Classes Not in 1.0.7.9, New,
+//                                Activity That Does Not Seemed to Effect Desired Functionaliy & Has Been
+//                                Disabled.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -268,7 +275,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.31 04/01/2019
+ * @version 1.0.7.37.32 04/04/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -276,7 +283,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.31";
+   public static final String VERSION = "1.0.7.37.32";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -544,7 +551,6 @@ public class JStock extends javax.swing.JFrame
       initDynamicCharts();
       initDynamicChartVisibility();
       watchListPanel.addAutoCompleteComboBox();
-      //initKeyBindings();
 
       // Turn to the last viewed page.
       final int lastSelectedPageIndex = getJStockOptions().getLastSelectedPageIndex();
@@ -783,8 +789,8 @@ public class JStock extends javax.swing.JFrame
       
       if (chartJDialogOptions == null)
          chartJDialogOptions = new ChartJDialogOptions();
-      else
-         log.info("chartJDialogOptions loaded from " + f.toString() + " successfully.");   
+      // else
+      //    log.info("chartJDialogOptions loaded from " + f.toString() + " successfully.");   
    }
    
    //==============================================================
@@ -794,6 +800,10 @@ public class JStock extends javax.swing.JFrame
    // Internet same file. If there is a difference then updates
    // via download to a temporary csv file, that is used to update
    // country configuaration folder database/stock-info-database.csv.
+   // 
+   // Stopped following by commenting needToInitDatabase, see
+   // comment below in code.
+   //
    // Selected country has database reinitialized, as needed,
    // with call to initDatabase(true).
    //==============================================================
@@ -827,7 +837,7 @@ public class JStock extends javax.swing.JFrame
             final Map<Country, Long> latestStockInfoDatabaseMeta = Utils.loadStockInfoDatabaseMeta(json);
             final Map<Country, Long> successStockInfoDatabaseMeta = new EnumMap<Country, Long>(Country.class);
 
-            boolean needToInitDatabase = false;
+            //boolean needToInitDatabase = false;
 
             // Build up list of stock-info-database.csv that needed to be
             // updated.
@@ -842,7 +852,7 @@ public class JStock extends javax.swing.JFrame
                
                // log.info("latest:local " + country + ":" + latest + ":" + local);
 
-               if (false == latest.equals(local))
+               if (!latest.equals(local))
                {
                   final String stocksCSVZipFileLocation = org.yccheok.jstock.engine.Utils
                         .getStocksCSVZipFileLocation(country);
@@ -866,15 +876,16 @@ public class JStock extends javax.swing.JFrame
                      if (false == Utils.extractZipFile(zipFile, tempZipDirectory.getAbsolutePath(), true))
                         continue;
 
+                     // Normal default os tmp directory.
                      File file = new File(tempZipDirectory, "stocks.csv");
 
                      final java.util.List<Stock> stocks = org.yccheok.jstock.engine.Utils
                            .getStocksFromCSVFile(file);
 
-                     if (false == stocks.isEmpty())
+                     if (!stocks.isEmpty())
                      {
-                        final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = org.yccheok.jstock.engine.Utils
-                              .toStockDatabase(stocks, country);
+                        final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = 
+                              org.yccheok.jstock.engine.Utils.toStockDatabase(stocks, country);
 
                         final boolean success = JStock.saveStockInfoDatabaseAsCSV(country,
                            stockDatabase.first);
@@ -886,14 +897,14 @@ public class JStock extends javax.swing.JFrame
                         {
                            successStockInfoDatabaseMeta.put(country, latest);
                            
-                           if (country == jStockOptions.getCountry())
-                              needToInitDatabase = true;
+                           //if (country == jStockOptions.getCountry())
+                           //   needToInitDatabase = true;
                         }
                      }
                   }
                   catch (IOException ex)
                   {
-                     log.error(null, ex);
+                     log.error("JStock.initStockInfoDatabaseMeta()", ex);
                   }
                   finally
                   {
@@ -912,15 +923,19 @@ public class JStock extends javax.swing.JFrame
                Country country = entry.getKey();
                Long old = entry.getValue();
 
-               if (false == successStockInfoDatabaseMeta.containsKey(country))
+               if (!successStockInfoDatabaseMeta.containsKey(country))
                   successStockInfoDatabaseMeta.put(country, old);
             }
 
             Utils.saveStockInfoDatabaseMeta(Utils.getStockInfoDatabaseMetaFile(),
-               successStockInfoDatabaseMeta);
+                                            successStockInfoDatabaseMeta);
 
-            if (needToInitDatabase)
-               initDatabase(true);
+            // This is not required because this method is only called
+            // from init() & initDatabase(true) will be called shortly
+            // from there. Useless wasteful performance degradation.
+            
+            //if (needToInitDatabase)
+            //   initDatabase(true);
          }
       };
       stockInfoDatabaseMetaPool.execute(runnable);
@@ -953,6 +968,53 @@ public class JStock extends javax.swing.JFrame
          singleThreadExecutor.submit(new IEXStockInfoDatabaseRunnable());
       */
    }
+   
+   //==============================================================
+   // Method to be used to load the current selected countries'
+   // database/stock-info-database.csv contents of stock listings
+   // into data structures for use. The core object is Stock, with
+   // an additional class StockInfo, that can be used for just Code
+   // and Symbol.
+   //
+   // Data Structures: StockInfoDatabase & StockNameDatabase.
+   // Instances: stockInfoDatabase, stockNameDatabase.
+   // 
+   // Also called from MyJXStatusBar, can select country by double
+   // clicking flag.
+   //==============================================================
+   
+   protected void initDatabase(boolean readFromDisk)
+   {
+      // Update GUI state.
+      setStatusBar(true,
+                   GUIBundle.getString("MainFrame_ConnectingToStockServerToRetrieveStockInformation..."));
+      statusBar.setImageIcon(
+         getImageIcon("/images/16x16/network-connecting.png"),
+         java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
+            "MainFrame_Connecting..."));
+
+      // Stop any on-going activities.
+      // Entire block will be synchronized, as we do not want to hit by more
+      // than 1 databaseTask running.
+      synchronized (databaseTaskMonitor)
+      {
+         if (databaseTask != null)
+         {
+            databaseTask.cancel(true);
+            stockInfoDatabase = null;
+            stockNameDatabase = null;
+            watchListPanel.setStockInfoDatabase(null);
+         }
+
+         databaseTask = new DatabaseTask(this, log, readFromDisk);
+         databaseTask.execute();
+      }
+
+      // We may hold a large database previously. Invoke garbage collector to
+      // perform cleanup.
+      System.gc();
+   }
+   
    
    
    
@@ -1426,8 +1488,9 @@ public class JStock extends javax.swing.JFrame
       if (jStockOptions.getCountry() == country)
          return;
 
-      org.yccheok.jstock.engine.Utils.clearGoogleCodeDatabaseCache();
-      org.yccheok.jstock.engine.Utils.clearAllIEXStockInfoDatabaseCaches();
+      // Not in 1.0.7.9
+      //org.yccheok.jstock.engine.Utils.clearGoogleCodeDatabaseCache();
+      //org.yccheok.jstock.engine.Utils.clearAllIEXStockInfoDatabaseCaches();
 
       final Country oldCountry = jStockOptions.getCountry();
 
@@ -1854,37 +1917,7 @@ public class JStock extends javax.swing.JFrame
       this.watchListPanel.setGreedyEnabled(country);
    }
 
-   protected void initDatabase(boolean readFromDisk)
-   {
-      // Update GUI state.
-      this.setStatusBar(true,
-         GUIBundle.getString("MainFrame_ConnectingToStockServerToRetrieveStockInformation..."));
-      this.statusBar.setImageIcon(
-         getImageIcon("/images/16x16/network-connecting.png"),
-         java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
-            "MainFrame_Connecting..."));
-
-      // Stop any on-going activities.
-      // Entire block will be synchronized, as we do not want to hit by more
-      // than 1 databaseTask running.
-      synchronized (this.databaseTaskMonitor)
-      {
-         if (this.databaseTask != null)
-         {
-            this.databaseTask.cancel(true);
-            this.stockInfoDatabase = null;
-            this.stockNameDatabase = null;
-            this.watchListPanel.setStockInfoDatabase(null);
-         }
-
-         this.databaseTask = new DatabaseTask(this, log, readFromDisk);
-         this.databaseTask.execute();
-      }
-
-      // We may hold a large database previously. Invoke garbage collector to
-      // perform cleanup.
-      System.gc();
-   }
+   
 
    private void update(RealTimeStockMonitor monitor, final RealTimeStockMonitor.Result result)
    {
