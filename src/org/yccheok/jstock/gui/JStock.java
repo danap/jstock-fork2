@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.32 04/04/2019
+ * Version 1.0.7.37.33 04/09/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -195,6 +195,10 @@
 //                                Method changeCountry() Commented Calling Classes Not in 1.0.7.9, New,
 //                                Activity That Does Not Seemed to Effect Desired Functionaliy & Has Been
 //                                Disabled.
+//         1.0.7.37.33 04/09/2019 Additional Comments in init(). Moved Methods initAjaxProvider() &
+//                                initRealTimeIndexMonitor() to Proper Sequencing as Dictated by init().
+//                                Removed initOthersStockHistoryMonitor() Method That Was Not Cleaned
+//                                Out From Version 1.0.7.37.21.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -275,7 +279,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.32 04/04/2019
+ * @version 1.0.7.37.33 04/09/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -283,7 +287,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.32";
+   public static final String VERSION = "1.0.7.37.33";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -307,8 +311,8 @@ public class JStock extends javax.swing.JFrame
    // StockNameDatabase is an optional item.
    protected volatile StockNameDatabase stockNameDatabase = null;
 
-   protected RealTimeStockMonitor realTimeStockMonitor = null;
    private RealTimeIndexMonitor realTimeIndexMonitor = null;
+   protected RealTimeStockMonitor realTimeStockMonitor = null;
    protected StockHistoryMonitor stockHistoryMonitor = null;
 
    protected DatabaseTask databaseTask = null;
@@ -528,13 +532,14 @@ public class JStock extends javax.swing.JFrame
       Utils.extractZipFile(DatabaseTask.ZIP_DATABASE_FILE_NAME, false);
       
       // Initial various configuration
-      // Options.
+      // Options for the GUI.
       
       initUIOptions();
       initGUIOptions();
       initChartJDialogOptions();
       
-      // Comment Here
+      // WatchListJPanel stock selector search
+      // feature via AjaxAutoCompleteJComboBox.
       
       initStockInfoDatabaseMeta();
       initGoogleCodeDatabaseRunnable();
@@ -542,10 +547,15 @@ public class JStock extends javax.swing.JFrame
       initDatabase(true);
       initAjaxProvider();
       
+      // Comment here.
+      
       initRealTimeIndexMonitor();
       initStockHistoryMonitor();
       initExchangeRateMonitor();
       initRealTimeStockMonitor();
+      
+      // Finalize setup of WatchListJPanel
+      // components.
       
       watchListPanel.initWatchlist();
       initDynamicCharts();
@@ -1015,10 +1025,55 @@ public class JStock extends javax.swing.JFrame
       System.gc();
    }
    
+   //==============================================================
+   // Aspect of search feature on AjaxAutoCompleteJComboBox.
+   //==============================================================
    
+   private void initAjaxProvider()
+   {
+      Country country = this.jStockOptions.getCountry();
+      this.watchListPanel.setGreedyEnabled(country);
+   }
    
+   //==============================================================
+   // Method to create a monitor with observer for the market
+   // indexes with a scanning speed for updates. Re-aquiring data
+   // for MarketJPanel.
+   //==============================================================
    
-   
+   private void initRealTimeIndexMonitor()
+   {
+      final RealTimeIndexMonitor oldRealTimeIndexMonitor = realTimeIndexMonitor;
+      
+      if (oldRealTimeIndexMonitor != null)
+      {
+         zombiePool.execute(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               log.info("initRealTimeIndexMonitor() Prepare to shut down: "
+                        + oldRealTimeIndexMonitor + "...");
+               oldRealTimeIndexMonitor.clearIndices();
+               oldRealTimeIndexMonitor.dettachAll();
+               oldRealTimeIndexMonitor.stop();
+               log.info("initRealTimeIndexMonitor() Shut down: "
+                        + oldRealTimeIndexMonitor + " peacefully.");
+            }
+         });
+      }
+
+      realTimeIndexMonitor = new RealTimeIndexMonitor(
+         Constants.REAL_TIME_INDEX_MONITOR_MAX_THREAD,
+         Constants.REAL_TIME_INDEX_MONITOR_MAX_STOCK_SIZE_PER_SCAN, jStockOptions.getScanningSpeed());
+      
+      realTimeIndexMonitor.attach(realTimeIndexMonitorObserver);
+      
+      for (Index index : org.yccheok.jstock.engine.Utils.getStockIndices(jStockOptions.getCountry()))
+         realTimeIndexMonitor.addIndex(index);
+
+      realTimeIndexMonitor.startNewThreadsIfNecessary();
+   }
    
    
    
@@ -1697,40 +1752,7 @@ public class JStock extends javax.swing.JFrame
    {
       this.portfolioManagementJPanel.initExchangeRateMonitor();
    }
-
-   private void initRealTimeIndexMonitor()
-   {
-      final RealTimeIndexMonitor oldRealTimeIndexMonitor = realTimeIndexMonitor;
-      
-      if (oldRealTimeIndexMonitor != null)
-      {
-         zombiePool.execute(new Runnable()
-         {
-            @Override
-            public void run()
-            {
-               log.info("Prepare to shut down " + oldRealTimeIndexMonitor + "...");
-               oldRealTimeIndexMonitor.clearIndices();
-               oldRealTimeIndexMonitor.dettachAll();
-               oldRealTimeIndexMonitor.stop();
-               log.info("Shut down " + oldRealTimeIndexMonitor + " peacefully.");
-            }
-         });
-      }
-
-      realTimeIndexMonitor = new RealTimeIndexMonitor(
-                                                      Constants.REAL_TIME_INDEX_MONITOR_MAX_THREAD,
-                                                      Constants.REAL_TIME_INDEX_MONITOR_MAX_STOCK_SIZE_PER_SCAN,
-                                                      jStockOptions.getScanningSpeed());
-
-      realTimeIndexMonitor.attach(this.realTimeIndexMonitorObserver);
-
-      for (Index index : org.yccheok.jstock.engine.Utils.getStockIndices(jStockOptions.getCountry()))
-         realTimeIndexMonitor.addIndex(index);
-
-      realTimeIndexMonitor.startNewThreadsIfNecessary();
-   }
-
+   
    private void initRealTimeStockMonitor()
    {
       final RealTimeStockMonitor oldRealTimeStockMonitor = realTimeStockMonitor;
@@ -1755,10 +1777,45 @@ public class JStock extends javax.swing.JFrame
                                                       Constants.REAL_TIME_STOCK_MONITOR_MAX_THREAD,
                                                       Constants.REAL_TIME_STOCK_MONITOR_MAX_STOCK_SIZE_PER_SCAN,
                                                       jStockOptions.getScanningSpeed());
-
+      
       realTimeStockMonitor.attach(this.realTimeStockMonitorObserver);
 
       this.portfolioManagementJPanel.initRealTimeStockMonitor();
+   }
+   
+   private void initStockHistoryMonitor()
+   {
+      final StockHistoryMonitor oldStockHistoryMonitor = stockHistoryMonitor;
+      
+      if (oldStockHistoryMonitor != null)
+      {
+         zombiePool.execute(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               log.info("Prepare to shut down " + oldStockHistoryMonitor + "...");
+               oldStockHistoryMonitor.clearStockCodes();
+               oldStockHistoryMonitor.dettachAll();
+               oldStockHistoryMonitor.stop();
+               log.info("Shut down " + oldStockHistoryMonitor + " peacefully.");
+            }
+         });
+      }
+
+      stockHistoryMonitor = new StockHistoryMonitor(HISTORY_MONITOR_MAX_THREAD);
+
+      stockHistoryMonitor.attach(this.stockHistoryMonitorObserver);
+
+      final Country country = jStockOptions.getCountry();
+
+      removeOldHistoryData(country);
+
+      StockHistorySerializer stockHistorySerializer = new StockHistorySerializer(
+         Utils.getHistoryDirectory());
+      stockHistoryMonitor.setStockHistorySerializer(stockHistorySerializer);
+      stockHistoryMonitor.setDuration(Duration.getTodayDurationByYears(
+         jStockOptions.getHistoryDuration()));
    }
    
    private void saveUIOptions()
@@ -1871,54 +1928,8 @@ public class JStock extends javax.swing.JFrame
       org.yccheok.jstock.gui.Utils.deleteAllOldFiles(new File(Utils.getHistoryDirectory(country)), 1);
    }
 
-   // Do not combine initOthersStockHistoryMonitor with initStockHistoryMonitor.
-   // We need to be able to update
-   // only MainFrame's history monitor, when we change the history duration
-   // option. Other's history monitors
-   // are not affected.
-   private void initStockHistoryMonitor()
-   {
-      final StockHistoryMonitor oldStockHistoryMonitor = stockHistoryMonitor;
-      
-      if (oldStockHistoryMonitor != null)
-      {
-         zombiePool.execute(new Runnable()
-         {
-            @Override
-            public void run()
-            {
-               log.info("Prepare to shut down " + oldStockHistoryMonitor + "...");
-               oldStockHistoryMonitor.clearStockCodes();
-               oldStockHistoryMonitor.dettachAll();
-               oldStockHistoryMonitor.stop();
-               log.info("Shut down " + oldStockHistoryMonitor + " peacefully.");
-            }
-         });
-      }
-
-      this.stockHistoryMonitor = new StockHistoryMonitor(HISTORY_MONITOR_MAX_THREAD);
-
-      stockHistoryMonitor.attach(this.stockHistoryMonitorObserver);
-
-      final Country country = jStockOptions.getCountry();
-
-      removeOldHistoryData(country);
-
-      StockHistorySerializer stockHistorySerializer = new StockHistorySerializer(
-         Utils.getHistoryDirectory());
-      stockHistoryMonitor.setStockHistorySerializer(stockHistorySerializer);
-      stockHistoryMonitor.setDuration(Duration.getTodayDurationByYears(
-         jStockOptions.getHistoryDuration()));
-   }
-
-   private void initAjaxProvider()
-   {
-      Country country = this.jStockOptions.getCountry();
-      this.watchListPanel.setGreedyEnabled(country);
-   }
-
    
-
+   
    private void update(RealTimeStockMonitor monitor, final RealTimeStockMonitor.Result result)
    {
       final java.util.List<Stock> stocks = result.stocks;
