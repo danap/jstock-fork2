@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 03/10/2019
+ * Version 1.0.7.37.02 04/11/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@
 //
 // Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui PortfolioManagementJPanel Class.
 //         1.0.7.37.01 02/14/2019 Commented Methods open/saveAsExcelFile().
+//         1.0.7.37.02 04/11/2019 Constructor Integrated Call to initExchangeRateMonitor() as
+//                                Instantiation Process.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -116,7 +118,7 @@ import org.yccheok.jstock.portfolio.TransactionSummary;
  *
  * @author  Owner
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 03/10/2019
+ * @version 1.0.7.37.02 04/11/2019
  */
 public class PortfolioManagementJPanel extends javax.swing.JPanel {
     
@@ -125,6 +127,7 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
         initComponents();        
         
         this.initPortfolio();
+        this.initExchangeRateMonitor();
     }
     
     /** This method is called from within the constructor to
