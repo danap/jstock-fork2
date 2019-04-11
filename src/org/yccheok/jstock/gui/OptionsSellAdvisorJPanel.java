@@ -26,19 +26,11 @@
 // also be included with the original copyright author.
 //=================================================================
 //
-// Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui JStock Class.
-//         1.0.7.37.01 02/14/2019 Formatted, Organized Imports. Began Organizing Code
-//                                to be Rebuilt. DMP.
-//=================================================================
-// Revision History
-// Changes to the code should be documented here and reflected
-// in the present version number. Author information should
-// also be included with the original copyright author.
-//=================================================================
-//
 // Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui OptionsSellAdvisorJPanel Class.
 //         1.0.7.37.01 04/11/2019 Method apply() Changed Reference to JStock.instance().initExchange
 //                                RateMonitor() to portfolioManagementJPanel of Same.
+//         1.0.7.37.02 04/11/2019 Corrected Header.
+//
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
 //                 danap@dandymadeproductions.com
@@ -77,7 +69,7 @@ import org.yccheok.jstock.portfolio.DecimalPlace;
  *
  * @author  yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 04/11/2019
+ * @version 1.0.7.37.02 04/11/2019
  */
 public class OptionsSellAdvisorJPanel extends javax.swing.JPanel implements JStockOptionsObserver {
 
