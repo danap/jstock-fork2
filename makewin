@@ -165,6 +165,7 @@ src\org\yccheok\jstock\engine\MatchSetType.java
 src\org\yccheok\jstock\engine\StockFormat.java
 src\org\yccheok\jstock\engine\Symbol.java
 src\org\yccheok\jstock\engine\AjaxYahooSearchEngine.java
+src\org\yccheok\jstock\engine\Period.java
 src\org\yccheok\jstock\engine\currency\Currency.java
 src\org\yccheok\jstock\engine\currency\CurrencyPair.java
 src\org\yccheok\jstock\engine\currency\ExchangeRate.java
@@ -185,6 +186,7 @@ src\org\yccheok\jstock\engine\AjaxGoogleSearchEngine.java
 src\org\yccheok\jstock\engine\PinyinTSTSearchEngine.java
 src\org\yccheok\jstock\engine\PriceSource.java
 src\org\yccheok\jstock\engine\SearchEngine.java
+src\org\yccheok\jstock\engine\RealTimeIndexMonitor.java
 src\org\yccheok\jstock\engine\StockHistoryMonitor.java
 src\org\yccheok\jstock\engine\Country.java
 src\org\yccheok\jstock\engine\Board.java
@@ -204,5 +206,6 @@ src\org\yccheok\jstock\charting\MACD.java
 src\org\yccheok\jstock\charting\ChartData.java
 src\org\yccheok\jstock\watchlist\Utils.java
 src\org\yccheok\jstock\watchlist\WatchlistInfo.java
+src\org\yccheok\jstock\watchlist\CSVWatchList.java
 src\org\yccheok\jstock\network\Utils.java
 src\org\yccheok\jstock\network\ProxyDetector.java
