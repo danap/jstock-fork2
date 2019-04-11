@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.34 04/11/2019
+ * Version 1.0.7.37.35 04/11/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -201,6 +201,11 @@
 //                                Out From Version 1.0.7.37.21.
 
 //         1.0.7.37.34 04/11/2019 Moved initStockHistoryMonitor() to Order as Dicated by init().
+//         1.0.7.37.35 04/11/2019 Commented in init() Call to initExchangeRateMonitor(), Also Method
+//                                of Same. Performed in Instantiation of PortfolioManageJPanel. Method
+//                                changeCountry() Change Call to initExchangeRateMonitor() to portfolio
+//                                ManageJPanel.initExchangeRateMonitor(), Also Order. Same Method Order
+//                                of Call to portfolioManagementtJPanel.initExchangedRateMonitor().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -281,7 +286,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.34 04/11/2019
+ * @version 1.0.7.37.35 04/11/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -289,7 +294,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.34";
+   public static final String VERSION = "1.0.7.37.35";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -553,7 +558,7 @@ public class JStock extends javax.swing.JFrame
       
       initRealTimeIndexMonitor();
       initStockHistoryMonitor();
-      initExchangeRateMonitor();
+      //initExchangeRateMonitor();
       initRealTimeStockMonitor();
       
       // Finalize setup of WatchListJPanel
@@ -1106,7 +1111,6 @@ public class JStock extends javax.swing.JFrame
 
       stockHistoryMonitor = new StockHistoryMonitor(HISTORY_MONITOR_MAX_THREAD);
       
-      
       stockHistoryMonitor.attach(this.stockHistoryMonitorObserver);
 
       final Country country = jStockOptions.getCountry();
@@ -1622,23 +1626,28 @@ public class JStock extends javax.swing.JFrame
       // database, as it will be the most busy. Hence, we let the stock symbol
       // database to be the last, so that its interaction will overwrite the
       // others.
-      this.portfolioManagementJPanel.initPortfolio();
+      //this.portfolioManagementJPanel.initPortfolio();
 
       this.initGoogleCodeDatabaseRunnable();
       this.initDatabase(true);
       this.initAjaxProvider();
+      
       this.initRealTimeIndexMonitor();
       this.initStockHistoryMonitor();
-      this.initExchangeRateMonitor();
+      //this.initExchangeRateMonitor();
       // Initialize real time monitor must come before initialize real time
       // stocks. We need to submit real time stocks to real time stock monitor.
       // Hence, after we load real time stocks from file, real time stock
       // monitor
       // must be ready (initialized).
       this.initRealTimeStockMonitor();
+      
       this.watchListPanel.initWatchlist();
       this.initDynamicCharts();
       this.initDynamicChartVisibility();
+      
+      this.portfolioManagementJPanel.initPortfolio();
+      this.portfolioManagementJPanel.initExchangeRateMonitor();
 
       menuBar.setSelectedCountryItem(country);
    }
@@ -1791,10 +1800,12 @@ public class JStock extends javax.swing.JFrame
    /**
     * Initializes currency exchange monitor.
     */
+   /*
    public void initExchangeRateMonitor()
    {
       this.portfolioManagementJPanel.initExchangeRateMonitor();
    }
+   */
    
    private void initRealTimeStockMonitor()
    {
