@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.9.01 04/12/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +19,30 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9    07/15/2015 Original Yan Cheng, JStock Engine StockServer Class.
+//         1.0.7.9.01 04/12/2019 Removed Two Interfaces Throws StockNotFoundException.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.9.01 04/12/2019
  */
 public interface StockServer {
-    public Stock getStock(Code code) throws StockNotFoundException;
-    public java.util.List<Stock> getStocks(java.util.List<Code> codes) throws StockNotFoundException;
+    public Stock getStock(Code code);
+    public java.util.List<Stock> getStocks(java.util.List<Code> codes);
 }
