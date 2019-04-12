@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.9.01 04/12/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,25 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9    07/21/2015 Original Yan Cheng, JStock Gui JStock Class.
+//         1.0.7.9.01 04/12/2019 Added Instances iexSet, argentinaList, czechList, finlandList,
+//                               hungaryList, polandList, russianList, saudiArabiaList, southAfricaList,
+//                               thailandList, & turkeyList. Provided Default StockServerFactory
+//                               to New Lists. Removed KLSEInfoStockServerFactory for malaysiaList.
+//                               Modified Several Lists to Include, add, GoogleStockServerFactory &
+//                               Also IEXStockServerFactory Temporarily for unitedStateList.
+//
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -32,6 +54,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.9.01 04/12/2019
  */
 public enum Factories {
     INSTANCE;
@@ -130,17 +154,22 @@ public enum Factories {
     static {
         final Set<Class<? extends StockServerFactory>> googleSet = new HashSet<>();
         final Set<Class<? extends StockServerFactory>> yahooSet = new HashSet<>();
+        final Set<Class<? extends StockServerFactory>> iexSet = new HashSet<>();
         
+        final List<StockServerFactory> argentinaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> australiaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> austriaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> belgiumList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> brazilList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> canadaList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> czechList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> chinaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> denmarkList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> finlandList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> franceList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> germanyList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> hongkongList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> hungaryList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> indiaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> indonesiaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> israelList = new CopyOnWriteArrayList<>();
@@ -151,18 +180,25 @@ public enum Factories {
         final List<StockServerFactory> netherlandsList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> newZealandList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> norwayList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> polandList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> portugalList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> russianList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> saudiArabiaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> singaporeList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> southAfricaList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> spainList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> swedenList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> switzerlandList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> taiwanList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> thailandList = new CopyOnWriteArrayList<>();
+        final List<StockServerFactory> turkeyList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> unitedKingdomList = new CopyOnWriteArrayList<>();
         final List<StockServerFactory> unitedStateList = new CopyOnWriteArrayList<>();
 
         googleSet.add(GoogleStockServerFactory.class);
         yahooSet.add(YahooStockServerFactory.class);
         yahooSet.add(BrazilYahooStockServerFactory.class);
+        iexSet.add(IEXStockServerFactory.class);
         
         // *********************************************************************
         // Kindly revise GoogleStockServer's getBestCurrency, for countries
@@ -170,6 +206,7 @@ public enum Factories {
         //
         // Please revise AjaxStockInfoSearchEngine's isSupported as well.
         // *********************************************************************
+        argentinaList.add(YahooStockServerFactory.newInstance());
         australiaList.add(YahooStockServerFactory.newInstance());
         australiaList.add(GoogleStockServerFactory.newInstance());
         austriaList.add(YahooStockServerFactory.newInstance());
@@ -178,45 +215,71 @@ public enum Factories {
         belgiumList.add(GoogleStockServerFactory.newInstance());
         brazilList.add(BrazilYahooStockServerFactory.newInstance());
         brazilList.add(GoogleStockServerFactory.newInstance());
+        canadaList.add(GoogleStockServerFactory.newInstance());
         canadaList.add(YahooStockServerFactory.newInstance());
+        czechList.add(GoogleStockServerFactory.newInstance());
+        czechList.add(YahooStockServerFactory.newInstance());
         chinaList.add(GoogleStockServerFactory.newInstance());
         chinaList.add(YahooStockServerFactory.newInstance());
         denmarkList.add(YahooStockServerFactory.newInstance());
         denmarkList.add(GoogleStockServerFactory.newInstance());
+        finlandList.add(YahooStockServerFactory.newInstance());
+        finlandList.add(GoogleStockServerFactory.newInstance());
+        franceList.add(GoogleStockServerFactory.newInstance());
         franceList.add(YahooStockServerFactory.newInstance());
+        germanyList.add(GoogleStockServerFactory.newInstance());
         germanyList.add(YahooStockServerFactory.newInstance());
+        hongkongList.add(GoogleStockServerFactory.newInstance());
         hongkongList.add(YahooStockServerFactory.newInstance());
+        hungaryList.add(GoogleStockServerFactory.newInstance());
+        hungaryList.add(YahooStockServerFactory.newInstance());
         indiaList.add(GoogleStockServerFactory.newInstance());
+        indiaList.add(YahooStockServerFactory.newInstance());
+        indonesiaList.add(GoogleStockServerFactory.newInstance());
         indonesiaList.add(YahooStockServerFactory.newInstance());
+        israelList.add(GoogleStockServerFactory.newInstance());
         israelList.add(YahooStockServerFactory.newInstance());
+        italyList.add(GoogleStockServerFactory.newInstance());
         italyList.add(YahooStockServerFactory.newInstance());
         japanList.add(GoogleStockServerFactory.newInstance());
+        koreaList.add(GoogleStockServerFactory.newInstance());
         koreaList.add(YahooStockServerFactory.newInstance());
-        malaysiaList.add(KLSEInfoStockServerFactory.newInstance());
+        malaysiaList.add(GoogleStockServerFactory.newInstance());
         malaysiaList.add(YahooStockServerFactory.newInstance());
         netherlandsList.add(YahooStockServerFactory.newInstance());
         netherlandsList.add(GoogleStockServerFactory.newInstance());
         newZealandList.add(YahooStockServerFactory.newInstance());
         newZealandList.add(GoogleStockServerFactory.newInstance());
         norwayList.add(YahooStockServerFactory.newInstance());
+        polandList.add(GoogleStockServerFactory.newInstance());
+        portugalList.add(GoogleStockServerFactory.newInstance());
         portugalList.add(YahooStockServerFactory.newInstance());
+        russianList.add(GoogleStockServerFactory.newInstance());
+        russianList.add(YahooStockServerFactory.newInstance());
+        saudiArabiaList.add(GoogleStockServerFactory.newInstance());
         singaporeList.add(GoogleStockServerFactory.newInstance());
         singaporeList.add(YahooStockServerFactory.newInstance());
+        southAfricaList.add(GoogleStockServerFactory.newInstance());
         spainList.add(YahooStockServerFactory.newInstance());
         swedenList.add(YahooStockServerFactory.newInstance());
         swedenList.add(GoogleStockServerFactory.newInstance());
+        switzerlandList.add(GoogleStockServerFactory.newInstance());
         switzerlandList.add(YahooStockServerFactory.newInstance());
         taiwanList.add(GoogleStockServerFactory.newInstance());
         taiwanList.add(YahooStockServerFactory.newInstance());
+        thailandList.add(GoogleStockServerFactory.newInstance());
+        turkeyList.add(GoogleStockServerFactory.newInstance());
         unitedKingdomList.add(GoogleStockServerFactory.newInstance());
         unitedKingdomList.add(YahooStockServerFactory.newInstance());
         unitedStateList.add(GoogleStockServerFactory.newInstance());
         unitedStateList.add(YahooStockServerFactory.newInstance());
+        unitedStateList.add(IEXStockServerFactory.newInstance());
         
         taiwanOTCList.add(YahooStockServerFactory.newInstance());
         
         priceSourceMap.put(PriceSource.Google, googleSet);
         priceSourceMap.put(PriceSource.Yahoo, yahooSet);
+        priceSourceMap.put(PriceSource.IEX, iexSet);
         
         map.put(Country.Australia, australiaList);
         map.put(Country.Austria, austriaList);
