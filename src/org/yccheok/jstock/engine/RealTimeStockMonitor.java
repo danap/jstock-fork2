@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.9.01 04/13/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,29 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9    07/21/2015 Original Yan Cheng, JStock Engine RealTimeStockMonitor Class.
+//         1.0.7.9.01 04/13/2019 Changed Class Extension From Subject<RealTimeStockMonitor,
+//                               java.util.List<Stock>> to Subject<RealTimeStockMonitor,
+//                               RealTimeStockMonitor.Result>. Method startNewThreadsIfNecessary()
+//                               Minor String Changes for log.info(). Commented getDelay(). Added
+//                               Inner Public Class Result. Inner Class StockMonitor.run() Changed
+//                               Try/Catch to Conditional Check for stockServer.getStocks() Since
+//                               1.0.7.37 Has StockNotFoundException Class Removed or Not Used.
+//                               Same StockMonitor.run() Replaced RealTimeStockMonitor.this.notify()
+//                               to Use Result Rather Than Instance stocks, Combination of stocks,
+//                               & codes. Commented getTotalScanned()
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -29,8 +55,10 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.9.01 04/13/2019
  */
-public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.util.List<Stock>> {
+public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, RealTimeStockMonitor.Result> {
  
     /** Creates a new instance of RealTimeStockMonitor */
     public RealTimeStockMonitor(int maxThread, int maxBucketSize, long delay) {
@@ -119,13 +147,15 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
         assert(numOfMonitorRequired <= this.maxThread);
         
         for (int i = this.stockMonitors.size(); i < numOfMonitorRequired; i++) {
-            log.info("Before adding : current thread size=" + this.stockMonitors.size() + ",numOfMonitorRequired=" + numOfMonitorRequired);
+            log.info("Before adding : current thread size = "
+                     + this.stockMonitors.size() + ", numOfMonitorRequired = " + numOfMonitorRequired);
             
             StockMonitor stockMonitor = new StockMonitor(i);
             stockMonitors.add(stockMonitor);
             stockMonitor.start();
             
-            log.info("After adding : current thread size=" + this.stockMonitors.size() + ",numOfMonitorRequired=" + numOfMonitorRequired);
+            log.info("After adding : current thread size = "
+                     + this.stockMonitors.size() + ", numOfMonitorRequired = " + numOfMonitorRequired);
         }
     }
     
@@ -171,9 +201,12 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
         }     
     }
     
+    // (Not in 1.0.7.37 or Private)
+    /*
     public synchronized long getDelay() {
         return this.delay;
     }
+    */
     
     public synchronized void setDelay(int delay) {
         this.delay = delay;
@@ -183,6 +216,25 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
         final int numOfThreadRequired = codeBucketLists.size();
         
         return Math.min(numOfThreadRequired, maxThread);
+    }
+    
+    // (Not in 1.0.7.9 Added Later.)
+    public class Result
+    {
+       public List<Code> failedCodes;
+       public List<Stock> stocks;
+       
+       public Result(List<Stock> stocks, List<Code> failedCodes)
+       {
+          this.stocks = stocks;
+          this.failedCodes = failedCodes;
+       }
+       
+       public Result newInstance(List<Stock> stocks, List<Code> failedCodes)
+       {
+          return new Result(stocks, failedCodes);
+       }
+       
     }
     
     private class StockMonitor extends Thread {
@@ -277,6 +329,8 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
                                 }
 
                                 List<Stock> tmpStocks = null;
+                                
+                                /* Changed from 1.0.7.9
                                 try {
                                     tmpStocks = stockServer.getStocks(zeroPriceCodes);
                                 } catch (StockNotFoundException exp) {
@@ -288,7 +342,21 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
                                     // Try with another server.
                                     continue;
                                 }
-
+                                */
+                                
+                                tmpStocks = stockServer.getStocks(zeroPriceCodes);
+                                
+                                if (tmpStocks == null || tmpStocks.isEmpty())
+                                {
+                                   if (tmpStocks == null)
+                                      log.error(zeroPriceCodes, new Throwable("tmpStocks: null"));
+                                   else
+                                      log.error(zeroPriceCodes, new Throwable("tmpStocks: isEmpty()"));
+                                   
+                                   // Try with another server.
+                                   continue; 
+                                }
+                                
                                 if (thisThread != thread) {
                                     break;
                                 }
@@ -313,7 +381,7 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
                                 fail -= size;
                                 totalScanned = pass + fail;  
                                 
-                                RealTimeStockMonitor.this.notify(RealTimeStockMonitor.this, stocks);
+                                RealTimeStockMonitor.this.notify(RealTimeStockMonitor.this, new Result(stocks, codes));
                             }
 
                             if (size != codeBucketLists.get(currIndex).size()) {
@@ -440,6 +508,8 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
         return zeroPriceCodes;
     }
     
+    // Not in 1.0.7.37
+    /*
     public int getTotalScanned() {
         int totalScanned = 0;
         for (StockMonitor stockMonitor : stockMonitors) {
@@ -447,6 +517,7 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, java.uti
         }
         return totalScanned;
     }
+    */
     
     // Delay in ms
     private volatile long delay;
