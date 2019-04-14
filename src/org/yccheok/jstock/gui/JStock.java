@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.35 04/11/2019
+ * Version 1.0.7.37.36 04/14/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,12 +200,18 @@
 //                                Removed initOthersStockHistoryMonitor() Method That Was Not Cleaned
 //                                Out From Version 1.0.7.37.21.
 
-//         1.0.7.37.34 04/11/2019 Moved initStockHistoryMonitor() to Order as Dicated by init().
+//         1.0.7.37.34 04/11/2019 Moved initStockHistoryMonitor() to Order as Dictated by init().
 //         1.0.7.37.35 04/11/2019 Commented in init() Call to initExchangeRateMonitor(), Also Method
 //                                of Same. Performed in Instantiation of PortfolioManageJPanel. Method
 //                                changeCountry() Change Call to initExchangeRateMonitor() to portfolio
 //                                ManageJPanel.initExchangeRateMonitor(), Also Order. Same Method Order
 //                                of Call to portfolioManagementtJPanel.initExchangedRateMonitor().
+//         1.0.7.37.36 04/14/2019 Removed Comments From v1.0.7.37.35. Method init() Chose to Provide
+//                                All Sequencing for PortfolioManagementJPanel Calls to initPortfolio(),
+//                                Was at End of initRealTimeStockMonitor(), initExchangeRateMonitor(),
+//                                & initRealTimeStockMonitor() to Last Stages. Same in Method change
+//                                Country(). Moved initRealTimeStockMonitor() Method Code to Order
+//                                Sequencing Position.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -286,7 +292,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.35 04/11/2019
+ * @version 1.0.7.37.36 04/14/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -294,7 +300,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.35";
+   public static final String VERSION = "1.0.7.37.36";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane jTabbedPane1;
@@ -558,16 +564,20 @@ public class JStock extends javax.swing.JFrame
       
       initRealTimeIndexMonitor();
       initStockHistoryMonitor();
-      //initExchangeRateMonitor();
       initRealTimeStockMonitor();
       
       // Finalize setup of WatchListJPanel
+      // and PortfolioManagementJPanel
       // components.
       
       watchListPanel.initWatchlist();
       initDynamicCharts();
       initDynamicChartVisibility();
       watchListPanel.addAutoCompleteComboBox();
+      
+      portfolioManagementJPanel.initPortfolio();
+      portfolioManagementJPanel.initExchangeRateMonitor();
+      portfolioManagementJPanel.initRealTimeStockMonitor();
 
       // Turn to the last viewed page.
       final int lastSelectedPageIndex = getJStockOptions().getLastSelectedPageIndex();
@@ -818,8 +828,8 @@ public class JStock extends javax.swing.JFrame
    // via download to a temporary csv file, that is used to update
    // country configuaration folder database/stock-info-database.csv.
    // 
-   // Stopped following by commenting needToInitDatabase, see
-   // comment below in code.
+   // Stopped following below by commenting needToInitDatabase,
+   // see comment below in code.
    //
    // Selected country has database reinitialized, as needed,
    // with call to initDatabase(true).
@@ -1124,8 +1134,36 @@ public class JStock extends javax.swing.JFrame
          jStockOptions.getHistoryDuration()));
    }
    
+   //==============================================================
+   // Method to create a monitor with observer for the stocks in
+   // the WatchListJPanel table.
+   //==============================================================
    
-   
+   private void initRealTimeStockMonitor()
+   {
+      final RealTimeStockMonitor oldRealTimeStockMonitor = realTimeStockMonitor;
+      
+      if (oldRealTimeStockMonitor != null)
+      {
+         zombiePool.execute(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               log.info("Prepare to shut down " + oldRealTimeStockMonitor + "...");
+               oldRealTimeStockMonitor.clearStockCodes();
+               oldRealTimeStockMonitor.dettachAll();
+               oldRealTimeStockMonitor.stop();
+               log.info("Shut down " + oldRealTimeStockMonitor + " peacefully.");
+            }
+         });
+      }
+
+      realTimeStockMonitor = new RealTimeStockMonitor(Constants.REAL_TIME_STOCK_MONITOR_MAX_THREAD,
+         Constants.REAL_TIME_STOCK_MONITOR_MAX_STOCK_SIZE_PER_SCAN, jStockOptions.getScanningSpeed());
+      
+      realTimeStockMonitor.attach(realTimeStockMonitorObserver);
+   }
 
    
    
@@ -1634,7 +1672,6 @@ public class JStock extends javax.swing.JFrame
       
       this.initRealTimeIndexMonitor();
       this.initStockHistoryMonitor();
-      //this.initExchangeRateMonitor();
       // Initialize real time monitor must come before initialize real time
       // stocks. We need to submit real time stocks to real time stock monitor.
       // Hence, after we load real time stocks from file, real time stock
@@ -1648,6 +1685,7 @@ public class JStock extends javax.swing.JFrame
       
       this.portfolioManagementJPanel.initPortfolio();
       this.portfolioManagementJPanel.initExchangeRateMonitor();
+      this.portfolioManagementJPanel.initRealTimeStockMonitor();
 
       menuBar.setSelectedCountryItem(country);
    }
@@ -1795,46 +1833,6 @@ public class JStock extends javax.swing.JFrame
       boolean result = statements.saveAsCSVFile(userDefinedDatabaseCSVFile);
       this.needToSaveUserDefinedDatabase = false;
       return result;
-   }
-
-   /**
-    * Initializes currency exchange monitor.
-    */
-   /*
-   public void initExchangeRateMonitor()
-   {
-      this.portfolioManagementJPanel.initExchangeRateMonitor();
-   }
-   */
-   
-   private void initRealTimeStockMonitor()
-   {
-      final RealTimeStockMonitor oldRealTimeStockMonitor = realTimeStockMonitor;
-      
-      if (oldRealTimeStockMonitor != null)
-      {
-         zombiePool.execute(new Runnable()
-         {
-            @Override
-            public void run()
-            {
-               log.info("Prepare to shut down " + oldRealTimeStockMonitor + "...");
-               oldRealTimeStockMonitor.clearStockCodes();
-               oldRealTimeStockMonitor.dettachAll();
-               oldRealTimeStockMonitor.stop();
-               log.info("Shut down " + oldRealTimeStockMonitor + " peacefully.");
-            }
-         });
-      }
-
-      realTimeStockMonitor = new RealTimeStockMonitor(
-                                                      Constants.REAL_TIME_STOCK_MONITOR_MAX_THREAD,
-                                                      Constants.REAL_TIME_STOCK_MONITOR_MAX_STOCK_SIZE_PER_SCAN,
-                                                      jStockOptions.getScanningSpeed());
-      
-      realTimeStockMonitor.attach(this.realTimeStockMonitorObserver);
-
-      this.portfolioManagementJPanel.initRealTimeStockMonitor();
    }
    
    private void saveUIOptions()
