@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 2.0 04/01/2019
+// Version 2.1 04/17/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,6 +53,8 @@
 //         1.9 Commented in Constructor Setting Font, Changed Slightly JMenu Font
 //             Derivative to Bold, Along With Added to helpMenu.
 //         2.0 Added Method buildCountryMenuItems().
+//         2.1 Method createEditMenu() Set Edit Menu Items Enable/Disabled via
+//             Call to setEditMenuItems().
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -109,7 +111,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 2.0 04/01/2019
+ * @version 2.1 04/17/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -304,6 +306,14 @@ public class Main_JMenuBar extends JMenuBar
          }
       });
       editMenu.add(menuItem);
+      
+      // Set edit menu items according to
+      // selected pane.
+      if (jstock.getSelectedComponent() == jstock.watchListPanel)
+         setEditMenuItems(true, true, true);
+      
+      if (jstock.getSelectedComponent() == jstock.portfolioManagementJPanel)
+         setEditMenuItems(false, false, true);
 
       add(editMenu);
    }
