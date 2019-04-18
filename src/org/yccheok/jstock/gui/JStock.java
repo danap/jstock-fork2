@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.36 04/14/2019
+ * Version 1.0.7.37.37 04/18/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,6 +212,12 @@
 //                                & initRealTimeStockMonitor() to Last Stages. Same in Method change
 //                                Country(). Moved initRealTimeStockMonitor() Method Code to Order
 //                                Sequencing Position.
+//         1.0.7.37.37 04/18/2019 Method init() Removed Action Set Last Viewed Tab, Moved to initComponents()
+//                                After jTabbedPane1 Setup. Also in init() Removed Call to Method
+//                                handleJTabbedPaneStateChanged(). That Method Removed, Moved Into
+//                                initComponents() jTabbedPane1.addChangeListener. Changed Order in
+//                                initComponents() for Selecting Last Viewed Tab. Changed Class Instance
+//                                jTabbedPane1 to mainTabsPane.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -292,7 +298,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.36 04/14/2019
+ * @version 1.0.7.37.37 04/18/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -300,10 +306,10 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.36";
+   public static final String VERSION = "1.0.7.37.37";
    
    private Main_JMenuBar menuBar;
-   private JTabbedPane jTabbedPane1;
+   private JTabbedPane mainTabsPane;
 
    private MarketJPanel marketJPanel;
    protected WatchListJPanel watchListPanel;
@@ -560,7 +566,9 @@ public class JStock extends javax.swing.JFrame
       initDatabase(true);
       initAjaxProvider();
       
-      // Comment here.
+      // These initialize threads to monitor,
+      // update, stock exchange, history, and
+      // watchlist data.
       
       initRealTimeIndexMonitor();
       initStockHistoryMonitor();
@@ -578,20 +586,6 @@ public class JStock extends javax.swing.JFrame
       portfolioManagementJPanel.initPortfolio();
       portfolioManagementJPanel.initExchangeRateMonitor();
       portfolioManagementJPanel.initRealTimeStockMonitor();
-
-      // Turn to the last viewed page.
-      final int lastSelectedPageIndex = getJStockOptions().getLastSelectedPageIndex();
-      
-      if (jTabbedPane1.getTabCount() > lastSelectedPageIndex)
-         jTabbedPane1.setSelectedIndex(lastSelectedPageIndex);
-
-      // setSelectedIndex will not always trigger jTabbedPane1StateChanged,
-      // if the selected index is same as current page index. However, we are
-      // expecting jTabbedPane1StateChanged to suspend/resume
-      // PortfolioManagementJPanel's RealtTimeStockMonitor and MainFrame's
-      // CurrencyExchangeMonitor, in order to preserve network resource. Hence,
-      // we need to call handleJTabbedPaneStateChanged explicitly.
-      handleJTabbedPaneStateChanged(jTabbedPane1);
 
       // Restore previous size and location.
       JStockOptions.BoundsEx boundsEx = jStockOptions.getBoundsEx();
@@ -658,13 +652,13 @@ public class JStock extends javax.swing.JFrame
       
       if (sourceKey.equals("portfolio") && getSelectedComponent() != portfolioManagementJPanel)
       {
-         jTabbedPane1.setSelectedIndex(portfolioTabIndex);
+         mainTabsPane.setSelectedIndex(portfolioTabIndex);
          return;
       }
       
       if (sourceKey.equals("watchlist") && getSelectedComponent() != watchListPanel)
       {
-         jTabbedPane1.setSelectedIndex(watchListTabIndex);
+         mainTabsPane.setSelectedIndex(watchListTabIndex);
          return;
       }
       
@@ -720,36 +714,55 @@ public class JStock extends javax.swing.JFrame
       getContentPane().add(statusBarPanel, java.awt.BorderLayout.SOUTH);
 
       // Center Tabbed Pane
-      jTabbedPane1 = new javax.swing.JTabbedPane();
-      jTabbedPane1.setFont(jTabbedPane1.getFont().deriveFont(
-         jTabbedPane1.getFont().getStyle() | java.awt.Font.BOLD, jTabbedPane1.getFont().getSize() + 2));
-      jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+      mainTabsPane = new javax.swing.JTabbedPane();
+      mainTabsPane.setFont(mainTabsPane.getFont().deriveFont(
+         mainTabsPane.getFont().getStyle() | java.awt.Font.BOLD, mainTabsPane.getFont().getSize() + 2));
+      mainTabsPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
       
-      jTabbedPane1.addChangeListener(new javax.swing.event.ChangeListener()
+      watchListPanel = new WatchListJPanel();
+      watchListTabIndex = mainTabsPane.getTabCount();
+      mainTabsPane.addTab(bundle.getString("MainFrame_Title"), watchListPanel);
+      mainTabsPane.setIconAt(watchListTabIndex, this.getImageIcon("/images/16x16/stock_timezone.png"));
+      mainTabsPane.setToolTipTextAt(watchListTabIndex, ResourceBundle.getBundle(
+         "org/yccheok/jstock/data/gui").getString("MainFrame_WatchYourFavoriteStockMovement"));
+      
+      portfolioManagementJPanel = new PortfolioManagementJPanel();
+      portfolioTabIndex = mainTabsPane.getTabCount();
+      mainTabsPane.addTab(GUIBundle.getString("PortfolioManagementJPanel_Title"), portfolioManagementJPanel);
+      mainTabsPane.setIconAt(portfolioTabIndex, this.getImageIcon("/images/16x16/calc.png"));
+      mainTabsPane.setToolTipTextAt(portfolioTabIndex, ResourceBundle.getBundle(
+         "org/yccheok/jstock/data/gui").getString(
+            "MainFrame_ManageYourRealTimePortfolioWhichEnableYouToTrackBuyAndSellRecords"));
+      
+      // Set last used tab & add ChangeListener.
+      if (mainTabsPane.getTabCount() > getJStockOptions().getLastSelectedPageIndex())
+         mainTabsPane.setSelectedIndex(getJStockOptions().getLastSelectedPageIndex());
+      
+      mainTabsPane.addChangeListener(new javax.swing.event.ChangeListener()
       {
          public void stateChanged(javax.swing.event.ChangeEvent evt)
          {
             JTabbedPane pane = (JTabbedPane) evt.getSource();
-            handleJTabbedPaneStateChanged(pane);
+            //handleJTabbedPaneStateChanged(pane);
+            
+            // MainFrame
+            // Edit Menu (Add Stocks, Clear All Stocks, Refresh Stock Prices)
+
+            if (pane.getSelectedComponent() == watchListPanel)
+            {
+               menuBar.setEditMenuItems(true, true, true);
+               watchListPanel.requestFocusOnJComboBox();
+            }
+            
+            if (pane.getSelectedComponent() == portfolioManagementJPanel)
+               menuBar.setEditMenuItems(false, false, true);
+            
+            if (isStatusBarBusy == false)
+               setStatusBar(false, getBestStatusBarMessage());
          }
       });
-
-      watchListPanel = new WatchListJPanel();
-      watchListTabIndex = jTabbedPane1.getTabCount();
-      jTabbedPane1.addTab(bundle.getString("MainFrame_Title"), watchListPanel);
-      jTabbedPane1.setIconAt(watchListTabIndex, this.getImageIcon("/images/16x16/stock_timezone.png"));
-      jTabbedPane1.setToolTipTextAt(watchListTabIndex, ResourceBundle.getBundle(
-         "org/yccheok/jstock/data/gui").getString("MainFrame_WatchYourFavoriteStockMovement"));
       
-      portfolioManagementJPanel = new PortfolioManagementJPanel();
-      portfolioTabIndex = jTabbedPane1.getTabCount();
-      jTabbedPane1.addTab(GUIBundle.getString("PortfolioManagementJPanel_Title"), portfolioManagementJPanel);
-      jTabbedPane1.setIconAt(portfolioTabIndex, this.getImageIcon("/images/16x16/calc.png"));
-      jTabbedPane1.setToolTipTextAt(portfolioTabIndex, ResourceBundle.getBundle(
-         "org/yccheok/jstock/data/gui").getString(
-            "MainFrame_ManageYourRealTimePortfolioWhichEnableYouToTrackBuyAndSellRecords"));
-
-      getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+      getContentPane().add(mainTabsPane, java.awt.BorderLayout.CENTER);
       
       portfolioManagementJPanel.updateDividerLocation();
       
@@ -1164,7 +1177,6 @@ public class JStock extends javax.swing.JFrame
       
       realTimeStockMonitor.attach(realTimeStockMonitorObserver);
    }
-
    
    
    
@@ -1281,24 +1293,6 @@ public class JStock extends javax.swing.JFrame
       return realTimeStockMonitor;
    }
 
-   private void handleJTabbedPaneStateChanged(JTabbedPane pane)
-   {
-      if (menuBar == null)
-         return;
-
-      // MainFrame
-      // Edit Menu (Add Stocks, Clear All Stocks, Refresh Stock Prices)
-
-      if (pane.getSelectedComponent() == watchListPanel)
-      {
-         menuBar.setEditMenuItems(true, true, true);
-         watchListPanel.requestFocusOnJComboBox();
-      }
-
-      if (this.isStatusBarBusy == false)
-         this.setStatusBar(false, this.getBestStatusBarMessage());
-   }
-
    /**
     * Returns JStock options of this main frame.
     * @return JStock options of this main frame
@@ -1328,7 +1322,7 @@ public class JStock extends javax.swing.JFrame
    public void save()
    {
       // Save the last viewed page.
-      this.getJStockOptions().setLastSelectedPageIndex(this.jTabbedPane1.getSelectedIndex());
+      this.getJStockOptions().setLastSelectedPageIndex(this.mainTabsPane.getSelectedIndex());
 
       // Save current window size and position.
       JStockOptions.BoundsEx boundsEx = new JStockOptions.BoundsEx(this.getBounds(), this.getExtendedState());
@@ -1437,7 +1431,7 @@ public class JStock extends javax.swing.JFrame
       JStock.this.watchListPanel.initWatchlist();
       // I guess user wants to watch the current active watchlist right now.
       // We will help him to turn to the stock watchlist page.
-      JStock.this.jTabbedPane1.setSelectedIndex(watchListTabIndex);
+      JStock.this.mainTabsPane.setSelectedIndex(watchListTabIndex);
 
       // No matter how, just stop progress bar, and display best message.
       this.setStatusBar(false, this.getBestStatusBarMessage());
@@ -1460,7 +1454,7 @@ public class JStock extends javax.swing.JFrame
       JStock.this.portfolioManagementJPanel.initPortfolio();
       // I guess user wants to watch the current active portfolio right now.
       // We will help him to turn to the portfolio page.
-      JStock.this.jTabbedPane1.setSelectedIndex(portfolioTabIndex);
+      JStock.this.mainTabsPane.setSelectedIndex(portfolioTabIndex);
 
       JStock.this.portfolioManagementJPanel.updateTitledBorder();
 
@@ -2307,7 +2301,7 @@ public class JStock extends javax.swing.JFrame
 
    public Component getSelectedComponent()
    {
-      return this.jTabbedPane1.getSelectedComponent();
+      return this.mainTabsPane.getSelectedComponent();
    }
 
    public void initDynamicChartVisibility()
