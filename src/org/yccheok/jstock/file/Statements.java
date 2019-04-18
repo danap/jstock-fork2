@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 03/11/2019
+ * Version 1.0.7.37.02 04/18/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,10 @@
 //                                Library org.apache.poi, Removed, Along With Class
 //                                GUI POIUtils. Methods Effected newInstanceFromExcelFile()
 //                                & saveAsExcelFile().
+//         1.0.7.37.02 04/18/2019 Commented import of gui.BackwardCompatible, Not Used
+//                                in JStock-Min Since It Has a Different Config Directory.
+//                                Method Effected newInstanceFromCSVFile(), Commented boolean
+//                                Instances & Activity Associated With This Class.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -77,7 +81,7 @@ import org.yccheok.jstock.engine.StockInfoDatabase;
 import org.yccheok.jstock.engine.StockNameDatabase;
 import org.yccheok.jstock.engine.Symbol;
 import org.yccheok.jstock.file.GUIBundleWrapper.Language;
-import org.yccheok.jstock.gui.BackwardCompatible;
+//import org.yccheok.jstock.gui.BackwardCompatible;
 //import org.yccheok.jstock.gui.POIUtils;
 import org.yccheok.jstock.engine.Pair;
 import org.yccheok.jstock.gui.StockTableModel;
@@ -95,7 +99,7 @@ import org.yccheok.jstock.watchlist.WatchlistInfo;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 03/11/2019
+ * @version 1.0.7.37.02 04/18/2019
  */
 public class Statements {
     public static final Statements UNKNOWN_STATEMENTS = new Statements(Statement.Type.Unknown, GUIBundleWrapper.newInstance(Language.DEFAULT));
@@ -426,8 +430,8 @@ public class Statements {
      */
     public static Statements newInstanceFromCSVFile(File file) {        
         // FIXME :
-        final boolean needToPerformBackwardCompatible = BackwardCompatible.needToPerformBackwardCompatible(file);
-        final boolean needToHandleMetadata = BackwardCompatible.needToHandleMetadata(file);
+        //final boolean needToPerformBackwardCompatible = BackwardCompatible.needToPerformBackwardCompatible(file);
+        //final boolean needToHandleMetadata = BackwardCompatible.needToHandleMetadata(file);
                 
         boolean status = false;
 
@@ -462,9 +466,11 @@ public class Statements {
                         String value = tokens[1].trim();
                         
                         // FIXME :
+                        /*
                         if (needToHandleMetadata) {
                             key = BackwardCompatible.toGoogleCodeIfPossible(key);
-                        }                       
+                        }
+                        */                      
                         
                         if (key.length() > 0) {
                             // Is OK for value to be empty.
@@ -505,9 +511,11 @@ public class Statements {
                     final String type = types.get(i++);
                     
                     // FIXME :
+                    /*
                     if (needToPerformBackwardCompatible && type.equals("Code")) {
                         value = BackwardCompatible.toGoogleCodeIfPossible(value);
                     }
+                    */
                     
                     final Atom atom = new Atom(value, type);
                     atoms.add(atom);
