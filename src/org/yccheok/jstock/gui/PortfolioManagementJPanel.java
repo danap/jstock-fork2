@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.03 04/12/2019
+ * Version 1.0.7.37.04 04/20/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@
 //                                Instantiation Process.
 //         1.0.7.37.03 04/12/2019 Constructor Removed Call to initPortfolio() & initExchangeRate
 //                                Monitor() to More Appropriately Track. See JStock v1.0.7.37.36.
+//         1.0.7.37.04 04/20/2019 Renamed initCSVPortfolio() to initPortfolio() Which Just Called
+//                                the Former. Made Protected.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -120,7 +122,7 @@ import org.yccheok.jstock.portfolio.TransactionSummary;
  *
  * @author  Owner
  * @author Dana M. Proctor
- * @version 1.0.7.37.03 04/12/2019
+ * @version 1.0.7.37.04 04/20/2019
  */
 public class PortfolioManagementJPanel extends javax.swing.JPanel {
     
@@ -2098,7 +2100,7 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
 
     // Initialize portfolios through CSV files. This is the preferable method,
     // as it works well under Desktop platform and Android platform.
-    private boolean initCSVPortfolio() {
+    protected boolean initPortfolio() {
         final JStockOptions jStockOptions = JStock.instance().getJStockOptions();
         
         List<String> availablePortfolioNames = org.yccheok.jstock.portfolio.Utils.getPortfolioNames();
@@ -2312,9 +2314,11 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
         }
     }
     
+    /*
     public final void initPortfolio() {
         this.initCSVPortfolio();
     }
+    */
 
     public void updateTitledBorder() {
         final JStockOptions jStockOptions = JStock.instance().getJStockOptions();
