@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.37 04/18/2019
+ * Version 1.0.7.37.38 04/20/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -218,6 +218,17 @@
 //                                initComponents() jTabbedPane1.addChangeListener. Changed Order in
 //                                initComponents() for Selecting Last Viewed Tab. Changed Class Instance
 //                                jTabbedPane1 to mainTabsPane.
+//         1.0.7.37.38 04/20/2019 Continued Clean Up, Organizing Imports, Comments, Removing this. Method
+//                                init() Removed Call to BackwardCompatibile.removeGoogleCodeDatabase().
+//                                Continued Organizing, Sequencing, of Methods, formWindowClosed(),
+//                                save(), saveJStockOptions(), saveUIOptions(), & saveGUIOptions().
+//                                Method initUIOptions() & saveUIOptions Changed to Use Utils.from/toXML()
+//                                Rather Than Using Json, to be Consistent With Other Config Files.
+//                                Replaced saveUIOptions() With _saveUIOptions() & Added Argument
+//                                boolean to Handle portfolioManagementJPanel Options Saving. Removed
+//                                rebuildRealTimeStock/IndexMonitor() Methods. A Whole Method(s) for
+//                                One Conditional Test & Called Only by updatePriceSource(), Just
+//                                Put Where Belongs in that Method.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -226,10 +237,17 @@
 
 package org.yccheok.jstock.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -250,6 +268,7 @@ import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
@@ -257,6 +276,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -298,7 +320,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.37 04/18/2019
+ * @version 1.0.7.37.38 04/20/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -494,26 +516,30 @@ public class JStock extends javax.swing.JFrame
       setSize(new java.awt.Dimension(800, 600));
       setLocationRelativeTo(null); // Centers
       
-      setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+      setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
       
       addWindowListener(new java.awt.event.WindowAdapter()
       {
-         public void windowClosed(java.awt.event.WindowEvent evt)
+         // Invoked when a window has been closed as the result
+         // of calling dispose on the window.
+         public void windowClosed(WindowEvent evt)
          {
             formWindowClosed(evt);
          }
 
-         public void windowClosing(java.awt.event.WindowEvent evt)
+         // Invoked when the user attempts to close the window
+         // from the window's system menu.
+         public void windowClosing(WindowEvent evt)
          {
             dispose();
          }
 
-         public void windowDeiconified(java.awt.event.WindowEvent evt)
+         public void windowDeiconified(WindowEvent evt)
          {
             // Nothing to Do.
          }
 
-         public void windowIconified(java.awt.event.WindowEvent evt)
+         public void windowIconified(WindowEvent evt)
          {
             // Calling setVisible(false) will cause modal dialog box to be unblocked
             // for JDialog.setVisible(true). This will happen in Linux system where
@@ -528,9 +554,9 @@ public class JStock extends javax.swing.JFrame
       
       initKeyBindings();
       
-      addMouseListener(new java.awt.event.MouseAdapter()
+      addMouseListener(new MouseAdapter()
       {
-         public void mouseClicked(java.awt.event.MouseEvent evt)
+         public void mouseClicked(MouseEvent evt)
          {
             watchListPanel.getTable().getSelectionModel().clearSelection();
             portfolioManagementJPanel.clearTableSelection();
@@ -601,8 +627,72 @@ public class JStock extends javax.swing.JFrame
       }
 
       installShutdownHook();
+   }
+   
+   //==============================================================
+   // Dangerous! We didn't perform proper clean up, because we do
+   // not want to give user perspective that our system is slow.
+   // But, is it safe to do so?
+   //
+   // Remember to revise installShutdownHook?
+   //==============================================================
+   
+   private void formWindowClosed(WindowEvent evt)
+   {
+      isFormWindowClosedCalled = true;
 
-      BackwardCompatible.removeGoogleCodeDatabaseIfNecessary();
+      try
+      {
+         ExecutorService _stockInfoDatabaseMetaPool = stockInfoDatabaseMetaPool;
+         stockInfoDatabaseMetaPool = null;
+         
+         if (_stockInfoDatabaseMetaPool != null)
+            _stockInfoDatabaseMetaPool.shutdownNow();
+
+         ExecutorService _singleThreadExecutor = singleThreadExecutor;
+         singleThreadExecutor = null;
+         
+         if (_singleThreadExecutor != null)
+            _singleThreadExecutor.shutdownNow();
+
+         // Always be the first statement. As no matter what happen, we must
+         // save all the configuration files.
+         save();
+
+         if (needToSaveUserDefinedDatabase)
+         {
+            // We are having updated user database in memory.
+            // Save it to disk.
+            saveUserDefinedDatabaseAsCSV(jStockOptions.getCountry(), stockInfoDatabase);
+         }
+
+         watchListPanel.dettachAllAndStopAutoCompleteJComboBox();
+
+         _stockInfoDatabaseMetaPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+
+         // We suppose to call shutdownAll to clean up all network resources.
+         // However, that will cause Exception in other threads if they are
+         // still using httpclient.
+         // Exception in thread "Thread-4" java.lang.IllegalStateException:
+         // Connection factory has been shutdown.
+         //
+         // MultiThreadedHttpConnectionManager.shutdownAll();
+
+         log.info("Widnow is closed.");
+      }
+      catch (Exception exp)
+      {
+         log.error("Unexpected error while trying to quit application", exp);
+      }
+
+      // Yea this is FX thing.
+      Platform.exit();
+
+      // All the above operations are done within try block, to ensure
+      // System.exit(0) will always be called.
+      //
+      // Final clean up.
+      System.exit(0);
    }
    
    //==============================================================
@@ -612,13 +702,11 @@ public class JStock extends javax.swing.JFrame
    
    private void initKeyBindings()
    {
-      KeyStroke watchlistNavigationKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_W,
-         java.awt.event.InputEvent.CTRL_MASK);
+      KeyStroke watchlistNavigationKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_W,InputEvent.CTRL_MASK);
       getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(watchlistNavigationKeyStroke,
             "watchlistNavigation");
       
-      KeyStroke portfolioNavigationKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_P,
-         java.awt.event.InputEvent.CTRL_MASK);
+      KeyStroke portfolioNavigationKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK);
       getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(portfolioNavigationKeyStroke,
          "portfolioNavigation");
       
@@ -697,39 +785,39 @@ public class JStock extends javax.swing.JFrame
    private void initComponents(ResourceBundle bundle)
    {
       // Start Adding Main Components
-      getContentPane().setLayout(new java.awt.BorderLayout());
+      getContentPane().setLayout(new BorderLayout());
 
       // North Market Panel
       marketJPanel = new MarketJPanel(jStockOptions.getCountry());
-      getContentPane().add(marketJPanel, java.awt.BorderLayout.NORTH);
+      getContentPane().add(marketJPanel, BorderLayout.NORTH);
       
       // South Status Bar
       javax.swing.JPanel statusBarPanel = new javax.swing.JPanel();
       
       statusBar = new MyJXStatusBar();
-      statusBarPanel.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-      statusBarPanel.setLayout(new java.awt.GridLayout(1, 1));
+      statusBarPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+      statusBarPanel.setLayout(new GridLayout(1, 1));
       statusBarPanel.add(statusBar);
       
-      getContentPane().add(statusBarPanel, java.awt.BorderLayout.SOUTH);
+      getContentPane().add(statusBarPanel, BorderLayout.SOUTH);
 
       // Center Tabbed Pane
-      mainTabsPane = new javax.swing.JTabbedPane();
+      mainTabsPane = new JTabbedPane();
       mainTabsPane.setFont(mainTabsPane.getFont().deriveFont(
-         mainTabsPane.getFont().getStyle() | java.awt.Font.BOLD, mainTabsPane.getFont().getSize() + 2));
-      mainTabsPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+         mainTabsPane.getFont().getStyle() | Font.BOLD, mainTabsPane.getFont().getSize() + 2));
+      mainTabsPane.setBorder(BorderFactory.createEtchedBorder());
       
       watchListPanel = new WatchListJPanel();
       watchListTabIndex = mainTabsPane.getTabCount();
       mainTabsPane.addTab(bundle.getString("MainFrame_Title"), watchListPanel);
-      mainTabsPane.setIconAt(watchListTabIndex, this.getImageIcon("/images/16x16/stock_timezone.png"));
+      mainTabsPane.setIconAt(watchListTabIndex, getImageIcon("/images/16x16/stock_timezone.png"));
       mainTabsPane.setToolTipTextAt(watchListTabIndex, ResourceBundle.getBundle(
          "org/yccheok/jstock/data/gui").getString("MainFrame_WatchYourFavoriteStockMovement"));
       
       portfolioManagementJPanel = new PortfolioManagementJPanel();
       portfolioTabIndex = mainTabsPane.getTabCount();
       mainTabsPane.addTab(GUIBundle.getString("PortfolioManagementJPanel_Title"), portfolioManagementJPanel);
-      mainTabsPane.setIconAt(portfolioTabIndex, this.getImageIcon("/images/16x16/calc.png"));
+      mainTabsPane.setIconAt(portfolioTabIndex, getImageIcon("/images/16x16/calc.png"));
       mainTabsPane.setToolTipTextAt(portfolioTabIndex, ResourceBundle.getBundle(
          "org/yccheok/jstock/data/gui").getString(
             "MainFrame_ManageYourRealTimePortfolioWhichEnableYouToTrackBuyAndSellRecords"));
@@ -738,12 +826,11 @@ public class JStock extends javax.swing.JFrame
       if (mainTabsPane.getTabCount() > getJStockOptions().getLastSelectedPageIndex())
          mainTabsPane.setSelectedIndex(getJStockOptions().getLastSelectedPageIndex());
       
-      mainTabsPane.addChangeListener(new javax.swing.event.ChangeListener()
+      mainTabsPane.addChangeListener(new ChangeListener()
       {
-         public void stateChanged(javax.swing.event.ChangeEvent evt)
+         public void stateChanged(ChangeEvent evt)
          {
             JTabbedPane pane = (JTabbedPane) evt.getSource();
-            //handleJTabbedPaneStateChanged(pane);
             
             // MainFrame
             // Edit Menu (Add Stocks, Clear All Stocks, Refresh Stock Prices)
@@ -762,7 +849,7 @@ public class JStock extends javax.swing.JFrame
          }
       });
       
-      getContentPane().add(mainTabsPane, java.awt.BorderLayout.CENTER);
+      getContentPane().add(mainTabsPane, BorderLayout.CENTER);
       
       portfolioManagementJPanel.updateDividerLocation();
       
@@ -783,12 +870,14 @@ public class JStock extends javax.swing.JFrame
    //==============================================================
    
    private void initUIOptions()
-   {
-      File file = new File(UserDataDirectory.Config.get() + UserDataFile.UIOptionsJson.get());
-      uiOptions = Utils.fromJson(file, UIOptions.class);
+   {  
+      final File f = new File(UserDataDirectory.Config.get() + UserDataFile.UIOptionsXml.get());
+      uiOptions = Utils.fromXML(UIOptions.class, f);
       
       if (uiOptions == null)
          uiOptions = new UIOptions();
+      // else
+      //    log.info("iuOptions loaded from " + f.toString() + " successfully.");   
    }
    
    //==============================================================
@@ -824,7 +913,6 @@ public class JStock extends javax.swing.JFrame
    private void initChartJDialogOptions()
    {
       final File f = new File(UserDataDirectory.Config.get() + UserDataFile.ChartJDialogOptionsXml.get());
-      
       chartJDialogOptions = Utils.fromXML(ChartJDialogOptions.class, f);
       
       if (chartJDialogOptions == null)
@@ -1029,9 +1117,8 @@ public class JStock extends javax.swing.JFrame
       setStatusBar(true,
                    GUIBundle.getString("MainFrame_ConnectingToStockServerToRetrieveStockInformation..."));
       statusBar.setImageIcon(
-         getImageIcon("/images/16x16/network-connecting.png"),
-         java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
-            "MainFrame_Connecting..."));
+         getImageIcon("/images/16x16/network-connecting.png"), ResourceBundle.getBundle(
+            "org/yccheok/jstock/data/gui").getString("MainFrame_Connecting..."));
 
       // Stop any on-going activities.
       // Entire block will be synchronized, as we do not want to hit by more
@@ -1061,8 +1148,8 @@ public class JStock extends javax.swing.JFrame
    
    private void initAjaxProvider()
    {
-      Country country = this.jStockOptions.getCountry();
-      this.watchListPanel.setGreedyEnabled(country);
+      Country country = jStockOptions.getCountry();
+      watchListPanel.setGreedyEnabled(country);
    }
    
    //==============================================================
@@ -1134,7 +1221,7 @@ public class JStock extends javax.swing.JFrame
 
       stockHistoryMonitor = new StockHistoryMonitor(HISTORY_MONITOR_MAX_THREAD);
       
-      stockHistoryMonitor.attach(this.stockHistoryMonitorObserver);
+      stockHistoryMonitor.attach(stockHistoryMonitorObserver);
 
       final Country country = jStockOptions.getCountry();
 
@@ -1178,15 +1265,13 @@ public class JStock extends javax.swing.JFrame
       realTimeStockMonitor.attach(realTimeStockMonitorObserver);
    }
    
-   
-   
-   
-   
-   
-
-   // Register a hook to save app settings when quit via the app menu.
+   //==============================================================
+   // Register a hook to save app settings when quit via the app
+   // menu.
    // This is in Mac OSX only.
    // http://sourceforge.net/tracker/?func=detail&aid=3490453&group_id=202896&atid=983418
+   //==============================================================
+   
    private void installShutdownHook()
    {
       if (Utils.isMacOSX())
@@ -1233,6 +1318,114 @@ public class JStock extends javax.swing.JFrame
          Runtime.getRuntime().addShutdownHook(new Thread(runner, "Window Prefs Hook"));
       }
    }
+   
+   //==============================================================
+   // Save the entire application settings.
+   //==============================================================
+   
+   public void save()
+   {
+      // Save the last viewed page.
+      getJStockOptions().setLastSelectedPageIndex(mainTabsPane.getSelectedIndex());
+
+      // Save current window size and position.
+      JStockOptions.BoundsEx boundsEx = new JStockOptions.BoundsEx(getBounds(), getExtendedState());
+      getJStockOptions().setBoundsEx(boundsEx);
+
+      // Not used.
+      // jStockOptions.setApplicationVersionID(Utils.getApplicationVersionID());
+
+      saveJStockOptions();
+      saveUIOptions();
+      saveGUIOptions(true);
+      saveChartJDialogOptions();
+      watchListPanel.saveCSVWatchlist();
+      portfolioManagementJPanel.savePortfolio();
+   }
+   
+   //==============================================================
+   // Save JStock options to disc.
+   //==============================================================
+   
+   private boolean saveJStockOptions()
+   {
+      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(UserDataDirectory.Config.get()) == false)
+         return false;
+
+      File f = new File(UserDataDirectory.Config.get() + UserDataFile.OptionsXml.get());
+      return Utils.toXML(jStockOptions, f);
+   }
+   
+   //==============================================================
+   // Save various dialogs window dimensions.
+   //==============================================================
+   
+   private boolean saveUIOptions()
+   {
+      File file = new File(UserDataDirectory.Config.get() + UserDataFile.UIOptionsXml.get());
+      return Utils.toXML(uiOptions, file);
+   }
+   
+   //==============================================================
+   // Save mainly various aspects of the WatchListJPanel, Locale,
+   // and PortfolioManagementJPanel.
+   //==============================================================
+   
+   private boolean saveGUIOptions(boolean savePortfolio)
+   {
+      boolean success;
+      
+      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(UserDataDirectory.Config.get()) == false)
+         success = false;
+
+      final GUIOptions.JTableOptions jTableOptions = new GUIOptions.JTableOptions();
+
+      final int count = watchListPanel.getTable().getColumnCount();
+      
+      for (int i = 0; i < count; i++)
+      {
+         final String name = watchListPanel.getTable().getColumnName(i);
+         final TableColumn column = watchListPanel.getTable().getColumnModel().getColumn(i);
+         jTableOptions.addColumnOption(GUIOptions.JTableOptions.ColumnOption.newInstance(name,
+            column.getWidth()));
+      }
+
+      final GUIOptions guiOptions = new GUIOptions();
+      guiOptions.addJTableOptions(jTableOptions);
+
+      File f = new File(UserDataDirectory.Config.get() + UserDataFile.MainFrameXml.get());
+      success =  Utils.toXML(guiOptions, f);
+      
+      if (savePortfolio)
+         portfolioManagementJPanel.saveGUIOptions();
+      
+      return success;
+   }
+   
+   //==============================================================
+   // Save index, history, JFreeChart dialog options to disc.
+   //==============================================================
+   
+   private boolean saveChartJDialogOptions()
+   {
+      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(UserDataDirectory.Config.get()) == false)
+         return false;
+
+      File f = new File(UserDataDirectory.Config.get() + UserDataFile.ChartJDialogOptionsXml.get());
+      return org.yccheok.jstock.gui.Utils.toXML(chartJDialogOptions, f);
+   }
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
    
    protected boolean openAsCSVFile(File file)
    {
@@ -1316,99 +1509,9 @@ public class JStock extends javax.swing.JFrame
       return this.chartJDialogOptions;
    }
 
-   /**
-    * Save the entire application settings.
-    */
-   public void save()
-   {
-      // Save the last viewed page.
-      this.getJStockOptions().setLastSelectedPageIndex(this.mainTabsPane.getSelectedIndex());
+   
 
-      // Save current window size and position.
-      JStockOptions.BoundsEx boundsEx = new JStockOptions.BoundsEx(this.getBounds(), this.getExtendedState());
-      this.getJStockOptions().setBoundsEx(boundsEx);
-
-      jStockOptions.setApplicationVersionID(Utils.getApplicationVersionID());
-
-      this.saveJStockOptions();
-      this.saveUIOptions();
-      this.saveGUIOptions();
-      this.saveChartJDialogOptions();
-      //this.saveCSVWatchlist();
-      this.watchListPanel.saveCSVWatchlist();
-      this.portfolioManagementJPanel.savePortfolio();
-   }
-
-   // windowClosing
-   // Invoked when the user attempts to close the window from the window's
-   // system menu.
-   //
-   // windowClosed
-   // Invoked when a window has been closed as the result of calling dispose on
-   // the window.
-   //
-   /*
-    * Dangerous! We didn't perform proper clean up, because we do not want to
-    * give user perspective that our system is slow. But, is it safe to do so?
-    */
-
-   // Remember to revise installShutdownHook
-   private void formWindowClosed(java.awt.event.WindowEvent evt)
-   {
-      isFormWindowClosedCalled = true;
-
-      try
-      {
-         ExecutorService _stockInfoDatabaseMetaPool = this.stockInfoDatabaseMetaPool;
-         this.stockInfoDatabaseMetaPool = null;
-         
-         if (_stockInfoDatabaseMetaPool != null)
-            _stockInfoDatabaseMetaPool.shutdownNow();
-
-         ExecutorService _singleThreadExecutor = this.singleThreadExecutor;
-         this.singleThreadExecutor = null;
-         
-         if (_singleThreadExecutor != null)
-            _singleThreadExecutor.shutdownNow();
-
-         // Always be the first statement. As no matter what happen, we must
-         // save all the configuration files.
-         this.save();
-
-         if (this.needToSaveUserDefinedDatabase)
-         {
-            // We are having updated user database in memory.
-            // Save it to disk.
-            this.saveUserDefinedDatabaseAsCSV(jStockOptions.getCountry(), stockInfoDatabase);
-         }
-
-         watchListPanel.dettachAllAndStopAutoCompleteJComboBox();
-
-         _stockInfoDatabaseMetaPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-
-         // We suppose to call shutdownAll to clean up all network resources.
-         // However, that will cause Exception in other threads if they are
-         // still using httpclient.
-         // Exception in thread "Thread-4" java.lang.IllegalStateException:
-         // Connection factory has been shutdown.
-         //
-         // MultiThreadedHttpConnectionManager.shutdownAll();
-
-         log.info("Widnow is closed.");
-      }
-      catch (Exception exp)
-      {
-         log.error("Unexpected error while trying to quit application", exp);
-      }
-
-      Platform.exit();
-
-      // All the above operations are done within try block, to ensure
-      // System.exit(0) will always be called.
-      //
-      // Final clean up.
-      System.exit(0);
-   }
+   
 
    /**
     * Activate specified watchlist.
@@ -1425,7 +1528,7 @@ public class JStock extends javax.swing.JFrame
       // Do not call MainFrame.this.saveGUIOptions() (Pay note on the
       // underscore)
       // , as that will save portfolio's and indicator scanner's as well.
-      JStock.this._saveGUIOptions();
+      JStock.this.saveGUIOptions(false);
       // And switch to new portfolio.
       JStock.this.getJStockOptions().setWatchlistName(watchlist);
       JStock.this.watchListPanel.initWatchlist();
@@ -1636,7 +1739,7 @@ public class JStock extends javax.swing.JFrame
       }
 
       /* Save the GUI look. */
-      saveGUIOptions();
+      saveGUIOptions(true);
 
       /* Need to save chart dialog options? */
 
@@ -1829,70 +1932,25 @@ public class JStock extends javax.swing.JFrame
       return result;
    }
    
-   private void saveUIOptions()
-   {
-      File file = new File(UserDataDirectory.Config.get() + UserDataFile.UIOptionsJson.get());
-      Utils.saveJson(file, this.uiOptions);
-   }
+   
 
-   private void saveGUIOptions()
-   {
-      _saveGUIOptions();
-      this.portfolioManagementJPanel.saveGUIOptions();
-   }
-
-   private boolean _saveGUIOptions()
-   {
-      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(UserDataDirectory.Config.get()) == false)
-         return false;
-
-      final GUIOptions.JTableOptions jTableOptions = new GUIOptions.JTableOptions();
-
-      final int count = watchListPanel.getTable().getColumnCount();
-      
-      for (int i = 0; i < count; i++)
-      {
-         final String name = watchListPanel.getTable().getColumnName(i);
-         final TableColumn column = watchListPanel.getTable().getColumnModel().getColumn(i);
-         jTableOptions.addColumnOption(GUIOptions.JTableOptions.ColumnOption.newInstance(name,
-            column.getWidth()));
-      }
-
-      final GUIOptions guiOptions = new GUIOptions();
-      guiOptions.addJTableOptions(jTableOptions);
-
-      File f = new File(UserDataDirectory.Config.get() + UserDataFile.MainFrameXml.get());
-      return Utils.toXML(guiOptions, f);
-   }
+   
    
    public void updatePriceSource(Country country, PriceSource priceSource)
    {
       Factories.INSTANCE.updatePriceSource(country, priceSource);
 
-      rebuildRealTimeStockMonitor();
-      rebuildRealTimeIndexMonitor();
+      if (realTimeStockMonitor != null)
+         realTimeStockMonitor.rebuild();
+     
+      if (realTimeIndexMonitor != null)
+         realTimeIndexMonitor.rebuild();
 
       this.portfolioManagementJPanel.rebuildRealTimeStockMonitor();
 
       this.refreshAllRealTimeStockMonitors();
       this.refreshRealTimeIndexMonitor();
       this.refreshExchangeRateMonitor();
-   }
-
-   private void rebuildRealTimeStockMonitor()
-   {
-      RealTimeStockMonitor _realTimeStockMonitor = this.realTimeStockMonitor;
-      
-      if (_realTimeStockMonitor != null)
-         _realTimeStockMonitor.rebuild();
-   }
-
-   private void rebuildRealTimeIndexMonitor()
-   {
-      RealTimeIndexMonitor _realTimeIndexMonitor = this.realTimeIndexMonitor;
-      
-      if (_realTimeIndexMonitor != null)
-         _realTimeIndexMonitor.rebuild();
    }
 
    private static java.util.List<Pair<Code, Symbol>> getUserDefinedPair(StockInfoDatabase stockInfoDatabase)
@@ -1906,31 +1964,9 @@ public class JStock extends javax.swing.JFrame
       return pairs;
    }
 
-   /**
-    * Save chart dialog options to disc.
-    * @return <tt>true</tt> if saving operation is success
-    */
-   private boolean saveChartJDialogOptions()
-   {
-      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(UserDataDirectory.Config.get()) == false)
-         return false;
+   
 
-      File f = new File(UserDataDirectory.Config.get() + UserDataFile.ChartJDialogOptionsXml.get());
-      return org.yccheok.jstock.gui.Utils.toXML(this.chartJDialogOptions, f);
-   }
-
-   /**
-    * Save JStock options to disc.
-    * @return <tt>true</tt> if saving operation is success
-    */
-   private boolean saveJStockOptions()
-   {
-      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(UserDataDirectory.Config.get()) == false)
-         return false;
-
-      File f = new File(UserDataDirectory.Config.get() + UserDataFile.OptionsXml.get());
-      return org.yccheok.jstock.gui.Utils.toXML(this.jStockOptions, f);
-   }
+   
 
    private void removeOldHistoryData(Country country)
    {
