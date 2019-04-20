@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.09 03/31/2019
+ * Version 1.0.7.37.10 04/20/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,8 @@
 //         1.0.7.37.07 03/25/2019 Made initTableHeaderToolTips() Private & Called Only From Constructor.
 //         1.0.7.37.08 03/29/2019 Added Methods saveCSVWatchlist().
 //         1.0.7.37.09 03/31/2019 Imported watchlist.Utils & Added Method saveAsCSVFile().
+//         1.0.7.37.10 04/20/2019 Imported file.Statements & Used Directly to Replace Call to JStock.
+//                                openAsStatements() Instead of openAsCSVFile(), Gone.
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -95,6 +97,7 @@ import org.yccheok.jstock.engine.Stock;
 import org.yccheok.jstock.engine.StockInfo;
 import org.yccheok.jstock.engine.StockInfoDatabase;
 import org.yccheok.jstock.engine.Symbol;
+import org.yccheok.jstock.file.Statements;
 import org.yccheok.jstock.gui.charting.DynamicChart;
 import org.yccheok.jstock.gui.table.NonNegativeDoubleEditor;
 import org.yccheok.jstock.internationalization.GUIBundle;
@@ -103,7 +106,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.09 03/31/2019
+ * @version 1.0.7.37.10 04/20/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -334,8 +337,10 @@ public class WatchListJPanel extends JPanel
       JStock.instance().clearAllStocks();
       
       File realTimeStockFile = Utils.getWatchlistFile(Utils.getWatchlistDirectory());
-      return JStock.instance().openAsCSVFile(realTimeStockFile);
-  }
+      
+      return JStock.instance().openAsStatements(
+         Statements.newInstanceFromCSVFile(realTimeStockFile), realTimeStockFile);
+   }
    
    //==============================================================
    // Class method to create the mouse adapter for the dynamic
