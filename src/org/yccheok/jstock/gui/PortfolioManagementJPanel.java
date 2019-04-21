@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.04 04/20/2019
+ * Version 1.0.7.37.05 04/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@
 //                                Monitor() to More Appropriately Track. See JStock v1.0.7.37.36.
 //         1.0.7.37.04 04/20/2019 Renamed initCSVPortfolio() to initPortfolio() Which Just Called
 //                                the Former. Made Protected.
+//         1.0.7.37.05 04/21/2019 Removed Method savePortfolio(), Its Just saveCSVPortfolio(),
+//                                Made Later Protected as Replacement.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -122,7 +124,7 @@ import org.yccheok.jstock.portfolio.TransactionSummary;
  *
  * @author  Owner
  * @author Dana M. Proctor
- * @version 1.0.7.37.04 04/20/2019
+ * @version 1.0.7.37.05 04/21/2019
  */
 public class PortfolioManagementJPanel extends javax.swing.JPanel {
     
@@ -2424,7 +2426,7 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
         return status;
     }
     
-    private boolean saveCSVPortfolio() {
+    protected boolean saveCSVPortfolio() {
         return saveCSVPortfolio(org.yccheok.jstock.portfolio.Utils.getPortfolioDirectory(),
             this.portfolioRealTimeInfo
         );
@@ -2506,11 +2508,7 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
         final File stockPricesFile = new File(directory + "portfolio-real-time-info.json");
         return _portfolioRealTimeInfo.save(stockPricesFile);
     }
-
-    public boolean savePortfolio() {
-        return saveCSVPortfolio();
-    }
-
+    
     private void refreshStatusBarExchangeRateVisibility() {
         final JStock mainFrame = JStock.instance();
         final JStockOptions jStockOptions = mainFrame.getJStockOptions();
