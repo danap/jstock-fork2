@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.11 04/21/2019
+ * Version 1.0.7.37.12 04/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@
 //                                openAsStatements() Instead of openAsCSVFile(), Gone.
 //         1.0.7.37.11 04/21/2019 Added Method saveGUIOptions(), Was in JStock Class, Has Everything
 //                                to Do With This Classes Content.
+//         1.0.7.37.12 04/21/2019 Added Method initGUIOptions() & Called From initWatchlist().
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -110,7 +111,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.11 04/21/2019
+ * @version 1.0.7.37.12 04/21/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -309,6 +310,29 @@ public class WatchListJPanel extends JPanel
    }
    
    //==============================================================
+   // Method to setup the GU options associated with JTableOptions
+   // having do with watchListTable column view/sizes.
+   //==============================================================
+   
+   private void initGUIOptions()
+   {
+      final File f = new File(UserDataDirectory.Config.get() + UserDataFile.MainFrameXml.get());
+      GUIOptions guiOptions = org.yccheok.jstock.gui.Utils.fromXML(GUIOptions.class, f);
+
+      if (guiOptions == null || guiOptions.getJTableOptionsSize() <= 0)
+      {
+         // When user launches JStock for first time, we will help him to
+         // turn off the following column(s), as we feel those information
+         // is redundant. If they wish to view those information, they have
+         // to turn it on explicitly.
+         JTableUtilities.removeTableColumn(watchListTable, GUIBundle.getString("MainFrame_Open"));
+      }
+      /* Set Table Settings */
+      else
+         JTableUtilities.setJTableOptions(watchListTable, guiOptions.getJTableOptions(0));
+   }
+   
+   //==============================================================
    // Class method to be called to intialize, to a saved watchlist.
    //==============================================================
    
@@ -317,6 +341,9 @@ public class WatchListJPanel extends JPanel
       JStock.instance().timestamp = 0;
       
       List<String> availableWatchlistNames = Utils.getWatchlistNames();
+      
+      // Intialize JTable Columns
+      initGUIOptions();
       
       // Do we have any watchlist for this country?
       if (availableWatchlistNames.size() <= 0)
