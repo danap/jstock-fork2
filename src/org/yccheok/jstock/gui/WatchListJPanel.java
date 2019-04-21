@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.10 04/20/2019
+ * Version 1.0.7.37.11 04/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,8 @@
 //         1.0.7.37.09 03/31/2019 Imported watchlist.Utils & Added Method saveAsCSVFile().
 //         1.0.7.37.10 04/20/2019 Imported file.Statements & Used Directly to Replace Call to JStock.
 //                                openAsStatements() Instead of openAsCSVFile(), Gone.
+//         1.0.7.37.11 04/21/2019 Added Method saveGUIOptions(), Was in JStock Class, Has Everything
+//                                to Do With This Classes Content.
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -98,6 +100,8 @@ import org.yccheok.jstock.engine.StockInfo;
 import org.yccheok.jstock.engine.StockInfoDatabase;
 import org.yccheok.jstock.engine.Symbol;
 import org.yccheok.jstock.file.Statements;
+import org.yccheok.jstock.file.UserDataDirectory;
+import org.yccheok.jstock.file.UserDataFile;
 import org.yccheok.jstock.gui.charting.DynamicChart;
 import org.yccheok.jstock.gui.table.NonNegativeDoubleEditor;
 import org.yccheok.jstock.internationalization.GUIBundle;
@@ -106,7 +110,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.10 04/20/2019
+ * @version 1.0.7.37.11 04/21/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -629,6 +633,35 @@ public class WatchListJPanel extends JPanel
    protected JTable getTable()
    {
       return watchListTable;
+   }
+   
+   //==============================================================
+   // Save mainly various aspects of the watchListTable.
+   //==============================================================
+   
+   protected boolean saveGUIOptions()
+   {
+      if (org.yccheok.jstock.gui.Utils.createCompleteDirectoryHierarchyIfDoesNotExist(
+         UserDataDirectory.Config.get()) == false)
+         return false;
+
+      final GUIOptions.JTableOptions jTableOptions = new GUIOptions.JTableOptions();
+
+      final int count = watchListTable.getColumnCount();
+      
+      for (int i = 0; i < count; i++)
+      {
+         final String name = watchListTable.getColumnName(i);
+         final TableColumn column = watchListTable.getColumnModel().getColumn(i);
+         jTableOptions.addColumnOption(GUIOptions.JTableOptions.ColumnOption.newInstance(name,
+            column.getWidth()));
+      }
+
+      final GUIOptions guiOptions = new GUIOptions();
+      guiOptions.addJTableOptions(jTableOptions);
+
+      File f = new File(UserDataDirectory.Config.get() + UserDataFile.MainFrameXml.get());
+      return org.yccheok.jstock.gui.Utils.toXML(guiOptions, f);
    }
    
    //==============================================================
