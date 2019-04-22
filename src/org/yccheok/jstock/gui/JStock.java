@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.38 04/20/2019
+ * Version 1.0.7.37.39 04/21/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -229,6 +229,14 @@
 //                                rebuildRealTimeStock/IndexMonitor() Methods. A Whole Method(s) for
 //                                One Conditional Test & Called Only by updatePriceSource(), Just
 //                                Put Where Belongs in that Method.
+//         1.0.7.37.39 04/22/2019 Method init() Removed Call to initGUIOptions(), Removed That Method.
+//                                Removed All Calls to getJStockOptions() in this Class, Called Instance
+//                                Directly. Moved Code Methods selectActiveWatchlist/Portfolio() to Initial
+//                                Call After tabListsNavigation(). Removed Methods removeOldHistoryData(),
+//                                openAsCSVFile() & saveGUIOptions(). The Latter Replaced With Direct
+//                                Call to Tab Panels Method of Same. Methods getUserDefinedPair() &
+//                                update(List<Markets>) Moved Code Into Only Calling Internal Methods
+//                                getRealTimeIndexMonitor() & saveUserDefinedDatabaseAsCSV().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -279,7 +287,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
@@ -328,7 +335,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.37";
+   public static final String VERSION = "1.0.7.37.39";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane mainTabsPane;
@@ -577,10 +584,9 @@ public class JStock extends javax.swing.JFrame
       Utils.extractZipFile(DatabaseTask.ZIP_DATABASE_FILE_NAME, false);
       
       // Initial various configuration
-      // Options for the GUI.
+      // Options for the UI.
       
       initUIOptions();
-      initGUIOptions();
       initChartJDialogOptions();
       
       // WatchListJPanel stock selector search
@@ -754,9 +760,9 @@ public class JStock extends javax.swing.JFrame
          return;
       
       if (getSelectedComponent() == watchListPanel)
-         listName = getJStockOptions().getWatchlistName();
+         listName = jStockOptions.getWatchlistName();
       else if (getSelectedComponent() == portfolioManagementJPanel)
-         listName = getJStockOptions().getPortfolioName();
+         listName = jStockOptions.getPortfolioName();
       else
          return;
       
@@ -775,6 +781,52 @@ public class JStock extends javax.swing.JFrame
          selectActiveWatchlist(tabListNames.get(index));
       else
          selectActivePortfolio(tabListNames.get(index));
+   }
+   
+   /**
+    * Activate specified watchlist.
+    * @param watchlist
+    *           Watchlist name
+    */
+   
+   public void selectActiveWatchlist(String watchlist)
+   {
+      assert (SwingUtilities.isEventDispatchThread());
+      
+      watchListPanel.saveCSVWatchlist();
+      watchListPanel.saveGUIOptions();
+      
+      jStockOptions.setWatchlistName(watchlist);
+      watchListPanel.initWatchlist();
+      
+      mainTabsPane.setSelectedIndex(watchListTabIndex);
+
+      // No matter how, just stop progress bar, and display best message.
+      setStatusBar(false, getBestStatusBarMessage());
+   }
+   
+   /**
+    * Activate specified portfolio.
+    * @param portfolio
+    *           Portfolio name
+    */
+   
+   public void selectActivePortfolio(String portfolio)
+   {
+      assert (SwingUtilities.isEventDispatchThread());
+      
+      portfolioManagementJPanel.saveCSVPortfolio();
+      portfolioManagementJPanel.saveGUIOptions();
+      
+      jStockOptions.setPortfolioName(portfolio);
+      portfolioManagementJPanel.initPortfolio();
+      
+      mainTabsPane.setSelectedIndex(portfolioTabIndex);
+
+      portfolioManagementJPanel.updateTitledBorder();
+
+      // No matter how, just stop progress bar, and display best message.
+      setStatusBar(false, getBestStatusBarMessage());
    }
    
    //==============================================================
@@ -823,8 +875,8 @@ public class JStock extends javax.swing.JFrame
             "MainFrame_ManageYourRealTimePortfolioWhichEnableYouToTrackBuyAndSellRecords"));
       
       // Set last used tab & add ChangeListener.
-      if (mainTabsPane.getTabCount() > getJStockOptions().getLastSelectedPageIndex())
-         mainTabsPane.setSelectedIndex(getJStockOptions().getLastSelectedPageIndex());
+      if (mainTabsPane.getTabCount() > jStockOptions.getLastSelectedPageIndex())
+         mainTabsPane.setSelectedIndex(jStockOptions.getLastSelectedPageIndex());
       
       mainTabsPane.addChangeListener(new ChangeListener()
       {
@@ -878,30 +930,6 @@ public class JStock extends javax.swing.JFrame
          uiOptions = new UIOptions();
       // else
       //    log.info("iuOptions loaded from " + f.toString() + " successfully.");   
-   }
-   
-   //==============================================================
-   // Method to setup the GU options associated with Locale and
-   // JTableOptions having do with names, column view/sizes for the
-   // Watch List. 
-   //==============================================================
-   
-   private void initGUIOptions()
-   {
-      final File f = new File(UserDataDirectory.Config.get() + UserDataFile.MainFrameXml.get());
-      GUIOptions guiOptions = Utils.fromXML(GUIOptions.class, f);
-
-      if (guiOptions == null || guiOptions.getJTableOptionsSize() <= 0)
-      {
-         // When user launches JStock for first time, we will help him to
-         // turn off the following column(s), as we feel those information
-         // is redundant. If they wish to view those information, they have
-         // to turn it on explicitly.
-         JTableUtilities.removeTableColumn(watchListPanel.getTable(), GUIBundle.getString("MainFrame_Open"));
-      }
-      /* Set Table Settings */
-      else
-         JTableUtilities.setJTableOptions(watchListPanel.getTable(), guiOptions.getJTableOptions(0));
    }
    
    //==============================================================
@@ -1223,9 +1251,7 @@ public class JStock extends javax.swing.JFrame
       
       stockHistoryMonitor.attach(stockHistoryMonitorObserver);
 
-      final Country country = jStockOptions.getCountry();
-
-      removeOldHistoryData(country);
+      Utils.deleteAllOldFiles(new File(Utils.getHistoryDirectory(jStockOptions.getCountry())), 1);
 
       StockHistorySerializer stockHistorySerializer = new StockHistorySerializer(
          Utils.getHistoryDirectory());
@@ -1326,21 +1352,24 @@ public class JStock extends javax.swing.JFrame
    public void save()
    {
       // Save the last viewed page.
-      getJStockOptions().setLastSelectedPageIndex(mainTabsPane.getSelectedIndex());
+      jStockOptions.setLastSelectedPageIndex(mainTabsPane.getSelectedIndex());
 
       // Save current window size and position.
       JStockOptions.BoundsEx boundsEx = new JStockOptions.BoundsEx(getBounds(), getExtendedState());
-      getJStockOptions().setBoundsEx(boundsEx);
+      jStockOptions.setBoundsEx(boundsEx);
 
       // Not used.
       // jStockOptions.setApplicationVersionID(Utils.getApplicationVersionID());
 
       saveJStockOptions();
       saveUIOptions();
-      saveGUIOptions(true);
       saveChartJDialogOptions();
+      
+      watchListPanel.saveGUIOptions();
       watchListPanel.saveCSVWatchlist();
-      portfolioManagementJPanel.savePortfolio();
+      
+      portfolioManagementJPanel.saveGUIOptions();
+      portfolioManagementJPanel.saveCSVPortfolio();
    }
    
    //==============================================================
@@ -1367,42 +1396,6 @@ public class JStock extends javax.swing.JFrame
    }
    
    //==============================================================
-   // Save mainly various aspects of the WatchListJPanel, Locale,
-   // and PortfolioManagementJPanel.
-   //==============================================================
-   
-   private boolean saveGUIOptions(boolean savePortfolio)
-   {
-      boolean success;
-      
-      if (Utils.createCompleteDirectoryHierarchyIfDoesNotExist(UserDataDirectory.Config.get()) == false)
-         success = false;
-
-      final GUIOptions.JTableOptions jTableOptions = new GUIOptions.JTableOptions();
-
-      final int count = watchListPanel.getTable().getColumnCount();
-      
-      for (int i = 0; i < count; i++)
-      {
-         final String name = watchListPanel.getTable().getColumnName(i);
-         final TableColumn column = watchListPanel.getTable().getColumnModel().getColumn(i);
-         jTableOptions.addColumnOption(GUIOptions.JTableOptions.ColumnOption.newInstance(name,
-            column.getWidth()));
-      }
-
-      final GUIOptions guiOptions = new GUIOptions();
-      guiOptions.addJTableOptions(jTableOptions);
-
-      File f = new File(UserDataDirectory.Config.get() + UserDataFile.MainFrameXml.get());
-      success =  Utils.toXML(guiOptions, f);
-      
-      if (savePortfolio)
-         portfolioManagementJPanel.saveGUIOptions();
-      
-      return success;
-   }
-   
-   //==============================================================
    // Save index, history, JFreeChart dialog options to disc.
    //==============================================================
    
@@ -1426,13 +1419,13 @@ public class JStock extends javax.swing.JFrame
    
    
    
+   //==============================================================
+   // Used in:
+   // Main_JMenuBar.fileOpenActionPerformed()
+   // PortfolioManagementJPanel.openAsStatements()
+   // WatchListJPanel.initWatchList()
+   //==============================================================
    
-   protected boolean openAsCSVFile(File file)
-   {
-      final Statements statements = Statements.newInstanceFromCSVFile(file);
-      return this.openAsStatements(statements, file);
-   }
-
    public boolean openAsStatements(Statements statements, File file)
    {
       assert (statements != null);
@@ -1507,62 +1500,6 @@ public class JStock extends javax.swing.JFrame
    public ChartJDialogOptions getChartJDialogOptions()
    {
       return this.chartJDialogOptions;
-   }
-
-   
-
-   
-
-   /**
-    * Activate specified watchlist.
-    * @param watchlist
-    *           Watchlist name
-    */
-   public void selectActiveWatchlist(String watchlist)
-   {
-      assert (SwingUtilities.isEventDispatchThread());
-      // Save current watchlist.
-      //JStock.this.saveCSVWatchlist();
-      watchListPanel.saveCSVWatchlist();
-      // Save current GUI options.
-      // Do not call MainFrame.this.saveGUIOptions() (Pay note on the
-      // underscore)
-      // , as that will save portfolio's and indicator scanner's as well.
-      JStock.this.saveGUIOptions(false);
-      // And switch to new portfolio.
-      JStock.this.getJStockOptions().setWatchlistName(watchlist);
-      JStock.this.watchListPanel.initWatchlist();
-      // I guess user wants to watch the current active watchlist right now.
-      // We will help him to turn to the stock watchlist page.
-      JStock.this.mainTabsPane.setSelectedIndex(watchListTabIndex);
-
-      // No matter how, just stop progress bar, and display best message.
-      this.setStatusBar(false, this.getBestStatusBarMessage());
-   }
-
-   /**
-    * Activate specified portfolio.
-    * @param portfolio
-    *           Portfolio name
-    */
-   public void selectActivePortfolio(String portfolio)
-   {
-      assert (SwingUtilities.isEventDispatchThread());
-      // Save current portfolio.
-      JStock.this.portfolioManagementJPanel.savePortfolio();
-      // Save current GUI options.
-      JStock.this.portfolioManagementJPanel.saveGUIOptions();
-      // And switch to new portfolio.
-      JStock.this.getJStockOptions().setPortfolioName(portfolio);
-      JStock.this.portfolioManagementJPanel.initPortfolio();
-      // I guess user wants to watch the current active portfolio right now.
-      // We will help him to turn to the portfolio page.
-      JStock.this.mainTabsPane.setSelectedIndex(portfolioTabIndex);
-
-      JStock.this.portfolioManagementJPanel.updateTitledBorder();
-
-      // No matter how, just stop progress bar, and display best message.
-      this.setStatusBar(false, this.getBestStatusBarMessage());
    }
 
    protected boolean saveAsCSVFile(File file, boolean languageIndependent)
@@ -1738,14 +1675,13 @@ public class JStock extends javax.swing.JFrame
          this.saveUserDefinedDatabaseAsCSV(oldCountry, stockInfoDatabase);
       }
 
-      /* Save the GUI look. */
-      saveGUIOptions(true);
-
-      /* Need to save chart dialog options? */
-
-      //saveCSVWatchlist();
+      /* Save and set country. */
+      
+      watchListPanel.saveGUIOptions();
       watchListPanel.saveCSVWatchlist();
-      portfolioManagementJPanel.savePortfolio();
+      
+      portfolioManagementJPanel.saveGUIOptions();
+      portfolioManagementJPanel.saveCSVPortfolio();
 
       jStockOptions.setCountry(country);
       jStockOptions.addRecentCountry(country);
@@ -1843,7 +1779,17 @@ public class JStock extends javax.swing.JFrame
          @Override
          public void update(RealTimeIndexMonitor monitor, java.util.List<Market> markets)
          {
-            JStock.this.update(markets);
+            if (!markets.isEmpty())
+            {
+               javax.swing.SwingUtilities.invokeLater(new Runnable()
+               {
+                  @Override
+                  public void run()
+                  {
+                     marketJPanel.update(markets);
+                  }
+               });
+            }   
          }
       };
    }
@@ -1916,25 +1862,30 @@ public class JStock extends javax.swing.JFrame
       // user defined code. Due to our server is running out of space, we will
       // only store UserDefined pair. user-defined-database.xml will be only
       // used for cloud storage purpose.
-      final java.util.List<Pair<Code, Symbol>> pairs = getUserDefinedPair(stockInfoDatabase);
+      //final java.util.List<Pair<Code, Symbol>> pairs = getUserDefinedPair(stockInfoDatabase);
+      
+      final java.util.List<Pair<Code, Symbol>> userStockList;
+      userStockList = new ArrayList<Pair<Code, Symbol>>();
+      java.util.List<StockInfo> stockInfos = stockInfoDatabase.getUserDefinedStockInfos();
+      
+      for (StockInfo stockInfo : stockInfos)
+         userStockList.add(new Pair<Code, Symbol>(stockInfo.code, stockInfo.symbol));
+      
+      
       // pairs can be empty. When it is empty, try to delete the file.
       // If deletion fail, we need to overwrite the file to reflect this.
       final File userDefinedDatabaseCSVFile = new File(org.yccheok.jstock.gui.Utils.getUserDataDirectory()
                                                        + country + File.separator + "database"
                                                        + File.separator + "user-defined-database.csv");
       
-      if (pairs.isEmpty() && userDefinedDatabaseCSVFile.delete())
+      if (userStockList.isEmpty() && userDefinedDatabaseCSVFile.delete())
          return true;
      
-      final Statements statements = Statements.newInstanceFromUserDefinedDatabase(pairs);
+      final Statements statements = Statements.newInstanceFromUserDefinedDatabase(userStockList);
       boolean result = statements.saveAsCSVFile(userDefinedDatabaseCSVFile);
       this.needToSaveUserDefinedDatabase = false;
       return result;
    }
-   
-   
-
-   
    
    public void updatePriceSource(Country country, PriceSource priceSource)
    {
@@ -1953,30 +1904,6 @@ public class JStock extends javax.swing.JFrame
       this.refreshExchangeRateMonitor();
    }
 
-   private static java.util.List<Pair<Code, Symbol>> getUserDefinedPair(StockInfoDatabase stockInfoDatabase)
-   {
-      java.util.List<Pair<Code, Symbol>> pairs = new ArrayList<Pair<Code, Symbol>>();
-      java.util.List<StockInfo> stockInfos = stockInfoDatabase.getUserDefinedStockInfos();
-      
-      for (StockInfo stockInfo : stockInfos)
-         pairs.add(new Pair<Code, Symbol>(stockInfo.code, stockInfo.symbol));
-      
-      return pairs;
-   }
-
-   
-
-   
-
-   private void removeOldHistoryData(Country country)
-   {
-      // We do not want "yesterday" history record. We will remove 1 day old
-      // files.
-      org.yccheok.jstock.gui.Utils.deleteAllOldFiles(new File(Utils.getHistoryDirectory(country)), 1);
-   }
-
-   
-   
    private void update(RealTimeStockMonitor monitor, final RealTimeStockMonitor.Result result)
    {
       final java.util.List<Stock> stocks = result.stocks;
@@ -2181,12 +2108,12 @@ public class JStock extends javax.swing.JFrame
       // MainFrame
       if (selected == watchListPanel)
       {
-         currentName = this.getJStockOptions().getWatchlistName();
+         currentName = jStockOptions.getWatchlistName();
          _timestamp = this.timestamp;
       }
       else if (selected == this.portfolioManagementJPanel)
       {
-         currentName = this.getJStockOptions().getPortfolioName();
+         currentName = jStockOptions.getPortfolioName();
          _timestamp = this.portfolioManagementJPanel.getTimestamp();
       }
       else
@@ -2204,20 +2131,6 @@ public class JStock extends javax.swing.JFrame
          time = Utils.getOtherDayLastUpdateTimeFormat().format(date);
 
       return MessageFormat.format(GUIBundle.getString("MainFrame_LastUpdate_template"), currentName, time);
-   }
-
-   private void update(final java.util.List<Market> markets)
-   {
-      assert (markets.isEmpty() == false);
-
-      javax.swing.SwingUtilities.invokeLater(new Runnable()
-      {
-         @Override
-         public void run()
-         {
-            marketJPanel.update(markets);
-         }
-      });
    }
 
    public void update(StockHistoryMonitor monitor, final StockHistoryMonitor.StockHistoryRunnable runnable)
