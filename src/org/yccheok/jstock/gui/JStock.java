@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.39 04/21/2019
+ * Version 1.0.7.37.40 04/25/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -199,7 +199,7 @@
 //                                initRealTimeIndexMonitor() to Proper Sequencing as Dictated by init().
 //                                Removed initOthersStockHistoryMonitor() Method That Was Not Cleaned
 //                                Out From Version 1.0.7.37.21.
-
+//
 //         1.0.7.37.34 04/11/2019 Moved initStockHistoryMonitor() to Order as Dictated by init().
 //         1.0.7.37.35 04/11/2019 Commented in init() Call to initExchangeRateMonitor(), Also Method
 //                                of Same. Performed in Instantiation of PortfolioManageJPanel. Method
@@ -237,6 +237,12 @@
 //                                Call to Tab Panels Method of Same. Methods getUserDefinedPair() &
 //                                update(List<Markets>) Moved Code Into Only Calling Internal Methods
 //                                getRealTimeIndexMonitor() & saveUserDefinedDatabaseAsCSV().
+//         1.0.7.37.40 04/25/2019 Removed Class Instances dynamicCharts & MAX_DYNAMIC_CHART_SIZE.
+//                                Method init() Removed Call to initDynamicCharts() & initDynamicChart
+//                                Visibility(), Also Same for changeCountry(). Changed Call to watch
+//                                List.initWatchList() to Use New Required boolean Argument. Removed
+//                                Methods isStockBeingSelected() & initDynamicCharts(). Method update()
+//                                Replaced Dynamic Chart Setup to Call to watchListPanel.addDynamicCharts().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -267,7 +273,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -316,7 +321,6 @@ import org.yccheok.jstock.file.UserDataDirectory;
 import org.yccheok.jstock.file.UserDataFile;
 import org.yccheok.jstock.gui.charting.ChartJDialog;
 import org.yccheok.jstock.gui.charting.ChartJDialogOptions;
-import org.yccheok.jstock.gui.charting.DynamicChart;
 import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
 import org.yccheok.jstock.network.ProxyDetector;
@@ -327,7 +331,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.38 04/20/2019
+ * @version 1.0.7.37.40 04/25/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -335,7 +339,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.39";
+   public static final String VERSION = "1.0.7.37.40";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane mainTabsPane;
@@ -382,17 +386,6 @@ public class JStock extends javax.swing.JFrame
                  stockHistoryMonitorObserver = getStockHistoryMonitorObserver();
 
    private final Executor zombiePool = Utils.getZoombiePool();
-
-   // Use ConcurrentHashMap, enable us able to read
-   // and write using different threads.
-   protected final Map<Code, DynamicChart>
-                   dynamicCharts = new ConcurrentHashMap<Code, DynamicChart>();
-
-   // We have 720 (6 * 60 * 2) points per chart, based
-   // on 10 seconds per points, with maximum 2 hours.
-   // By having maximum 10 charts, we shall not face
-   // any memory problem.
-   private static final int MAX_DYNAMIC_CHART_SIZE = 10;
 
    private static final int HISTORY_MONITOR_MAX_THREAD = 4;
 
@@ -610,9 +603,7 @@ public class JStock extends javax.swing.JFrame
       // and PortfolioManagementJPanel
       // components.
       
-      watchListPanel.initWatchlist();
-      initDynamicCharts();
-      initDynamicChartVisibility();
+      watchListPanel.initWatchlist(true);
       watchListPanel.addAutoCompleteComboBox();
       
       portfolioManagementJPanel.initPortfolio();
@@ -797,7 +788,7 @@ public class JStock extends javax.swing.JFrame
       watchListPanel.saveGUIOptions();
       
       jStockOptions.setWatchlistName(watchlist);
-      watchListPanel.initWatchlist();
+      watchListPanel.initWatchlist(false);
       
       mainTabsPane.setSelectedIndex(watchListTabIndex);
 
@@ -1712,9 +1703,7 @@ public class JStock extends javax.swing.JFrame
       // must be ready (initialized).
       this.initRealTimeStockMonitor();
       
-      this.watchListPanel.initWatchlist();
-      this.initDynamicCharts();
-      this.initDynamicChartVisibility();
+      this.watchListPanel.initWatchlist(true);
       
       this.portfolioManagementJPanel.initPortfolio();
       this.portfolioManagementJPanel.initExchangeRateMonitor();
@@ -1737,24 +1726,6 @@ public class JStock extends javax.swing.JFrame
    {
       final StockTableModel tableModel = (StockTableModel) watchListPanel.getTable().getModel();
       return tableModel.getStocks();
-   }
-
-   // Only will return true if the selected stock is the one and only one.
-   private boolean isStockBeingSelected(final Stock stock)
-   {
-      int[] rows = watchListPanel.getTable().getSelectedRows();
-
-      if (rows.length == 1)
-      {
-         final int row = rows[0];
-         final StockTableModel tableModel = (StockTableModel) watchListPanel.getTable().getModel();
-         final int modelIndex = watchListPanel.getTable().convertRowIndexToModel(row);
-         
-         if (stock.code.equals(tableModel.getStock(modelIndex).code))
-            return true;
-      }
-
-      return false;
    }
 
    // This is the workaround to overcome Erasure by generics.
@@ -2000,78 +1971,14 @@ public class JStock extends javax.swing.JFrame
             for (Stock stock : stocks)
             {
                watchListPanel.updateStockToTable(stock);
-               if (isStockBeingSelected(stock))
-               {
+               
+               if (watchListPanel.isStockBeingSelected(stock))
                   watchListPanel.updateDynamicChart(stock);
-               }
             }
          }
       });
 
-      // Dynamic charting. Intraday trader might love this.
-      for (Stock stock : stocks)
-      {
-         final Code code = stock.code;
-         DynamicChart dynamicChart = this.dynamicCharts.get(code);
-         if (dynamicChart == null)
-         {
-            // Not found. Try to create a new dynamic chart.
-            if (this.dynamicCharts.size() <= JStock.MAX_DYNAMIC_CHART_SIZE)
-            {
-               dynamicChart = new DynamicChart();
-               this.dynamicCharts.put(code, dynamicChart);
-            }
-            else
-            {
-               // Full already. Shall we remove?
-               if (this.isStockBeingSelected(stock))
-               {
-                  Set<Code> codes = this.dynamicCharts.keySet();
-                  for (Code c : codes)
-                  {
-                     // Random remove. We do not care who is being removed.
-                     this.dynamicCharts.remove(c);
-                     if (this.dynamicCharts.size() <= JStock.MAX_DYNAMIC_CHART_SIZE)
-                     {
-                        // Remove success.
-                        break;
-                     }
-                  }
-                  dynamicChart = new DynamicChart();
-                  this.dynamicCharts.put(code, dynamicChart);
-               }
-            }
-         } /* if (dynamicChart == null) */
-
-         // Still null?
-         if (dynamicChart == null)
-         {
-            // This usually indicate that dynamic chart list is full, and
-            // no one is selecting this particular stock.
-            continue;
-         }
-
-         if (this.isStockBeingSelected(stock))
-         {
-            dynamicChart.addPriceObservation(stock.getTimestamp(), stock.getLastPrice());
-            final Stock s = stock;
-            javax.swing.SwingUtilities.invokeLater(new Runnable()
-            {
-               @Override
-               public void run()
-               {
-                  watchListPanel.updateDynamicChart(s);
-               }
-            });
-         }
-         else
-         {
-            // Although no one is watching at us, we still need to perform
-            // notification.
-            // Weird?
-            dynamicChart.addPriceObservation(stock.getTimestamp(), stock.getLastPrice());
-         }
-      } /* for (Stock stock : stocks) */
+      watchListPanel.addDynamicCharts(stocks);
    }
 
    public void updateStatusBarWithLastUpdateDateMessageIfPossible()
@@ -2258,10 +2165,12 @@ public class JStock extends javax.swing.JFrame
       watchListPanel.setDynamicChartVisible();
    }
 
+   /*
    private void initDynamicCharts()
    {
       dynamicCharts.clear();
    }
+   */
 
    protected void refreshExchangeRateMonitor()
    {
