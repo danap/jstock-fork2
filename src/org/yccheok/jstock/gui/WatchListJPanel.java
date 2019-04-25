@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.12 04/21/2019
+ * Version 1.0.7.37.13 04/25/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,12 @@
 //         1.0.7.37.11 04/21/2019 Added Method saveGUIOptions(), Was in JStock Class, Has Everything
 //                                to Do With This Classes Content.
 //         1.0.7.37.12 04/21/2019 Added Method initGUIOptions() & Called From initWatchlist().
+//         1.0.7.37.13 05/25/2019 Added Class Instances dynamicCharts, MAX_DYNAMIC_CHART_SIZE, &
+//                                Changed chartsPanel to southPanel. Method initWatchListPanel()
+//                                Added boolean Argument & Used to Control dynamicCharts. Changed
+//                                All References to JStock.instance().dynamicCharts to this dynamicCharts.
+//                                Added Methods isStockBeingSelected() & addDynamicCharts(). Method
+//                                setDynamicChartsVisibility() Changed Handling of dynamicCharts.
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -75,7 +81,10 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -111,7 +120,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.12 04/21/2019
+ * @version 1.0.7.37.13 04/25/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -119,14 +128,23 @@ public class WatchListJPanel extends JPanel
    // Class Instances
    private static final long serialVersionUID = 55607059084904271L;
 
-   private JPanel stockSelectorPanel;
    private AutoCompleteJComboBox stockSelectorComboBox;
    private JTable watchListTable;
-   private JPanel chartPanel;
+   
+   private Map<Code, DynamicChart> dynamicCharts;
+   private MouseAdapter dynamicChartMouseAdapter;
+   
+   private JPanel stockSelectorPanel;
+   private JPanel southPanel;
    private JPanel dynamicChartsPanel;
-
+   
+   // We have 720 (6 * 60 * 2) points per chart, based
+   // on 10 seconds per points, with maximum 2 hours.
+   // By having maximum 10 charts, we shall not face
+   // any memory problem.
+   private static final int MAX_DYNAMIC_CHART_SIZE = 10;
+   
    private static final DynamicChart EMPTY_DYNAMIC_CHART = new DynamicChart();
-   private final MouseAdapter dynamicChartMouseAdapter = createDynamicChartMouseAdapter();
 
    //==============================================================
    // WatchListJPanel Constructor
@@ -197,9 +215,9 @@ public class WatchListJPanel extends JPanel
       add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
       // Dynamic chart.
-      chartPanel = new JPanel();
-      chartPanel.setPreferredSize(new Dimension(328, 170));
-      chartPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
+      southPanel = new JPanel();
+      southPanel.setPreferredSize(new Dimension(328, 170));
+      southPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 
       dynamicChartsPanel = new JPanel();
       dynamicChartsPanel.setBackground(new Color(255, 255, 255));
@@ -208,11 +226,14 @@ public class WatchListJPanel extends JPanel
          BorderFactory.createEtchedBorder(), BorderFactory.createLoweredBevelBorder()));
       dynamicChartsPanel.setLayout(new BorderLayout());
 
+      dynamicCharts = new ConcurrentHashMap<Code, DynamicChart>();
+      dynamicChartMouseAdapter = createDynamicChartMouseAdapter();
+      
       EMPTY_DYNAMIC_CHART.getChartPanel().addMouseListener(dynamicChartMouseAdapter);
       dynamicChartsPanel.add(EMPTY_DYNAMIC_CHART.getChartPanel(), BorderLayout.CENTER);
-      chartPanel.add(dynamicChartsPanel);
+      southPanel.add(dynamicChartsPanel);
 
-      add(chartPanel, BorderLayout.SOUTH);
+      add(southPanel, BorderLayout.SOUTH);
       
       initTableHeaderToolTips();
    }
@@ -336,7 +357,7 @@ public class WatchListJPanel extends JPanel
    // Class method to be called to intialize, to a saved watchlist.
    //==============================================================
    
-   protected boolean initWatchlist()
+   protected boolean initWatchlist(boolean clearDynamicCharts)
    {  
       JStock.instance().timestamp = 0;
       
@@ -367,6 +388,12 @@ public class WatchListJPanel extends JPanel
       // Clear the previous data structures.
       JStock.instance().clearAllStocks();
       
+      if (clearDynamicCharts)
+      {
+         dynamicCharts.clear();
+         setDynamicChartVisible();
+      }
+      
       File realTimeStockFile = Utils.getWatchlistFile(Utils.getWatchlistDirectory());
       
       return JStock.instance().openAsStatements(
@@ -392,7 +419,7 @@ public class WatchListJPanel extends JPanel
                if (stock == null)
                   return;
 
-               final DynamicChart dynamicChart = JStock.instance().dynamicCharts.get(stock.code);
+               final DynamicChart dynamicChart = dynamicCharts.get(stock.code);
                if (dynamicChart == null)
                {
                   return;
@@ -656,6 +683,23 @@ public class WatchListJPanel extends JPanel
 
       return null;
    }
+   
+   protected boolean isStockBeingSelected(final Stock stock)
+   {
+      int[] rows = watchListTable.getSelectedRows();
+
+      if (rows.length == 1)
+      {
+         final int row = rows[0];
+         final StockTableModel tableModel = (StockTableModel) watchListTable.getModel();
+         final int modelIndex = watchListTable.convertRowIndexToModel(row);
+         
+         if (stock.code.equals(tableModel.getStock(modelIndex).code))
+            return true;
+      }
+
+      return false;
+   }
 
    protected JTable getTable()
    {
@@ -724,6 +768,82 @@ public class WatchListJPanel extends JPanel
    }
    
    //==============================================================
+   // Class methods to add dynamic charts, update the dynamic chart
+   // or make visible.
+   //==============================================================
+
+   protected void addDynamicCharts(List<Stock> stocks)
+   {
+      // Dynamic charting. Intraday trader might love this.
+      for (Stock stock : stocks)
+      {
+         final Code code = stock.code;
+         DynamicChart dynamicChart = dynamicCharts.get(code);
+         
+         if (dynamicChart == null)
+         {
+            // Not found. Try to create a new dynamic chart.
+            if (dynamicCharts.size() <= MAX_DYNAMIC_CHART_SIZE)
+            {
+               dynamicChart = new DynamicChart();
+               dynamicCharts.put(code, dynamicChart);
+            }
+            else
+            {
+               // Full already. Shall we remove?
+               if (isStockBeingSelected(stock))
+               {
+                  Set<Code> codes = dynamicCharts.keySet();
+                  for (Code c : codes)
+                  {
+                     // Random remove. We do not care who is being removed.
+                     dynamicCharts.remove(c);
+                     
+                     if (dynamicCharts.size() <= MAX_DYNAMIC_CHART_SIZE)
+                     {
+                        // Remove success.
+                        break;
+                     }
+                  }
+                  dynamicChart = new DynamicChart();
+                  dynamicCharts.put(code, dynamicChart);
+               }
+            }
+         }
+
+         // Still null?
+         if (dynamicChart == null)
+         {
+            // This usually indicate that dynamic chart list is full, and
+            // no one is selecting this particular stock.
+            continue;
+         }
+
+         if (isStockBeingSelected(stock))
+         {
+            dynamicChart.addPriceObservation(stock.getTimestamp(), stock.getLastPrice());
+            final Stock s = stock;
+            
+            javax.swing.SwingUtilities.invokeLater(new Runnable()
+            {
+               @Override
+               public void run()
+               {
+                  updateDynamicChart(s);
+               }
+            });
+         }
+         else
+         {
+            // Although no one is watching at us, we still need to perform
+            // notification.
+            // Weird?
+            dynamicChart.addPriceObservation(stock.getTimestamp(), stock.getLastPrice());
+         }
+      } /* for (Stock stock : stocks) */
+   }
+   
+   //==============================================================
    // Class methods to update the dynamic chart or make visible.
    //==============================================================
 
@@ -731,7 +851,7 @@ public class WatchListJPanel extends JPanel
    {
       assert (EventQueue.isDispatchThread());
 
-      DynamicChart dynamicChart = stock != null ? JStock.instance().dynamicCharts.get(stock.code)
+      DynamicChart dynamicChart = stock != null ? dynamicCharts.get(stock.code)
                                                 : EMPTY_DYNAMIC_CHART;
       if (dynamicChart == null)
          dynamicChart = EMPTY_DYNAMIC_CHART;
@@ -739,9 +859,9 @@ public class WatchListJPanel extends JPanel
       if (Arrays.asList(dynamicChartsPanel.getComponents()).contains(dynamicChart.getChartPanel()))
          return;
 
-      this.dynamicChartsPanel.removeAll();
-      this.dynamicChartsPanel.add(dynamicChart.getChartPanel(), BorderLayout.CENTER);
-      this.dynamicChartsPanel.validate();
+      dynamicChartsPanel.removeAll();
+      dynamicChartsPanel.add(dynamicChart.getChartPanel(), BorderLayout.CENTER);
+      dynamicChartsPanel.validate();
 
       // Not sure why. validate itself is not enough to perform update. We
       // must call repaint as well.
@@ -752,7 +872,13 @@ public class WatchListJPanel extends JPanel
 
    protected void setDynamicChartVisible()
    {
-      chartPanel.setVisible(JStock.instance().getJStockOptions().isDynamicChartVisible());
+      if (JStock.instance().getJStockOptions().isDynamicChartVisible())
+         southPanel.setVisible(true);
+      else
+      {
+         dynamicCharts.clear();
+         southPanel.setVisible(false);
+      }
    }
    
    //==============================================================
