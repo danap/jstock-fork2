@@ -181,6 +181,7 @@ src/org/yccheok/jstock/engine/MatchType.java
 src/org/yccheok/jstock/engine/UnitedStatesGoogleFormatCodeLookup.java
 src/org/yccheok/jstock/engine/StockServerFactory.java
 src/org/yccheok/jstock/engine/TernarySearchTree.java
+src/org/yccheok/jstock/engine/Intraday.java
 src/org/yccheok/jstock/engine/StockServer.java
 src/org/yccheok/jstock/engine/Subject.java
 src/org/yccheok/jstock/engine/Code.java
