@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 04/27/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +19,34 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9     07/21/2015 Original Yan Cheng, JStock Engine SimpleDate Class.
+//         1.0.7.37.01 04/27/2019 Deprecated Constructor SimpleDate(Calendar). Added
+//                                Method getCalendar(TimeZone). Minor Comment for Instance
+//                                date.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 04/27/2019
  */
 
 // The Date data structure from java.util is almost useless. We will define our
@@ -45,6 +68,7 @@ public class SimpleDate implements java.lang.Comparable<SimpleDate> {
         this(new Date(timestamp));
     }
 
+    @Deprecated
     public SimpleDate(java.util.Calendar calendar) {        
         this(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE));
     }
@@ -87,8 +111,18 @@ public class SimpleDate implements java.lang.Comparable<SimpleDate> {
         return this.year == simpleDate.year && this.month == simpleDate.month && this.date == simpleDate.date;
     }
     
+    @Deprecated
     public Calendar getCalendar() {
         Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, date, 0, 0, 0);
+        // Reset milli second as well.
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
+    }
+    
+    // Not in 1.0.7.9
+    public Calendar getCalendar(java.util.TimeZone timeZone) {
+        GregorianCalendar calendar = new GregorianCalendar(timeZone);
         calendar.set(year, month, date, 0, 0, 0);
         // Reset milli second as well.
         calendar.set(Calendar.MILLISECOND, 0);
@@ -133,5 +167,5 @@ public class SimpleDate implements java.lang.Comparable<SimpleDate> {
     
     private final int year;   /* ? */
     private final int month;  /* 0 ~ 11 */
-    private final int date;   /* 1 ~ 31 */
+    private final int date;   /* 1 ~ 31 */ /* (Calendar.DAY_OF_MONTH) */
 }
