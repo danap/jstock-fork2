@@ -173,6 +173,7 @@ src/org/yccheok/jstock/engine/currency/Currency.java
 src/org/yccheok/jstock/engine/currency/CurrencyPair.java
 src/org/yccheok/jstock/engine/currency/ExchangeRate.java
 src/org/yccheok/jstock/engine/currency/ExchangeRateMonitor.java
+src/org/yccheok/jstock/engine/SimpleDate.java
 src/org/yccheok/jstock/engine/StockEx.java
 src/org/yccheok/jstock/engine/AjaxYahooSearchEngineMonitor.java
 src/org/yccheok/jstock/engine/StockNameDatabase.java
