@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.03 04/07/2019
+ * Version 1.0.7.37.04 04/28/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,9 @@
 //         1.0.7.37.03 04/07/2019 Methods loadStockInfo/NameDatabaseFromCSV() Commented on the
 //                                Change From 1.0.7.9 to 1.7.0.37 on Assignment of stock via
 //                                Changes in Class Stock.
+//         1.0.7.37.04 04/28/2019 Method doInBackground() Changed Reference saveStockInfo/Name
+//                                DatabaseAsCSV() JStock.instance() to this, Added Those Methods
+//                                Along With saveUserDefinedDatabaseAsCSV().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -77,7 +80,7 @@ import org.yccheok.jstock.internationalization.GUIBundle;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.03 04/07/2019
+ * @version 1.0.7.37.04 04/28/2019
  */
 
 class DatabaseTask extends SwingWorker<Boolean, Void>
@@ -285,10 +288,10 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
             }
 
             // Save to disk.
-            JStock.saveStockInfoDatabaseAsCSV(country, stockDatabase.first);
+            saveStockInfoDatabaseAsCSV(country, stockDatabase.first);
             if (stockDatabase.second != null)
             {
-               JStock.saveStockNameDatabaseAsCSV(country, stockDatabase.second);
+               saveStockNameDatabaseAsCSV(country, stockDatabase.second);
             }
 
             // Yes. We need to integrate "user-defined-database.csv" into
@@ -444,5 +447,59 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
          pairs.add(new Pair<Code, Symbol>(code, symbol));
       }
       return pairs;
+   }
+   
+   protected static boolean saveStockNameDatabaseAsCSV(Country country, StockNameDatabase stockNameDatabase)
+   {
+      final File stockNameDatabaseCSVFile = new File(org.yccheok.jstock.gui.Utils.getUserDataDirectory()
+                                                     + country + File.separator + "database" + File.separator
+                                                     + "stock-name-database.csv");
+      final Statements statements = Statements.newInstanceFromStockNameDatabase(stockNameDatabase);
+      boolean result = statements.saveAsCSVFile(stockNameDatabaseCSVFile);
+      return result;
+   }
+   
+   protected static boolean saveStockInfoDatabaseAsCSV(Country country, StockInfoDatabase stockInfoDatabase)
+   {
+      org.yccheok.jstock.gui.Utils
+            .createCompleteDirectoryHierarchyIfDoesNotExist(org.yccheok.jstock.engine.Utils
+                  .getStockInfoDatabaseFileDirectory(country));
+      final File stockInfoDatabaseCSVFile = org.yccheok.jstock.engine.Utils.getStockInfoDatabaseFile(country);
+      final Statements statements = Statements.newInstanceFromStockInfoDatabase(stockInfoDatabase);
+      boolean result = statements.saveAsCSVFile(stockInfoDatabaseCSVFile);
+      return result;
+   }
+   
+   protected static boolean saveUserDefinedDatabaseAsCSV(Country country, StockInfoDatabase stockInfoDatabase)
+   {
+      // Previously, we will store the entire stockcodeandsymboldatabase.xml
+      // to cloud server if stockcodeandsymboldatabase.xml is containing
+      // user defined code. Due to our server is running out of space, we will
+      // only store UserDefined pair. user-defined-database.xml will be only
+      // used for cloud storage purpose.
+      //final java.util.List<Pair<Code, Symbol>> pairs = getUserDefinedPair(stockInfoDatabase);
+      
+      final java.util.List<Pair<Code, Symbol>> userStockList;
+      userStockList = new ArrayList<Pair<Code, Symbol>>();
+      java.util.List<StockInfo> stockInfos = stockInfoDatabase.getUserDefinedStockInfos();
+      
+      for (StockInfo stockInfo : stockInfos)
+         userStockList.add(new Pair<Code, Symbol>(stockInfo.code, stockInfo.symbol));
+      
+      
+      // pairs can be empty. When it is empty, try to delete the file.
+      // If deletion fail, we need to overwrite the file to reflect this.
+      final File userDefinedDatabaseCSVFile = new File(org.yccheok.jstock.gui.Utils.getUserDataDirectory()
+                                                       + country + File.separator + "database"
+                                                       + File.separator + "user-defined-database.csv");
+      
+      if (userStockList.isEmpty() && userDefinedDatabaseCSVFile.delete())
+         return true;
+     
+      final Statements statements = Statements.newInstanceFromUserDefinedDatabase(userStockList);
+      boolean result = statements.saveAsCSVFile(userDefinedDatabaseCSVFile);
+      // This instance never changes always false.
+      //JStock.instance().needToSaveUserDefinedDatabase = false;
+      return result;
    }
 }
