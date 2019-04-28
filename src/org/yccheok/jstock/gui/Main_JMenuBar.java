@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 2.1 04/17/2019
+// Version 2.2 04/28/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,6 +55,8 @@
 //         2.0 Added Method buildCountryMenuItems().
 //         2.1 Method createEditMenu() Set Edit Menu Items Enable/Disabled via
 //             Call to setEditMenuItems().
+//         2.2 Method saveDatabase() Changed Reference to JStock.instance() saveStock
+//             Info/UserDefinedDatabaseAsCSV() to static DatabaseTask of Same.
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -111,7 +113,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 2.1 04/17/2019
+ * @version 2.2 04/28/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -1018,7 +1020,7 @@ public class Main_JMenuBar extends JMenuBar
          return false;
       }
 
-      final boolean b1 = jstock.saveUserDefinedDatabaseAsCSV(country, stock_info_database);
+      final boolean b1 = DatabaseTask.saveUserDefinedDatabaseAsCSV(country, stock_info_database);
 
       // For optimization purpose.
       // symbol_database will always contain UserDefined code and
@@ -1033,7 +1035,7 @@ public class Main_JMenuBar extends JMenuBar
       final File f = org.yccheok.jstock.engine.Utils.getStockInfoDatabaseFile(country);
       if (f.exists() == false)
       {
-         b2 = JStock.saveStockInfoDatabaseAsCSV(country, stock_info_database);
+         b2 = DatabaseTask.saveStockInfoDatabaseAsCSV(country, stock_info_database);
       }
 
       return b0 && b1 && b2;
@@ -1143,7 +1145,7 @@ public class Main_JMenuBar extends JMenuBar
 
    //==============================================================
    // Class Method to Rebuild the Countries in the Country menu.
-   // This was used to control the supported country menu items
+   // This WAS used to control the supported country menu items
    // available to the user. The only countries list that do not
    // have markets are Czech & Hungary. It also controlled this
    // list as unmodified one. See buildCountryMenuItems().
