@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 04/11/2019
+ * Version 1.0.7.37.02 04/29/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@
 //         1.0.7.37.01 04/11/2019 Method apply() Changed Reference to JStock.instance().initExchange
 //                                RateMonitor() to portfolioManagementJPanel of Same.
 //         1.0.7.37.02 04/11/2019 Corrected Header.
+//         1.0.7.37.03 04/29/2019 Method apply() Changed Direct Reference JStock.instance()
+//                                portfolioManagementJPanel to Getter.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -69,7 +71,7 @@ import org.yccheok.jstock.portfolio.DecimalPlace;
  *
  * @author  yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.02 04/11/2019
+ * @version 1.0.7.37.03 04/29/2019
  */
 public class OptionsSellAdvisorJPanel extends javax.swing.JPanel implements JStockOptionsObserver {
 
@@ -378,7 +380,7 @@ public class OptionsSellAdvisorJPanel extends javax.swing.JPanel implements JSto
         // Remember to refresh the GUIs as well.
         JStock.instance().getPortfolioManagementJPanel().refreshCurrencySymbol();
         // Update the new state of currency exchange monitor.
-        JStock.instance().portfolioManagementJPanel.initExchangeRateMonitor();
+        JStock.instance().getPortfolioManagementJPanel().initExchangeRateMonitor();
 
         return true;
     }
