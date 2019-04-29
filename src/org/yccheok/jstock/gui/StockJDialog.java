@@ -3,7 +3,7 @@
  * Copyright (C) 2011 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 03/08/2019
+ * Version 1.0.7.37.02 04/29/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 // Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Gui StockJDialog Class.
 //         1.0.7.37.01 03/08/2019 Method jButton1ActionPerformed() Changed Call
 //                                m, JStock, to m.watchListPanel.addStockToTable().
+//         1.0.7.37.02 04/29/2019 Method jButton1ActionPerformed() Changed m.watchListPanel
+//                                to m.getWatchListJPanel().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -51,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author  yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 03/08/2019
+ * @version 1.0.7.37.02 04/29/2019
  */
 public class StockJDialog extends javax.swing.JDialog {
     
@@ -449,7 +451,7 @@ public class StockJDialog extends javax.swing.JDialog {
                 for (StockInfo stockInfo : stockInfos) {
                     final Stock stock = org.yccheok.jstock.engine.Utils.getEmptyStock(stockInfo);
                     //m.addStockToTable(stock);
-                    m.watchListPanel.addStockToTable(stock);
+                    m.getWatchListJPanel().addStockToTable(stock);
                     m.getRealTimeStockMonitor().addStockCode(stock.code);
                 }
                 m.getRealTimeStockMonitor().startNewThreadsIfNecessary();                
