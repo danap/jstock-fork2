@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 2.2 04/28/2019
+// Version 2.3 04/29/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -57,6 +57,11 @@
 //             Call to setEditMenuItems().
 //         2.2 Method saveDatabase() Changed Reference to JStock.instance() saveStock
 //             Info/UserDefinedDatabaseAsCSV() to static DatabaseTask of Same.
+//         2.3 Replaced Throughout Direct References to jstock.watchListPanel, portfolio
+//             ManagementJPanel, & jStockOptions to Appropriate Getter Methods. Method
+//             databaseActionPerformed() Changed Direct Setting of JStock stockInfoDatabase
+//             Instance to Setter, Also Handles Setting WatchListJPanel Same in That
+//             Setter.
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -113,7 +118,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 2.2 04/28/2019
+ * @version 2.3 04/29/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -311,10 +316,10 @@ public class Main_JMenuBar extends JMenuBar
       
       // Set edit menu items according to
       // selected pane.
-      if (jstock.getSelectedComponent() == jstock.watchListPanel)
+      if (jstock.getSelectedComponent() == jstock.getWatchListJPanel())
          setEditMenuItems(true, true, true);
       
-      if (jstock.getSelectedComponent() == jstock.portfolioManagementJPanel)
+      if (jstock.getSelectedComponent() == jstock.getPortfolioManagementJPanel())
          setEditMenuItems(false, false, true);
 
       add(editMenu);
@@ -635,7 +640,7 @@ public class Main_JMenuBar extends JMenuBar
          {
             OptionsJDialog optionsJDialog = new OptionsJDialog(jstock, true);
             optionsJDialog.setLocationRelativeTo(jstock);
-            optionsJDialog.set(jstock.jStockOptions);
+            optionsJDialog.set(jstock.getJStockOptions());
             optionsJDialog.setVisible(true);
          }
       });
@@ -665,7 +670,7 @@ public class Main_JMenuBar extends JMenuBar
             // which then acts, saves the option.
 
             jstock.setAlwaysOnTop(selected);
-            jstock.jStockOptions.setAlwaysOnTop(selected);
+            jstock.getJStockOptions().setAlwaysOnTop(selected);
          }
       });
       optionsMenu.add(alwaysOnTopMenuItem);
@@ -732,14 +737,14 @@ public class Main_JMenuBar extends JMenuBar
       
       if (Utils.getFileExtension(file).equals("csv"))
       {
-         if (jstock.getSelectedComponent() == jstock.watchListPanel)
+         if (jstock.getSelectedComponent() == jstock.getWatchListJPanel())
          {
             // status = jstock.openAsCSVFile(file);
             final Statements statements = Statements.newInstanceFromCSVFile(file);
             status = jstock.openAsStatements(statements, file);
          }
-         else if (jstock.getSelectedComponent() == jstock.portfolioManagementJPanel)
-            status = jstock.portfolioManagementJPanel.openAsCSVFile(file);
+         else if (jstock.getSelectedComponent() == jstock.getPortfolioManagementJPanel())
+            status = jstock.getPortfolioManagementJPanel().openAsCSVFile(file);
          else
             assert (false);
       }
@@ -759,9 +764,9 @@ public class Main_JMenuBar extends JMenuBar
    {
       String suggestedFileName = "";
 
-      if (jstock.getSelectedComponent() == jstock.watchListPanel)
+      if (jstock.getSelectedComponent() == jstock.getWatchListJPanel())
          suggestedFileName = GUIBundle.getString("MainFrame_Title");
-      else if (jstock.getSelectedComponent() == jstock.portfolioManagementJPanel)
+      else if (jstock.getSelectedComponent() == jstock.getPortfolioManagementJPanel())
          suggestedFileName = GUIBundle.getString("PortfolioManagementJPanel_Title");
       else
          assert (false);
@@ -770,7 +775,7 @@ public class Main_JMenuBar extends JMenuBar
 
       File file = null;
       
-      if (jstock.getSelectedComponent() == jstock.watchListPanel)
+      if (jstock.getSelectedComponent() == jstock.getWatchListJPanel())
       {
          file = Utils.promptSaveCSVAndExcelJFileChooser(suggestedFileName);
 
@@ -778,14 +783,14 @@ public class Main_JMenuBar extends JMenuBar
          {
             if (Utils.getFileExtension(file).equals("csv"))
             {
-               if (jstock.getSelectedComponent() == jstock.watchListPanel)
+               if (jstock.getSelectedComponent() == jstock.getWatchListJPanel())
                   status = jstock.saveAsCSVFile(file, false);
                else
                   assert (false);
             }
          }
       }
-      else if (jstock.getSelectedComponent() == jstock.portfolioManagementJPanel)
+      else if (jstock.getSelectedComponent() == jstock.getPortfolioManagementJPanel())
       {
          final Utils.FileEx fileEx = Utils.promptSavePortfolioCSVAndExcelJFileChooser(suggestedFileName);
          if (fileEx != null)
@@ -793,7 +798,7 @@ public class Main_JMenuBar extends JMenuBar
             file = fileEx.file;
 
             if (Utils.getFileExtension(fileEx.file).equals("csv"))
-               status = jstock.portfolioManagementJPanel.saveAsCSVFile(fileEx, false);
+               status = jstock.getPortfolioManagementJPanel().saveAsCSVFile(fileEx, false);
          }
       }
       else
@@ -978,8 +983,8 @@ public class Main_JMenuBar extends JMenuBar
       if (stockDatabaseJDialog.getResult() != null)
       {
          assert (stockDatabaseJDialog.getResult() == jstock.getStockInfoDatabase());
-         jstock.stockInfoDatabase = stockDatabaseJDialog.getResult();
-         jstock.watchListPanel.setStockInfoDatabase(jstock.stockInfoDatabase);
+         jstock.setStockInfoDatabase(stockDatabaseJDialog.getResult());
+         //jstock.getWatchListPanel().setStockInfoDatabase(jstock.stockInfoDatabase);
          log.info("saveStockCodeAndSymbolDatabase...");
          saveDatabase();
       }
@@ -994,8 +999,8 @@ public class Main_JMenuBar extends JMenuBar
          return false;
 
       // Use local variable to ensure thread safety.
-      final StockInfoDatabase stock_info_database = jstock.stockInfoDatabase;
-      final StockNameDatabase name_database = jstock.stockNameDatabase;
+      final StockInfoDatabase stock_info_database = jstock.getStockInfoDatabase();
+      final StockNameDatabase name_database = jstock.getStockNameDatabase();
 
       boolean b0 = true;
 
