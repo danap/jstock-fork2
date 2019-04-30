@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.13 04/25/2019
+ * Version 1.0.7.37.14 04/30/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,12 +50,19 @@
 //         1.0.7.37.11 04/21/2019 Added Method saveGUIOptions(), Was in JStock Class, Has Everything
 //                                to Do With This Classes Content.
 //         1.0.7.37.12 04/21/2019 Added Method initGUIOptions() & Called From initWatchlist().
-//         1.0.7.37.13 05/25/2019 Added Class Instances dynamicCharts, MAX_DYNAMIC_CHART_SIZE, &
+//         1.0.7.37.13 04/25/2019 Added Class Instances dynamicCharts, MAX_DYNAMIC_CHART_SIZE, &
 //                                Changed chartsPanel to southPanel. Method initWatchListPanel()
 //                                Added boolean Argument & Used to Control dynamicCharts. Changed
 //                                All References to JStock.instance().dynamicCharts to this dynamicCharts.
 //                                Added Methods isStockBeingSelected() & addDynamicCharts(). Method
 //                                setDynamicChartsVisibility() Changed Handling of dynamicCharts.
+//         1.0.7.37.14 04/30/2019 Added Class Instance jstock & Replaced All References to JStock.instance()
+//                                With That New Instance. Method addStockInfoFromAutoCompleteJComboBox()
+//                                Use of Getter for JStock Instance realTimeStockMonitor, Same in
+//                                initWatchList() timestamp, createDynamicChartMouseAdapter() 
+//                                stockInfoDatabase, deleteSelectedTableRow() realTimeStockMonitor,
+//                                stockHistoryMonitor, & stockInfoDatabase, createPopupMenu()
+//                                portfolioManagementJPanel.
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -120,7 +127,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.13 04/25/2019
+ * @version 1.0.7.37.14 04/30/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -128,6 +135,7 @@ public class WatchListJPanel extends JPanel
    // Class Instances
    private static final long serialVersionUID = 55607059084904271L;
 
+   private JStock jstock;
    private AutoCompleteJComboBox stockSelectorComboBox;
    private JTable watchListTable;
    
@@ -150,8 +158,10 @@ public class WatchListJPanel extends JPanel
    // WatchListJPanel Constructor
    //==============================================================
 
-   public WatchListJPanel()
+   public WatchListJPanel(JStock jstock)
    {
+      this.jstock = jstock;
+      
       // Constructor Instances
       ResourceBundle bundle;
       JScrollPane jScrollPane1;
@@ -197,7 +207,7 @@ public class WatchListJPanel extends JPanel
       watchListTable.addMouseListener(new TableMouseAdapter());
       watchListTable.addKeyListener(new TableKeyEventListener());
 
-      if (JStock.instance().getJStockOptions().useLargeFont())
+      if (jstock.getJStockOptions().useLargeFont())
          watchListTable.setRowHeight((int) (watchListTable.getRowHeight() * Constants.FONT_ENLARGE_FACTOR));
 
       watchListTable.addKeyListener(new KeyAdapter()
@@ -292,9 +302,9 @@ public class WatchListJPanel extends JPanel
       // our system is slow.
       addStockToTable(emptyStock);
       int row = tableModel.findRow(emptyStock);
-      JStock.instance().realTimeStockMonitor.addStockCode(stockInfo.code);
-      JStock.instance().realTimeStockMonitor.startNewThreadsIfNecessary();
-      JStock.instance().realTimeStockMonitor.refresh();
+      jstock.getRealTimeStockMonitor().addStockCode(stockInfo.code);
+      jstock.getRealTimeStockMonitor().startNewThreadsIfNecessary();
+      jstock.getRealTimeStockMonitor().refresh();
 
       // Hightlight Row as Needed.
       if (row != -1)
@@ -359,7 +369,7 @@ public class WatchListJPanel extends JPanel
    
    protected boolean initWatchlist(boolean clearDynamicCharts)
    {  
-      JStock.instance().timestamp = 0;
+      jstock.setTimestamp(0);
       
       List<String> availableWatchlistNames = Utils.getWatchlistNames();
       
@@ -376,17 +386,17 @@ public class WatchListJPanel extends JPanel
       assert(availableWatchlistNames.isEmpty() == false);
 
       // Is user selected watchlist name within current available watchlist names?
-      if (false == availableWatchlistNames.contains(JStock.instance().getJStockOptions().getWatchlistName()))
+      if (false == availableWatchlistNames.contains(jstock.getJStockOptions().getWatchlistName()))
       {
           // Nope. Reset user selected watchlist name to the first available name.
-          JStock.instance().getJStockOptions().setWatchlistName(availableWatchlistNames.get(0));
+          jstock.getJStockOptions().setWatchlistName(availableWatchlistNames.get(0));
       }
       
       // openAsCSVFile will "append" stocks. We need to clear previous stocks
       // explicitly.
       
       // Clear the previous data structures.
-      JStock.instance().clearAllStocks();
+      jstock.clearAllStocks();
       
       if (clearDynamicCharts)
       {
@@ -396,7 +406,7 @@ public class WatchListJPanel extends JPanel
       
       File realTimeStockFile = Utils.getWatchlistFile(Utils.getWatchlistDirectory());
       
-      return JStock.instance().openAsStatements(
+      return jstock.openAsStatements(
          Statements.newInstanceFromCSVFile(realTimeStockFile), realTimeStockFile);
    }
    
@@ -426,7 +436,7 @@ public class WatchListJPanel extends JPanel
                }
                Symbol symbol = null;
                // Use local variable to ensure thread safety.
-               final StockInfoDatabase stock_info_database = JStock.instance().stockInfoDatabase;
+               final StockInfoDatabase stock_info_database = jstock.getStockInfoDatabase();
                // Is the database ready?
                if (stock_info_database != null)
                {
@@ -435,7 +445,7 @@ public class WatchListJPanel extends JPanel
                }
                final String template = GUIBundle.getString("MainFrame_IntradayMovementTemplate");
                final String message = MessageFormat.format(template, symbol == null ? stock.symbol : symbol);
-               dynamicChart.showNewJDialog(JStock.instance(), message);
+               dynamicChart.showNewJDialog(jstock, message);
             }
          }
          // Shall we provide visualize mouse move over effect, so that user
@@ -525,7 +535,7 @@ public class WatchListJPanel extends JPanel
       {
          final int modelIndex = watchListTable.getRowSorter().convertRowIndexToModel(row);
          Stock stock = tableModel.getStock(modelIndex);
-         JStock.instance().displayHistoryChart(StockInfo.newInstance(stock));
+         jstock.displayHistoryChart(StockInfo.newInstance(stock));
       }
    }
 
@@ -553,8 +563,8 @@ public class WatchListJPanel extends JPanel
          final int modelIndex = watchListTable.getRowSorter().convertRowIndexToModel(row);
          Stock stock = tableModel.getStock(modelIndex);
          JStock.instance().stockCodeHistoryGUI.remove(stock.code);
-         JStock.instance().realTimeStockMonitor.removeStockCode(stock.code);
-         JStock.instance().stockHistoryMonitor.removeStockCode(stock.code);
+         jstock.getRealTimeStockMonitor().removeStockCode(stock.code);
+         jstock.getStockHistoryMonitor().removeStockCode(stock.code);
          tableModel.removeRow(modelIndex);
       }
 
@@ -562,8 +572,8 @@ public class WatchListJPanel extends JPanel
 
       if (JStock.instance().stockCodeHistoryGUI.isEmpty())
       {
-         if (JStock.instance().stockInfoDatabase != null)
-            JStock.instance().setStatusBar(false, JStock.instance().getBestStatusBarMessage());
+         if (jstock.getStockInfoDatabase() != null)
+            jstock.setStatusBar(false, jstock.getBestStatusBarMessage());
       }
    }
    
@@ -872,7 +882,7 @@ public class WatchListJPanel extends JPanel
 
    protected void setDynamicChartVisible()
    {
-      if (JStock.instance().getJStockOptions().isDynamicChartVisible())
+      if (jstock.getJStockOptions().isDynamicChartVisible())
          southPanel.setVisible(true);
       else
       {
@@ -944,7 +954,7 @@ public class WatchListJPanel extends JPanel
 
          javax.swing.JMenuItem menuItem = new JMenuItem(ResourceBundle.getBundle(
             "org/yccheok/jstock/data/gui").getString("MainFrame_History..."),
-            JStock.instance().getImageIcon("/images/16x16/strokedocker.png"));
+            jstock.getImageIcon("/images/16x16/strokedocker.png"));
 
          menuItem.addActionListener(new ActionListener()
          {
@@ -958,7 +968,7 @@ public class WatchListJPanel extends JPanel
          popup.add(menuItem);
 
          menuItem = new JMenuItem(ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
-            "MainFrame_News..."), JStock.instance().getImageIcon("/images/16x16/news.png"));
+            "MainFrame_News..."), jstock.getImageIcon("/images/16x16/news.png"));
          menuItem.addActionListener(new ActionListener()
          {
             @Override
@@ -972,7 +982,7 @@ public class WatchListJPanel extends JPanel
                {
                   final int modelIndex = watchListTable.getRowSorter().convertRowIndexToModel(row);
                   final Stock stock = tableModel.getStock(modelIndex);
-                  JStock.instance().displayStockNews(StockInfo.newInstance(stock));
+                  jstock.displayStockNews(StockInfo.newInstance(stock));
                }
             }
          });
@@ -983,7 +993,7 @@ public class WatchListJPanel extends JPanel
          if (watchListTable.getSelectedRowCount() == 1)
          {
             menuItem = new JMenuItem(ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
-               "MainFrame_Buy..."), JStock.instance().getImageIcon("/images/16x16/calc.png"));
+               "MainFrame_Buy..."), jstock.getImageIcon("/images/16x16/calc.png"));
 
             menuItem.addActionListener(new ActionListener()
             {
@@ -1015,7 +1025,7 @@ public class WatchListJPanel extends JPanel
                   // Say no to :
                   // portfolioManagementJPanel.showNewBuyTransactionJDialog(stock.symbol,
                   // stock.getLastPrice(), false);
-                  JStock.instance().portfolioManagementJPanel.showNewBuyTransactionJDialog(
+                  jstock.getPortfolioManagementJPanel().showNewBuyTransactionJDialog(
                      StockInfo.newInstance(stock), stock.getLastPrice(), false);
                }
             });
@@ -1025,7 +1035,7 @@ public class WatchListJPanel extends JPanel
          }
 
          menuItem = new JMenuItem(ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
-            "MainFrame_Delete"), JStock.instance().getImageIcon("/images/16x16/editdelete.png"));
+            "MainFrame_Delete"), jstock.getImageIcon("/images/16x16/editdelete.png"));
 
          menuItem.addActionListener(new ActionListener()
          {
