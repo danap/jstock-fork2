@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.05 04/21/2019
+ * Version 1.0.7.37.06 04/30/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,11 @@
 //                                the Former. Made Protected.
 //         1.0.7.37.05 04/21/2019 Removed Method savePortfolio(), Its Just saveCSVPortfolio(),
 //                                Made Later Protected as Replacement.
+//         1.0.7.37.06 04/30/2019 Method refreshStatusBarExchangeRateVisibility() Changed Removed
+//                                Instances mainFrame, jStockOptions, & country. Added Instance
+//                                statusBar. Replaced Instances Called Directly, or in Case of
+//                                mainFrame Used statusBar, Since Method Moved From JStock Class
+//                                to MyJXStatusBar Class. 
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -124,7 +129,7 @@ import org.yccheok.jstock.portfolio.TransactionSummary;
  *
  * @author  Owner
  * @author Dana M. Proctor
- * @version 1.0.7.37.05 04/21/2019
+ * @version 1.0.7.37.06 04/30/2019
  */
 public class PortfolioManagementJPanel extends javax.swing.JPanel {
     
@@ -2510,15 +2515,17 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
     }
     
     private void refreshStatusBarExchangeRateVisibility() {
-        final JStock mainFrame = JStock.instance();
-        final JStockOptions jStockOptions = mainFrame.getJStockOptions();
-        final Country country = jStockOptions.getCountry();
+        //final JStock mainFrame = JStock.instance();
+        final MyJXStatusBar statusBar = JStock.instance().getStatusBar();
+        //final JStockOptions jStockOptions = mainFrame.getJStockOptions();
+        //final Country country = jStockOptions.getCountry();
         
-        final boolean currencyExchangeEnable = jStockOptions.isCurrencyExchangeEnable(country);
+        final boolean currencyExchangeEnable = JStock.instance().getJStockOptions().isCurrencyExchangeEnable(
+           JStock.instance().getJStockOptions().getCountry());
         
         if (!currencyExchangeEnable) {
-            mainFrame.setStatusBarExchangeRateVisible(false);
-            mainFrame.setStatusBarExchangeRateToolTipText(null);
+            statusBar.setStatusBarExchangeRateVisible(false);
+            statusBar.setStatusBarExchangeRateToolTipText(null);
             return;
         }
 
@@ -2529,16 +2536,16 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
         currencyPairs.remove(CurrencyPair.create(Currency.ZAC, Currency.ZAR));
         
         if (currencyPairs.isEmpty()) {
-            mainFrame.setStatusBarExchangeRateVisible(false);
-            mainFrame.setStatusBarExchangeRateToolTipText(null);
+            statusBar.setStatusBarExchangeRateVisible(false);
+            statusBar.setStatusBarExchangeRateToolTipText(null);
             return;
         }
         
         final int size = currencyPairs.size();
         
         if (size > 1) {        
-            mainFrame.setStatusBarExchangeRateVisible(false);
-            mainFrame.setStatusBarExchangeRateToolTipText(null);
+            statusBar.setStatusBarExchangeRateVisible(false);
+            statusBar.setStatusBarExchangeRateToolTipText(null);
             return;
         }
         
@@ -2550,8 +2557,8 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
             Currency fromCurrency = currencyPair.from();
             Currency toCurrency = currencyPair.to();
             final String text = MessageFormat.format(GUIBundle.getString("MyJXStatusBar_CurrencyExchangeRateFor"), fromCurrency.toString(), toCurrency.toString());
-            mainFrame.setStatusBarExchangeRateVisible(true);
-            mainFrame.setStatusBarExchangeRateToolTipText(text);
+            statusBar.setStatusBarExchangeRateVisible(true);
+            statusBar.setStatusBarExchangeRateToolTipText(text);
             Double rate = this.portfolioRealTimeInfo.exchangeRates.get(currencyPair);
             
             if (rate != null) {
@@ -2563,12 +2570,12 @@ public class PortfolioManagementJPanel extends javax.swing.JPanel {
             
                 if (rate == 1.0) {
                     // User are not interested in such exchange rate.
-                    mainFrame.setStatusBarExchangeRate(null);    
+                    statusBar.setStatusBarExchangeRate(null);    
                 } else {
-                    mainFrame.setStatusBarExchangeRate(rate);
+                    statusBar.setStatusBarExchangeRate(rate);
                 }
             } else {
-                mainFrame.setStatusBarExchangeRate(null);
+                statusBar.setStatusBarExchangeRate(null);
             }
             return;
         }
