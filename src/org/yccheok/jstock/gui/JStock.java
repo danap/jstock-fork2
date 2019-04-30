@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.40 04/25/2019
+ * Version 1.0.7.37.41 05/01/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -243,6 +243,19 @@
 //                                List.initWatchList() to Use New Required boolean Argument. Removed
 //                                Methods isStockBeingSelected() & initDynamicCharts(). Method update()
 //                                Replaced Dynamic Chart Setup to Call to watchListPanel.addDynamicCharts().
+//         1.0.7.37.41 05/01/2019 Organized Imports. Made All Class Instances Private, Except log,
+//                                stockCodeHistoryGUI, & databaseTaskMonitor. Removed Class Instance
+//                                needToSaveUserDefinedDatabase, Removed Use in formWindowClosed(),
+//                                installShutdownHook(), & changeCountry(). Method init() Added Argument
+//                                this Instantiation of MyJXStatusBar & WatchListJPanel. Method
+//                                initStockInfoDatabase() Use of Calls to DatabaseTask.saveStockInfo/
+//                                NameDatabaseAsCSV(). Added Getters for realTimeIndexMonitor, stock
+//                                HistoryMonitor, databaseTask, & statusBar. Commented Method setStatus
+//                                BarExchangeRate(), setStatusBarExchangeRateVisibility(), & setStatus
+//                                BarExchangeRateToolTipText(). Added Method setTimestamp(), set
+//                                DatabaseTask(), & setStockInfo/NameDatabase(). Commented Methods
+//                                saveStockName/Info/UserDefinedDatabaseAsCSV(). Method update() Use
+//                                of getStockInfoDatabase().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -265,7 +278,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -292,7 +304,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -331,7 +342,7 @@ import com.google.api.client.auth.oauth2.Credential;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.40 04/25/2019
+ * @version 1.0.7.37.41 05/01/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -339,15 +350,15 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.40";
+   public static final String VERSION = "1.0.7.37.41";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane mainTabsPane;
 
    private MarketJPanel marketJPanel;
-   protected WatchListJPanel watchListPanel;
-   protected PortfolioManagementJPanel portfolioManagementJPanel;
-   protected MyJXStatusBar statusBar;
+   private WatchListJPanel watchListPanel;
+   private PortfolioManagementJPanel portfolioManagementJPanel;
+   private MyJXStatusBar statusBar;
    
    private int watchListTabIndex;
    private int portfolioTabIndex;
@@ -359,18 +370,18 @@ public class JStock extends javax.swing.JFrame
    // GUI on them, when user request explicitly.
    protected final Set<Code> stockCodeHistoryGUI = new HashSet<>();
 
-   protected volatile StockInfoDatabase stockInfoDatabase = null;
+   private volatile StockInfoDatabase stockInfoDatabase = null;
    // StockNameDatabase is an optional item.
-   protected volatile StockNameDatabase stockNameDatabase = null;
+   private volatile StockNameDatabase stockNameDatabase = null;
 
    private RealTimeIndexMonitor realTimeIndexMonitor = null;
-   protected RealTimeStockMonitor realTimeStockMonitor = null;
-   protected StockHistoryMonitor stockHistoryMonitor = null;
+   private RealTimeStockMonitor realTimeStockMonitor = null;
+   private StockHistoryMonitor stockHistoryMonitor = null;
 
-   protected DatabaseTask databaseTask = null;
+   private DatabaseTask databaseTask = null;
    protected final Object databaseTaskMonitor = new Object();
    
-   protected JStockOptions jStockOptions;
+   private JStockOptions jStockOptions;
    private UIOptions uiOptions;
    private ChartJDialogOptions chartJDialogOptions;
 
@@ -389,14 +400,10 @@ public class JStock extends javax.swing.JFrame
 
    private static final int HISTORY_MONITOR_MAX_THREAD = 4;
 
-   // Do we need to save user defined database when
-   // we switch country or close this application?
-   private volatile boolean needToSaveUserDefinedDatabase = false;
-
    private volatile boolean isFormWindowClosedCalled = false;
 
    // The last time when we receive stock price update.
-   protected long timestamp = 0;
+   private long timestamp = 0;
    protected boolean refreshPriceInProgress = false;
    
    // Comment out, to avoid annoying log messages during debugging.
@@ -656,13 +663,6 @@ public class JStock extends javax.swing.JFrame
          // save all the configuration files.
          save();
 
-         if (needToSaveUserDefinedDatabase)
-         {
-            // We are having updated user database in memory.
-            // Save it to disk.
-            saveUserDefinedDatabaseAsCSV(jStockOptions.getCountry(), stockInfoDatabase);
-         }
-
          watchListPanel.dettachAllAndStopAutoCompleteJComboBox();
 
          _stockInfoDatabaseMetaPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
@@ -837,7 +837,7 @@ public class JStock extends javax.swing.JFrame
       // South Status Bar
       javax.swing.JPanel statusBarPanel = new javax.swing.JPanel();
       
-      statusBar = new MyJXStatusBar();
+      statusBar = new MyJXStatusBar(this);
       statusBarPanel.setBorder(BorderFactory.createLoweredBevelBorder());
       statusBarPanel.setLayout(new GridLayout(1, 1));
       statusBarPanel.add(statusBar);
@@ -850,7 +850,7 @@ public class JStock extends javax.swing.JFrame
          mainTabsPane.getFont().getStyle() | Font.BOLD, mainTabsPane.getFont().getSize() + 2));
       mainTabsPane.setBorder(BorderFactory.createEtchedBorder());
       
-      watchListPanel = new WatchListJPanel();
+      watchListPanel = new WatchListJPanel(this);
       watchListTabIndex = mainTabsPane.getTabCount();
       mainTabsPane.addTab(bundle.getString("MainFrame_Title"), watchListPanel);
       mainTabsPane.setIconAt(watchListTabIndex, getImageIcon("/images/16x16/stock_timezone.png"));
@@ -1034,11 +1034,11 @@ public class JStock extends javax.swing.JFrame
                         final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = 
                               org.yccheok.jstock.engine.Utils.toStockDatabase(stocks, country);
 
-                        final boolean success = JStock.saveStockInfoDatabaseAsCSV(country,
+                        final boolean success = DatabaseTask.saveStockInfoDatabaseAsCSV(country,
                            stockDatabase.first);
 
                         if (stockDatabase.second != null)
-                           JStock.saveStockNameDatabaseAsCSV(country, stockDatabase.second);
+                           DatabaseTask.saveStockNameDatabaseAsCSV(country, stockDatabase.second);
 
                         if (success)
                         {
@@ -1309,14 +1309,7 @@ public class JStock extends javax.swing.JFrame
                // will cause "hang".
                // 2) Calling system.exit will cause "hang" too.
                JStock.this.save();
-
-               if (JStock.this.needToSaveUserDefinedDatabase)
-               {
-                  // We are having updated user database in memory.
-                  // Save it to disk.
-                  JStock.this.saveUserDefinedDatabaseAsCSV(jStockOptions.getCountry(), stockInfoDatabase);
-               }
-
+               
                AppLock.unlock();
             }
          };
@@ -1469,6 +1462,21 @@ public class JStock extends javax.swing.JFrame
    {
       return realTimeStockMonitor;
    }
+   
+   public RealTimeIndexMonitor getRealTimeIndexMonitor()
+   {
+      return realTimeIndexMonitor;
+   }
+   
+   public StockHistoryMonitor getStockHistoryMonitor()
+   {
+      return stockHistoryMonitor;
+   }
+   
+   public DatabaseTask getDatabaseTask()
+   {
+      return databaseTask;
+   }
 
    /**
     * Returns JStock options of this main frame.
@@ -1495,9 +1503,7 @@ public class JStock extends javax.swing.JFrame
 
    protected boolean saveAsCSVFile(File file, boolean languageIndependent)
    {
-      final TableModel tableModel = watchListPanel.getTable().getModel();
-      //CSVWatchlist csvWatchlist = CSVWatchlist.newInstance(tableModel);
-      CSVWatchList csvWatchlist = new CSVWatchList(tableModel);
+      CSVWatchList csvWatchlist = new CSVWatchList(watchListPanel.getTable().getModel());
       return WatchListJPanel.saveAsCSVFile(csvWatchlist, file, languageIndependent);
    }
 
@@ -1544,6 +1550,7 @@ public class JStock extends javax.swing.JFrame
     * @param exchangeRate
     *           the exchange rate value. null to reset
     */
+   /*
    public void setStatusBarExchangeRate(final Double exchangeRate)
    {
       if (SwingUtilities.isEventDispatchThread())
@@ -1560,12 +1567,14 @@ public class JStock extends javax.swing.JFrame
          });
       }
    }
+   */
 
    /**
     * Set the visibility of exchange rate label on status bar.
     * @param visible
     *           true to make the exchange rate label visible. Else false
     */
+   /*
    public void setStatusBarExchangeRateVisible(final boolean visible)
    {
       if (SwingUtilities.isEventDispatchThread())
@@ -1582,12 +1591,14 @@ public class JStock extends javax.swing.JFrame
          });
       }
    }
+   */
 
    /**
     * Set the tool tip text of exchange rate label on status bar.
     * @param text
     *           the tool tip text
     */
+   /*
    public void setStatusBarExchangeRateToolTipText(final String text)
    {
       if (SwingUtilities.isEventDispatchThread())
@@ -1604,6 +1615,7 @@ public class JStock extends javax.swing.JFrame
          });
       }
    }
+   */
 
    /**
     * Update the status bar.
@@ -1612,6 +1624,7 @@ public class JStock extends javax.swing.JFrame
     * @param mainMessage
     *           message on the left
     */
+   
    protected void setStatusBar(final boolean progressBar, final String mainMessage)
    {
       if (SwingUtilities.isEventDispatchThread())
@@ -1634,8 +1647,23 @@ public class JStock extends javax.swing.JFrame
          });
       }
    }
-
-   public WatchListJPanel getWatchListPanel()
+   
+   protected void setTimestamp(long timestamp)
+   {
+      this.timestamp = timestamp;
+   }
+   
+   protected void setDatabaseTask(DatabaseTask databaseTask)
+   {
+      this.databaseTask = databaseTask;
+   }
+   
+   public MyJXStatusBar getStatusBar()
+   {
+      return statusBar;
+   }
+   
+   public WatchListJPanel getWatchListJPanel()
    {
       return this.watchListPanel;
    }
@@ -1656,15 +1684,6 @@ public class JStock extends javax.swing.JFrame
       // Not in 1.0.7.9
       //org.yccheok.jstock.engine.Utils.clearGoogleCodeDatabaseCache();
       //org.yccheok.jstock.engine.Utils.clearAllIEXStockInfoDatabaseCaches();
-
-      final Country oldCountry = jStockOptions.getCountry();
-
-      if (needToSaveUserDefinedDatabase)
-      {
-         // We are having updated user database in memory.
-         // Save it to disk.
-         this.saveUserDefinedDatabaseAsCSV(oldCountry, stockInfoDatabase);
-      }
 
       /* Save and set country. */
       
@@ -1714,12 +1733,23 @@ public class JStock extends javax.swing.JFrame
 
    public StockInfoDatabase getStockInfoDatabase()
    {
-      return this.stockInfoDatabase;
+      return stockInfoDatabase;
+   }
+   
+   public void setStockInfoDatabase(StockInfoDatabase stockInfoDatabase)
+   {
+      this.stockInfoDatabase = stockInfoDatabase;
+      watchListPanel.setStockInfoDatabase(stockInfoDatabase);
    }
 
    public StockNameDatabase getStockNameDatabase()
    {
       return stockNameDatabase;
+   }
+   
+   public void setStockNameDatabase(StockNameDatabase stockNameDatabase)
+   {
+      this.stockNameDatabase = stockNameDatabase;
    }
 
    public java.util.List<Stock> getStocks()
@@ -1805,6 +1835,7 @@ public class JStock extends javax.swing.JFrame
       new StockNewsJFrame(this, stockInfo, stockInfo.symbol + " (" + stockInfo.code + ")");
    }
 
+   /*
    protected static boolean saveStockNameDatabaseAsCSV(Country country, StockNameDatabase stockNameDatabase)
    {
       final File stockNameDatabaseCSVFile = new File(org.yccheok.jstock.gui.Utils.getUserDataDirectory()
@@ -1825,8 +1856,10 @@ public class JStock extends javax.swing.JFrame
       boolean result = statements.saveAsCSVFile(stockInfoDatabaseCSVFile);
       return result;
    }
+   */
 
-   protected boolean saveUserDefinedDatabaseAsCSV(Country country, StockInfoDatabase stockInfoDatabase)
+   /*
+   protected static boolean saveUserDefinedDatabaseAsCSV(Country country, StockInfoDatabase stockInfoDatabase)
    {
       // Previously, we will store the entire stockcodeandsymboldatabase.xml
       // to cloud server if stockcodeandsymboldatabase.xml is containing
@@ -1857,6 +1890,7 @@ public class JStock extends javax.swing.JFrame
       this.needToSaveUserDefinedDatabase = false;
       return result;
    }
+   */
    
    public void updatePriceSource(Country country, PriceSource priceSource)
    {
@@ -2051,7 +2085,7 @@ public class JStock extends javax.swing.JFrame
             Symbol symbol = null;
 
             // Use local variable to ensure thread safety.
-            final StockInfoDatabase stock_info_database = JStock.this.stockInfoDatabase;
+            final StockInfoDatabase stock_info_database = getStockInfoDatabase();
             // Is the database ready?
             if (stock_info_database != null)
             {
