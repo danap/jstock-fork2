@@ -3,7 +3,7 @@
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.30 03/28/2019
+ * Version 1.0.7.37.31 04/30/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,10 @@
 //
 // Version 1.0.7.37    08/26/2018 Original Yan Cheng, WatchList Utils Class.
 //         1.0.7.37.01 03/29/2019 Method createEmptyWatchlist() Used Replaced Class
-//                     JStock.CVSWatchList With New Class In This Package CSVWatchList.
-//                     Same Method Call to WatchListJPanel saveCSVWatchList().
+//                                JStock.CVSWatchList With New Class In This Package CSVWatchList.
+//                                Same Method Call to WatchListJPanel saveCSVWatchList().
+//         1.0.7.37.02 04/30/2019 Method createEmptyWatchlist() Used Getter for JStock
+//                                watchListPanel.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -53,7 +55,7 @@ import org.yccheok.jstock.gui.StockTableModel;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 03/29/2019
+ * @version 1.0.7.37.02 04/30/2019
  */
 public class Utils {
     // Use ThreadLocal to ensure thread safety.
@@ -181,7 +183,7 @@ public class Utils {
         CSVWatchList csvWatchlist = new CSVWatchList(stockTableModel);
 
         //return JStock.saveCSVWatchlist(directory, csvWatchlist);
-        return JStock.instance().getWatchListPanel().saveCSVWatchlist(directory, csvWatchlist);
+        return JStock.instance().getWatchListJPanel().saveCSVWatchlist(directory, csvWatchlist);
     }
     
     public static List<WatchlistInfo> getWatchlistInfos() {
