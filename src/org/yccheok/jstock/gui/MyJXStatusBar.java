@@ -3,7 +3,7 @@
  * Copyright (C) 2011 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.02 03/25/2019
+ * Version 1.0.7.37.03 04/30/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,14 @@
 //                                XXXMouseAdapter()s, & getMyJXStatusBarXXXMouseAdapter()s.
 //         1.0.7.37.02 03/25/2019 Changed All init Methods to Private & Called Directly
 //                                Only From Constructor.
+//         1.0.7.37.03 04/30/2019 Added Class Instance jstock & Replaced Throughout JStock.
+//                                instance() With New Instance. Constructor Argument JStock
+//                                too Derive. Method mouseClicked() in MouseAdapter Use of
+//                                Getter/Setter for JStock Instance databaseTask. Added Methods
+//                                setStatusBarExchangeRateVisibility(), setStatusBarExchangeRate
+//                                ToolTipText(), & setStatusBarExchangeRate(). Made Similar
+//                                Method of Same in Class Private. All of These Methods Need
+//                                Cleaned Up.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -56,13 +64,17 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.02 03/25/2019
+ * @version 1.0.7.37.03 04/30/2019
  */
 public class MyJXStatusBar extends JXStatusBar {
     
+    private JStock jstock; 
+   
     /** Creates a new instance of MyJStatusBar */
-    public MyJXStatusBar() {
+    public MyJXStatusBar(JStock jstock) {
         super();
+        
+        this.jstock = jstock;
         
         mainLabel = new JLabel();
         progressBar = new JProgressBar();
@@ -98,13 +110,13 @@ public class MyJXStatusBar extends JXStatusBar {
        final String message = java.util.ResourceBundle.getBundle(
           "org/yccheok/jstock/data/gui").getString(
              "MainFrame_ConnectingToStockServerToRetrieveStockInformation...");
-       final ImageIcon icon = JStock.instance().getImageIcon("/images/16x16/network-connecting.png");
+       final ImageIcon icon = jstock.getImageIcon("/images/16x16/network-connecting.png");
        final String iconMessage = java.util.ResourceBundle.getBundle(
           "org/yccheok/jstock/data/gui").getString("MainFrame_Connecting...");
 
        setMainMessage(message).setImageIcon(icon, iconMessage)
-             .setCountryIcon(JStock.instance().getJStockOptions().getCountry().icon,
-                             JStock.instance().getJStockOptions().getCountry().humanString);
+             .setCountryIcon(jstock.getJStockOptions().getCountry().icon,
+                             jstock.getJStockOptions().getCountry().humanString);
     }
     
     private void initMyJXStatusBarExchangeRateLabelMouseAdapter()
@@ -123,9 +135,9 @@ public class MyJXStatusBar extends JXStatusBar {
              if (e.getClickCount() == 2)
              {
                 // Popup dialog to select currency exchange option.
-                OptionsJDialog optionsJDialog = new OptionsJDialog(JStock.instance(), true);
-                optionsJDialog.setLocationRelativeTo(JStock.instance());
-                optionsJDialog.set(JStock.instance().getJStockOptions());
+                OptionsJDialog optionsJDialog = new OptionsJDialog(jstock, true);
+                optionsJDialog.setLocationRelativeTo(jstock);
+                optionsJDialog.set(jstock.getJStockOptions());
                 optionsJDialog.select(GUIBundle.getString("OptionsJPanel_Wealth"));
                 optionsJDialog.setVisible(true);
              }
@@ -148,13 +160,13 @@ public class MyJXStatusBar extends JXStatusBar {
           {
              if (e.getClickCount() == 2)
              {
-                CountryJDialog countryJDialog = new CountryJDialog(JStock.instance(), true);
-                countryJDialog.setLocationRelativeTo(JStock.instance());
-                countryJDialog.setCountry(JStock.instance().getJStockOptions().getCountry());
+                CountryJDialog countryJDialog = new CountryJDialog(jstock, true);
+                countryJDialog.setLocationRelativeTo(jstock);
+                countryJDialog.setCountry(jstock.getJStockOptions().getCountry());
                 countryJDialog.setVisible(true);
 
                 final Country country = countryJDialog.getCountry();
-                JStock.instance().changeCountry(country);
+                jstock.changeCountry(country);
              }
           }
        };
@@ -178,7 +190,7 @@ public class MyJXStatusBar extends JXStatusBar {
                 // Make sure no other task is running.
                 // Use local variable to be thread safe.
                 
-                final DatabaseTask task = JStock.instance().databaseTask;
+                final DatabaseTask task = jstock.getDatabaseTask();
                 
                 if (task != null)
                 {
@@ -207,39 +219,39 @@ public class MyJXStatusBar extends JXStatusBar {
                          // Fail. Automatically reload database for user. Need
                          // not to prompt them message.
                          // As, they do not have any database right now.
-                         JStock.instance().initDatabase(true);
+                         jstock.initDatabase(true);
 
                       }
                       else
                       {
-                         final int result = JOptionPane.showConfirmDialog(JStock.instance(),
+                         final int result = JOptionPane.showConfirmDialog(jstock,
                             MessagesBundle.getString("question_message_perform_server_reconnecting"),
                             MessagesBundle.getString("question_title_perform_server_reconnecting"),
                             JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                          
                          if (result == JOptionPane.YES_OPTION)
-                            JStock.instance().initDatabase(false);
+                            jstock.initDatabase(false);
                       }
                    }
                    else
                    {
                       // There is task still running. Ask user whether he wants
                       // to stop it.
-                      final int result = JOptionPane.showConfirmDialog(JStock.instance(),
+                      final int result = JOptionPane.showConfirmDialog(jstock,
                          MessagesBundle.getString("question_message_cancel_server_reconnecting"),
                          MessagesBundle.getString("question_title_cancel_server_reconnecting"),
                          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                       if (result == JOptionPane.YES_OPTION)
                       {
-                         synchronized (JStock.instance().databaseTaskMonitor)
+                         synchronized (jstock.databaseTaskMonitor)
                          {
-                            JStock.instance().databaseTask.cancel(true);
-                            JStock.instance().databaseTask = null;
+                            jstock.getDatabaseTask().cancel(true);
+                            jstock.setDatabaseTask(null);
                          }
 
-                         JStock.instance().setStatusBar(false, GUIBundle.getString("MainFrame_NetworkError"));
-                         setImageIcon(JStock.instance().getImageIcon("/images/16x16/network-error.png"),
+                         jstock.setStatusBar(false, GUIBundle.getString("MainFrame_NetworkError"));
+                         setImageIcon(jstock.getImageIcon("/images/16x16/network-error.png"),
                             java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
                                "MainFrame_DoubleClickedToTryAgain"));
                       }
@@ -250,7 +262,7 @@ public class MyJXStatusBar extends JXStatusBar {
                    // User cancels databaseTask explicitly. (Cancel while
                    // JStock is fetching database from server). Let's read
                    // from disk.
-                   JStock.instance().initDatabase(true);
+                   jstock.initDatabase(true);
                 }
              }
           }
@@ -296,6 +308,50 @@ public class MyJXStatusBar extends JXStatusBar {
         progressBar.setVisible(newValue);
         return this;
     }
+    
+    /**
+     * Set the visibility of exchange rate label on status bar.
+     * @param visible
+     *           true to make the exchange rate label visible. Else false
+     */
+    public void setStatusBarExchangeRateVisible(final boolean visible)
+    {
+       if (SwingUtilities.isEventDispatchThread())
+          setExchangeRateVisible(visible);
+       else
+       {
+          SwingUtilities.invokeLater(new Runnable()
+          {
+             @Override
+             public void run()
+             {
+                setExchangeRateVisible(visible);
+             }
+          });
+       }
+    }
+    
+    /**
+     * Set the tool tip text of exchange rate label on status bar.
+     * @param text
+     *           the tool tip text
+     */
+    public void setStatusBarExchangeRateToolTipText(final String text)
+    {
+       if (SwingUtilities.isEventDispatchThread())
+          setExchangeRateToolTipText(text);
+       else
+       {
+          SwingUtilities.invokeLater(new Runnable()
+          {
+             @Override
+             public void run()
+             {
+                setExchangeRateToolTipText(text);
+             }
+          });
+       }
+    }
 
     /**
      * Set the tool tip text on exchange rate label.
@@ -303,9 +359,32 @@ public class MyJXStatusBar extends JXStatusBar {
      * @param text the tool tip text
      * @return this status bar
      */
-    public MyJXStatusBar setExchangeRateToolTipText(String text) {
+    private MyJXStatusBar setExchangeRateToolTipText(String text) {
         exchangeRateLabel.setToolTipText(text);
         return this;
+    }
+    
+    /**
+     * Set the exchange rate value on status bar.
+     * @param exchangeRate
+     *           the exchange rate value. null to reset
+     */
+    
+    public void setStatusBarExchangeRate(final Double exchangeRate)
+    {
+       if (SwingUtilities.isEventDispatchThread())
+          setExchangeRate(exchangeRate);
+       else
+       {
+          SwingUtilities.invokeLater(new Runnable()
+          {
+             @Override
+             public void run()
+             {
+                setExchangeRate(exchangeRate);
+             }
+          });
+       }
     }
 
     /**
@@ -314,7 +393,7 @@ public class MyJXStatusBar extends JXStatusBar {
      * @param visible true to make exchange rate label visible. Else false
      * @return this status bar
      */
-    public MyJXStatusBar setExchangeRateVisible(final boolean visible) {
+    private MyJXStatusBar setExchangeRateVisible(final boolean visible) {
         if (visible) {
             // We want to make exchange rate label visible. Only do something
             // if the label is not visible yet.
@@ -346,7 +425,7 @@ public class MyJXStatusBar extends JXStatusBar {
      * @param exchangeRate the exchange rate value. null to reset
      * @return this status bar
      */
-    public MyJXStatusBar setExchangeRate(Double exchangeRate) {
+    private MyJXStatusBar setExchangeRate(Double exchangeRate) {
         
         if (exchangeRate == null) {
             exchangeRateLabel.setText("");
