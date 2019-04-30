@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.04 04/28/2019
+ * Version 1.0.7.37.05 04/30/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,12 @@
 //         1.0.7.37.04 04/28/2019 Method doInBackground() Changed Reference saveStockInfo/Name
 //                                DatabaseAsCSV() JStock.instance() to this, Added Those Methods
 //                                Along With saveUserDefinedDatabaseAsCSV().
-//
+//         1.0.7.37.05 04/30/2019 Method done() Use of Getter for JStock Instance statusBar.
+//                                Method doInBackground() Use of Setter for JStock Instances
+//                                stockInfoDatabase & stockNameDatabase. Same Method Commented
+//                                Setting WatchListJPanel StockInfoDatabase Since Handled in
+//                                JStock Method of Same.
+//                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
 //                 danap@dandymadeproductions.com
@@ -80,7 +85,7 @@ import org.yccheok.jstock.internationalization.GUIBundle;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.04 04/28/2019
+ * @version 1.0.7.37.05 04/30/2019
  */
 
 class DatabaseTask extends SwingWorker<Boolean, Void>
@@ -141,7 +146,7 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
       if (success)
       {
          jstock.setStatusBar(false, jstock.getBestStatusBarMessage());
-         jstock.statusBar.setImageIcon(
+         jstock.getStatusBar().setImageIcon(
             jstock.getImageIcon("/images/16x16/network-transmit-receive.png"),
             java.util.ResourceBundle.getBundle("org/yccheok/jstock/data/gui").getString(
                "MainFrame_Connected"));
@@ -149,7 +154,7 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
       else
       {
          jstock.setStatusBar(false, GUIBundle.getString("MainFrame_NetworkError"));
-         jstock.statusBar.setImageIcon(jstock.getImageIcon(
+         jstock.getStatusBar().setImageIcon(jstock.getImageIcon(
             "/images/16x16/network-error.png"), java.util.ResourceBundle.getBundle(
                "org/yccheok/jstock/data/gui").getString("MainFrame_DoubleClickedToTryAgain"));
       }
@@ -234,9 +239,9 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
                   return false;
                }
 
-               jstock.stockInfoDatabase = tmp_stock_info_database;
-               jstock.stockNameDatabase = tmp_name_database;
-               jstock.watchListPanel.setStockInfoDatabase(jstock.stockInfoDatabase);
+               jstock.setStockInfoDatabase(tmp_stock_info_database);
+               jstock.setStockNameDatabase(tmp_name_database);
+               //jstock.getWatchListPanel().setStockInfoDatabase(jstock.stockInfoDatabase);
 
                return true;
             }
@@ -316,11 +321,11 @@ class DatabaseTask extends SwingWorker<Boolean, Void>
                   return false;
                }
 
-               jstock.stockInfoDatabase = stockDatabase.first;
-               jstock.stockNameDatabase = stockDatabase.second;
+               jstock.setStockInfoDatabase(stockDatabase.first);
+               jstock.setStockNameDatabase(stockDatabase.second);
 
                // Register the auto complete JComboBox with latest database.
-               jstock.watchListPanel.setStockInfoDatabase(jstock.stockInfoDatabase);
+               //jstock.getWatchListPanel().setStockInfoDatabase(jstock.stockInfoDatabase);
 
                return true;
             }
