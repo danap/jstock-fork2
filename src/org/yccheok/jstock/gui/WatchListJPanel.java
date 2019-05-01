@@ -2,7 +2,7 @@
  * JStock-Fork
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.14 04/30/2019
+ * Version 1.0.7.37.15 05/01/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +63,8 @@
 //                                stockInfoDatabase, deleteSelectedTableRow() realTimeStockMonitor,
 //                                stockHistoryMonitor, & stockInfoDatabase, createPopupMenu()
 //                                portfolioManagementJPanel.
+//         1.0.7.37.15 05/01/2019 Method deleteSelectedRow() Reference to JStock stockCodeHistoryGUI
+//                                Changed to a Getter.
 //
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -127,7 +129,7 @@ import org.yccheok.jstock.watchlist.Utils;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.14 04/30/2019
+ * @version 1.0.7.37.15 05/01/2019
  */
 
 public class WatchListJPanel extends JPanel
@@ -562,7 +564,7 @@ public class WatchListJPanel extends JPanel
 
          final int modelIndex = watchListTable.getRowSorter().convertRowIndexToModel(row);
          Stock stock = tableModel.getStock(modelIndex);
-         JStock.instance().stockCodeHistoryGUI.remove(stock.code);
+         jstock.getStockCodeHistoryGUI().remove(stock.code);
          jstock.getRealTimeStockMonitor().removeStockCode(stock.code);
          jstock.getStockHistoryMonitor().removeStockCode(stock.code);
          tableModel.removeRow(modelIndex);
@@ -570,7 +572,7 @@ public class WatchListJPanel extends JPanel
 
       updateDynamicChart(null);
 
-      if (JStock.instance().stockCodeHistoryGUI.isEmpty())
+      if (jstock.getStockCodeHistoryGUI().isEmpty())
       {
          if (jstock.getStockInfoDatabase() != null)
             jstock.setStatusBar(false, jstock.getBestStatusBarMessage());
