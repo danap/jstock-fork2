@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 2.3 04/29/2019
+// Version 2.4 05/01/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -62,6 +62,8 @@
 //             databaseActionPerformed() Changed Direct Setting of JStock stockInfoDatabase
 //             Instance to Setter, Also Handles Setting WatchListJPanel Same in That
 //             Setter.
+//         2.4 Method editRefreshStockPricesActionPerformed() Changed Reference
+//             to JStock refreshPriceInProgress to a Setter.
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -118,7 +120,7 @@ import org.yccheok.jstock.internationalization.MessagesBundle;
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 2.3 04/29/2019
+ * @version 2.4 05/01/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -852,7 +854,7 @@ public class Main_JMenuBar extends JMenuBar
       if (jstock.getStocks().isEmpty() == false)
       {
          jstock.setStatusBar(true, GUIBundle.getString("MainFrame_RefreshStockPrices..."));
-         jstock.refreshPriceInProgress = true;
+         jstock.setRefreshPriceInProgress(true);
       }
    }
 
