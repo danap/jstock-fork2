@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.42 05/02/2019
+ * Version 1.0.7.37.43 05/04/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -262,6 +262,8 @@
 //                                Added Methods setRefreshPriceInProgress() & getStockCodeHistoryGUI().
 //                                Methods getRealTimeStockMonitorObserver() & getStockHistoryMonitor
 //                                Observer() Added Argument JStock.
+//         1.0.7.37.43 05/04/2019 Last Major Reorganization of Class. Sequenced Methods & Review Method
+//                                Access Privileges. Removed Class Method saveCSVFile().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -342,14 +344,13 @@ import org.yccheok.jstock.gui.charting.ChartJDialogOptions;
 import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
 import org.yccheok.jstock.network.ProxyDetector;
-import org.yccheok.jstock.watchlist.CSVWatchList;
 
 import com.google.api.client.auth.oauth2.Credential;
 
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.42 05/02/2019
+ * @version 1.0.7.37.43 05/04/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -357,7 +358,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.42";
+   public static final String VERSION = "1.0.7.37.43";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane mainTabsPane;
@@ -1293,6 +1294,9 @@ public class JStock extends javax.swing.JFrame
       //org.yccheok.jstock.engine.StockServerFactory a = org.yccheok.jstock.engine.YahooStockServerFactory.newInstance();
       //org.yccheok.jstock.engine.AbstractYahooStockServer c = new org.yccheok.jstock.engine.YahooStockServer();
       
+      org.yccheok.jstock.engine.StockServerFactory a = org.yccheok.jstock.engine.GoogleStockServerFactory.newInstance();
+      System.out.println(a.getStockServer());
+      
    }
    
    //==============================================================
@@ -1405,309 +1409,10 @@ public class JStock extends javax.swing.JFrame
       return org.yccheok.jstock.gui.Utils.toXML(chartJDialogOptions, f);
    }
    
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
    //==============================================================
-   // Used in:
-   // Main_JMenuBar.fileOpenActionPerformed()
-   // PortfolioManagementJPanel.openAsStatements()
-   // WatchListJPanel.initWatchList()
+   // Methods to setup the Observers.
    //==============================================================
    
-   public boolean openAsStatements(Statements statements, File file)
-   {
-      assert (statements != null);
-
-      final GUIBundleWrapper guiBundleWrapper = statements.getGUIBundleWrapper();
-
-      if (statements.getType() == Statement.Type.RealtimeInfo)
-      {
-         final int size = statements.size();
-         for (int i = 0; i < size; i++)
-         {
-            final org.yccheok.jstock.file.Statement statement = statements.get(i);
-            final String codeStr = statement.getValueAsString(
-               guiBundleWrapper.getString("MainFrame_Code"));
-            final String symbolStr = statement.getValueAsString(
-               guiBundleWrapper.getString("MainFrame_Symbol"));
-            final Double fallBelowDouble = statement.getValueAsDouble(
-               guiBundleWrapper.getString("MainFrame_FallBelow"));
-            final Double riseAboveDouble = statement.getValueAsDouble(
-               guiBundleWrapper.getString("MainFrame_RiseAbove"));
-            if (codeStr.length() > 0 && symbolStr.length() > 0)
-            {
-               final Stock stock = org.yccheok.jstock.engine.Utils.getEmptyStock(Code.newInstance(codeStr),
-                  Symbol.newInstance(symbolStr));
-               final StockAlert stockAlert = new StockAlert().setFallBelow(fallBelowDouble).setRiseAbove(
-                  riseAboveDouble);
-               watchListJPanel.addStockToTable(stock, stockAlert);
-               realTimeStockMonitor.addStockCode(Code.newInstance(codeStr));
-            }
-         }
-         realTimeStockMonitor.startNewThreadsIfNecessary();
-         realTimeStockMonitor.refresh();
-      }
-      else if (statements.getType() == Statement.Type.PortfolioManagementBuy
-               || statements.getType() == Statement.Type.PortfolioManagementSell
-               || statements.getType() == Statement.Type.PortfolioManagementDeposit
-               || statements.getType() == Statement.Type.PortfolioManagementDividend)
-      {
-         // Open using other tabs.
-         return portfolioManagementJPanel.openAsStatements(statements, file);
-      }
-      else
-      {
-         return false;
-      }
-      return true;
-   }
-
-   public RealTimeStockMonitor getRealTimeStockMonitor()
-   {
-      return realTimeStockMonitor;
-   }
-   
-   public RealTimeIndexMonitor getRealTimeIndexMonitor()
-   {
-      return realTimeIndexMonitor;
-   }
-   
-   public StockHistoryMonitor getStockHistoryMonitor()
-   {
-      return stockHistoryMonitor;
-   }
-   
-   public DatabaseTask getDatabaseTask()
-   {
-      return databaseTask;
-   }
-
-   /**
-    * Returns JStock options of this main frame.
-    * @return JStock options of this main frame
-    */
-   public JStockOptions getJStockOptions()
-   {
-      return jStockOptions;
-   }
-
-   public UIOptions getUIOptions()
-   {
-      return uiOptions;
-   }
-
-   /**
-    * Returns the chart dialog options of this main frame.
-    * @return the chart dialog options of this main frame
-    */
-   public ChartJDialogOptions getChartJDialogOptions()
-   {
-      return chartJDialogOptions;
-   }
-
-   protected boolean saveAsCSVFile(File file, boolean languageIndependent)
-   {
-      CSVWatchList csvWatchlist = new CSVWatchList(watchListJPanel.getTable().getModel());
-      return WatchListJPanel.saveAsCSVFile(csvWatchlist, file, languageIndependent);
-   }
-
-   protected void clearAllStocks()
-   {
-      if (stockCodeHistoryGUI != null)
-         stockCodeHistoryGUI.clear();
-      
-      if (realTimeStockMonitor != null)
-         realTimeStockMonitor.clearStockCodes();
-      
-      if (stockHistoryMonitor != null)
-         stockHistoryMonitor.clearStockCodes();
-      
-      final StockTableModel tableModel = (StockTableModel) watchListJPanel.getTable().getModel();
-
-      if (java.awt.EventQueue.isDispatchThread())
-      {
-         tableModel.clearAllStocks();
-         watchListJPanel.updateDynamicChart(null);
-      }
-      else
-      {
-         SwingUtilities.invokeLater(new Runnable()
-         {
-            @Override
-            public void run()
-            {
-               tableModel.clearAllStocks();
-               watchListJPanel.updateDynamicChart(null);
-            }
-         });
-      }
-
-      if (stockCodeHistoryGUI != null && stockCodeHistoryGUI.isEmpty())
-      {
-         if (stockInfoDatabase != null)
-               setStatusBar(false, getBestStatusBarMessage());
-      }
-   }
-
-   /**
-    * Update the status bar.
-    * @param progressBar
-    *           true to make progress bar busy. Else false
-    * @param mainMessage
-    *           message on the left
-    */
-   
-   protected void setStatusBar(final boolean progressBar, final String mainMessage)
-   {
-      if (SwingUtilities.isEventDispatchThread())
-      {
-         isStatusBarBusy = progressBar;
-         statusBar.setProgressBar(progressBar);
-         statusBar.setMainMessage(mainMessage);
-      }
-      else
-      {
-         SwingUtilities.invokeLater(new Runnable()
-         {
-            @Override
-            public void run()
-            {
-               isStatusBarBusy = progressBar;
-               statusBar.setProgressBar(progressBar);
-               statusBar.setMainMessage(mainMessage);
-            }
-         });
-      }
-   }
-   
-   protected void setTimestamp(long timestamp)
-   {
-      this.timestamp = timestamp;
-   }
-   
-   protected void setDatabaseTask(DatabaseTask databaseTask)
-   {
-      this.databaseTask = databaseTask;
-   }
-   
-   protected void setRefreshPriceInProgress(boolean refreshPriceInProgress)
-   {
-      this.refreshPriceInProgress = refreshPriceInProgress;
-   }
-   
-   public MyJXStatusBar getStatusBar()
-   {
-      return statusBar;
-   }
-   
-   public WatchListJPanel getWatchListJPanel()
-   {
-      return watchListJPanel;
-   }
-   
-   public PortfolioManagementJPanel getPortfolioManagementJPanel()
-   {
-      return portfolioManagementJPanel;
-   }
-
-   protected void changeCountry(Country country)
-   {
-      if (country == null)
-         return;
-
-      if (jStockOptions.getCountry() == country)
-         return;
-
-      // Not in 1.0.7.9
-      //org.yccheok.jstock.engine.Utils.clearGoogleCodeDatabaseCache();
-      //org.yccheok.jstock.engine.Utils.clearAllIEXStockInfoDatabaseCaches();
-
-      /* Save and set country. */
-      
-      watchListJPanel.saveGUIOptions();
-      watchListJPanel.saveCSVWatchlist();
-      
-      portfolioManagementJPanel.saveGUIOptions();
-      portfolioManagementJPanel.saveCSVPortfolio();
-
-      jStockOptions.setCountry(country);
-      jStockOptions.addRecentCountry(country);
-      
-      marketJPanel.setCountry(jStockOptions.getCountry());
-      statusBar.setCountryIcon(country.icon, country.humanString);
-
-      // Here is the dirty trick here. We let our the 'child' panels perform
-      // cleanup/ initialization first before initStockCodeAndSymbolDatabase.
-      // This is because all child panels and stock symbol database task do
-      // interact with status bar. However, We are only most interest in stock
-      // symbol
-      // database, as it will be the most busy. Hence, we let the stock symbol
-      // database to be the last, so that its interaction will overwrite the
-      // others.
-
-      initGoogleCodeDatabaseRunnable();
-      initDatabase(true);
-      initAjaxProvider();
-      
-      initRealTimeIndexMonitor();
-      initStockHistoryMonitor();
-      // Initialize real time monitor must come before initialize real time
-      // stocks. We need to submit real time stocks to real time stock monitor.
-      // Hence, after we load real time stocks from file, real time stock
-      // monitor
-      // must be ready (initialized).
-      initRealTimeStockMonitor();
-      
-      this.watchListJPanel.initWatchlist(true);
-      
-      portfolioManagementJPanel.initPortfolio();
-      portfolioManagementJPanel.initExchangeRateMonitor();
-      portfolioManagementJPanel.initRealTimeStockMonitor();
-
-      menuBar.setSelectedCountryItem(country);
-   }
-
-   public StockInfoDatabase getStockInfoDatabase()
-   {
-      return stockInfoDatabase;
-   }
-   
-   public void setStockInfoDatabase(StockInfoDatabase stockInfoDatabase)
-   {
-      this.stockInfoDatabase = stockInfoDatabase;
-      watchListJPanel.setStockInfoDatabase(stockInfoDatabase);
-   }
-   
-   public Set<Code> getStockCodeHistoryGUI()
-   {
-      return stockCodeHistoryGUI;
-   }
-
-   public StockNameDatabase getStockNameDatabase()
-   {
-      return stockNameDatabase;
-   }
-   
-   public void setStockNameDatabase(StockNameDatabase stockNameDatabase)
-   {
-      this.stockNameDatabase = stockNameDatabase;
-   }
-
-   public java.util.List<Stock> getStocks()
-   {
-      final StockTableModel tableModel = (StockTableModel) watchListJPanel.getTable().getModel();
-      return tableModel.getStocks();
-   }
-
    // This is the workaround to overcome Erasure by generics.
    // We are unable to make MainFrame to two observers at the
    // same time.
@@ -1722,86 +1427,7 @@ public class JStock extends javax.swing.JFrame
          }
       };
    }
-
-   private org.yccheok.jstock.engine.Observer<RealTimeIndexMonitor, java.util.List<Market>> getRealTimeIndexMonitorObserver()
-   {
-      return new org.yccheok.jstock.engine.Observer<RealTimeIndexMonitor, java.util.List<Market>>()
-      {
-         @Override
-         public void update(RealTimeIndexMonitor monitor, java.util.List<Market> markets)
-         {
-            if (!markets.isEmpty())
-            {
-               javax.swing.SwingUtilities.invokeLater(new Runnable()
-               {
-                  @Override
-                  public void run()
-                  {
-                     marketJPanel.update(markets);
-                  }
-               });
-            }   
-         }
-      };
-   }
-
-   private org.yccheok.jstock.engine.Observer<StockHistoryMonitor, StockHistoryMonitor.StockHistoryRunnable> getStockHistoryMonitorObserver(JStock jstock)
-   {
-      return new org.yccheok.jstock.engine.Observer<StockHistoryMonitor, StockHistoryMonitor.StockHistoryRunnable>()
-      {
-         @Override
-         public void update(StockHistoryMonitor monitor, StockHistoryMonitor.StockHistoryRunnable runnable)
-         {
-            jstock.update(monitor, runnable);
-         }
-      };
-   }
-
-   // Asynchronous call. Must be called by event dispatch thread.
-   public void displayHistoryChart(StockInfo stockInfo)
-   {
-      final StockHistoryServer stockHistoryServer = stockHistoryMonitor.getStockHistoryServer(stockInfo.code);
-      if (stockHistoryServer == null)
-      {
-         if (stockCodeHistoryGUI.add(stockInfo.code) && stockHistoryMonitor.addStockCode(stockInfo.code))
-         {
-            final String template = GUIBundle.getString("MainFrame_LookingForHistory_template");
-            final String message = MessageFormat.format(template, stockInfo.symbol,
-               stockCodeHistoryGUI.size());
-            setStatusBar(true, message);
-         }
-      }
-      else
-      {
-         ChartJDialog chartJDialog = new ChartJDialog(JStock.this, stockInfo.symbol + " (" + stockInfo.code
-                                                                   + ")", false, stockHistoryServer);
-         chartJDialog.setVisible(true);
-      }
-   }
-
-   public void displayStockNews(StockInfo stockInfo)
-   {
-      assert (SwingUtilities.isEventDispatchThread());
-      new StockNewsJFrame(this, stockInfo, stockInfo.symbol + " (" + stockInfo.code + ")");
-   }
    
-   public void updatePriceSource(Country country, PriceSource priceSource)
-   {
-      Factories.INSTANCE.updatePriceSource(country, priceSource);
-
-      if (realTimeStockMonitor != null)
-         realTimeStockMonitor.rebuild();
-     
-      if (realTimeIndexMonitor != null)
-         realTimeIndexMonitor.rebuild();
-
-      portfolioManagementJPanel.rebuildRealTimeStockMonitor();
-
-      refreshAllRealTimeStockMonitors();
-      refreshRealTimeIndexMonitor();
-      refreshExchangeRateMonitor();
-   }
-
    private void update(RealTimeStockMonitor monitor, final RealTimeStockMonitor.Result result)
    {
       final java.util.List<Stock> stocks = result.stocks;
@@ -1908,66 +1534,41 @@ public class JStock extends javax.swing.JFrame
       watchListJPanel.addDynamicCharts(stocks);
    }
 
-   public void updateStatusBarWithLastUpdateDateMessageIfPossible()
+   private org.yccheok.jstock.engine.Observer<RealTimeIndexMonitor, java.util.List<Market>> getRealTimeIndexMonitorObserver()
    {
-      if (refreshPriceInProgress)
+      return new org.yccheok.jstock.engine.Observer<RealTimeIndexMonitor, java.util.List<Market>>()
       {
-         // Stop refresh price in progress message.
-         setStatusBar(false, getBestStatusBarMessage());
-         refreshPriceInProgress = false;
-         return;
-      }
-
-      if (isStatusBarBusy)
-         return;
-
-      Component selected = getSelectedComponent();
-      
-      if (selected != watchListJPanel && selected != portfolioManagementJPanel)
-         return;
-
-      setStatusBar(false, getBestStatusBarMessage());
+         @Override
+         public void update(RealTimeIndexMonitor monitor, java.util.List<Market> markets)
+         {
+            if (!markets.isEmpty())
+            {
+               javax.swing.SwingUtilities.invokeLater(new Runnable()
+               {
+                  @Override
+                  public void run()
+                  {
+                     marketJPanel.update(markets);
+                  }
+               });
+            }   
+         }
+      };
    }
 
-   // Connected
-   // [My Watchlist] Last update: Connected
-   // [My Watchlist] Last update: 10:40AM
-   public String getBestStatusBarMessage()
+   private org.yccheok.jstock.engine.Observer<StockHistoryMonitor, StockHistoryMonitor.StockHistoryRunnable> getStockHistoryMonitorObserver(JStock jstock)
    {
-      final String currentName;
-      final long _timestamp;
-
-      Component selected = getSelectedComponent();
-
-      // MainFrame
-      if (selected == watchListJPanel)
+      return new org.yccheok.jstock.engine.Observer<StockHistoryMonitor, StockHistoryMonitor.StockHistoryRunnable>()
       {
-         currentName = jStockOptions.getWatchlistName();
-         _timestamp = timestamp;
-      }
-      else if (selected == portfolioManagementJPanel)
-      {
-         currentName = jStockOptions.getPortfolioName();
-         _timestamp = portfolioManagementJPanel.getTimestamp();
-      }
-      else
-         return GUIBundle.getString("MainFrame_Connected");
-
-      if (_timestamp == 0)
-         return MessageFormat.format(GUIBundle.getString("MainFrame_Connected_template"), currentName);
-
-      Date date = new Date(_timestamp);
-      String time;
-      
-      if (Utils.isToday(_timestamp))
-         time = Utils.getTodayLastUpdateTimeFormat().format(date);
-      else
-         time = Utils.getOtherDayLastUpdateTimeFormat().format(date);
-
-      return MessageFormat.format(GUIBundle.getString("MainFrame_LastUpdate_template"), currentName, time);
+         @Override
+         public void update(StockHistoryMonitor monitor, StockHistoryMonitor.StockHistoryRunnable runnable)
+         {
+            jstock.update(monitor, runnable);
+         }
+      };
    }
-
-   public void update(StockHistoryMonitor monitor, final StockHistoryMonitor.StockHistoryRunnable runnable)
+   
+   private void update(StockHistoryMonitor monitor, final StockHistoryMonitor.StockHistoryRunnable runnable)
    {
       javax.swing.SwingUtilities.invokeLater(new Runnable()
       {
@@ -2032,19 +1633,494 @@ public class JStock extends javax.swing.JFrame
          }
       });
    }
+   
+   //==============================================================
+   // Method to update status bar.
+   //==============================================================
+   
+   protected void updateStatusBarWithLastUpdateDateMessageIfPossible()
+   {
+      if (refreshPriceInProgress)
+      {
+         // Stop refresh price in progress message.
+         setStatusBar(false, getBestStatusBarMessage());
+         refreshPriceInProgress = false;
+         return;
+      }
 
-   protected ImageIcon getImageIcon(String imageIcon)
+      if (isStatusBarBusy)
+         return;
+
+      Component selected = getSelectedComponent();
+      
+      if (selected != watchListJPanel && selected != portfolioManagementJPanel)
+         return;
+
+      setStatusBar(false, getBestStatusBarMessage());
+   }
+   
+   // Connected
+   // [My Watchlist] Last update: Connected
+   // [My Watchlist] Last update: 10:40AM
+   
+   protected String getBestStatusBarMessage()
+   {
+      final String currentName;
+      final long _timestamp;
+
+      Component selected = getSelectedComponent();
+
+      // MainFrame
+      if (selected == watchListJPanel)
+      {
+         currentName = jStockOptions.getWatchlistName();
+         _timestamp = timestamp;
+      }
+      else if (selected == portfolioManagementJPanel)
+      {
+         currentName = jStockOptions.getPortfolioName();
+         _timestamp = portfolioManagementJPanel.getTimestamp();
+      }
+      else
+         return GUIBundle.getString("MainFrame_Connected");
+
+      if (_timestamp == 0)
+         return MessageFormat.format(GUIBundle.getString("MainFrame_Connected_template"), currentName);
+
+      Date date = new Date(_timestamp);
+      String time;
+      
+      if (Utils.isToday(_timestamp))
+         time = Utils.getTodayLastUpdateTimeFormat().format(date);
+      else
+         time = Utils.getOtherDayLastUpdateTimeFormat().format(date);
+
+      return MessageFormat.format(GUIBundle.getString("MainFrame_LastUpdate_template"), currentName, time);
+   }
+   
+   //==============================================================
+   // Method to open CSV content from WatchListJPanel and the
+   // PortfolioManagementJPanel.
+   // 
+   // Used in:
+   // Main_JMenuBar.fileOpenActionPerformed()
+   // PortfolioManagementJPanel.openAsStatements()
+   // WatchListJPanel.initWatchList()
+   //==============================================================
+   
+   protected boolean openAsStatements(Statements statements, File file)
+   {
+      assert (statements != null);
+
+      final GUIBundleWrapper guiBundleWrapper = statements.getGUIBundleWrapper();
+
+      if (statements.getType() == Statement.Type.RealtimeInfo)
+      {
+         final int size = statements.size();
+         for (int i = 0; i < size; i++)
+         {
+            final org.yccheok.jstock.file.Statement statement = statements.get(i);
+            final String codeStr = statement.getValueAsString(
+               guiBundleWrapper.getString("MainFrame_Code"));
+            final String symbolStr = statement.getValueAsString(
+               guiBundleWrapper.getString("MainFrame_Symbol"));
+            final Double fallBelowDouble = statement.getValueAsDouble(
+               guiBundleWrapper.getString("MainFrame_FallBelow"));
+            final Double riseAboveDouble = statement.getValueAsDouble(
+               guiBundleWrapper.getString("MainFrame_RiseAbove"));
+            if (codeStr.length() > 0 && symbolStr.length() > 0)
+            {
+               final Stock stock = org.yccheok.jstock.engine.Utils.getEmptyStock(Code.newInstance(codeStr),
+                  Symbol.newInstance(symbolStr));
+               final StockAlert stockAlert = new StockAlert().setFallBelow(fallBelowDouble).setRiseAbove(
+                  riseAboveDouble);
+               watchListJPanel.addStockToTable(stock, stockAlert);
+               realTimeStockMonitor.addStockCode(Code.newInstance(codeStr));
+            }
+         }
+         realTimeStockMonitor.startNewThreadsIfNecessary();
+         realTimeStockMonitor.refresh();
+      }
+      else if (statements.getType() == Statement.Type.PortfolioManagementBuy
+               || statements.getType() == Statement.Type.PortfolioManagementSell
+               || statements.getType() == Statement.Type.PortfolioManagementDeposit
+               || statements.getType() == Statement.Type.PortfolioManagementDividend)
+      {
+         // Open using other tabs.
+         return portfolioManagementJPanel.openAsStatements(statements, file);
+      }
+      else
+      {
+         return false;
+      }
+      return true;
+   }
+   
+   //==============================================================
+   // Method to clear all the stocks defined in the WatchListJPanel
+   // table.
+   //==============================================================
+
+   protected void clearAllStocks()
+   {
+      if (stockCodeHistoryGUI != null)
+         stockCodeHistoryGUI.clear();
+      
+      if (realTimeStockMonitor != null)
+         realTimeStockMonitor.clearStockCodes();
+      
+      if (stockHistoryMonitor != null)
+         stockHistoryMonitor.clearStockCodes();
+      
+      final StockTableModel tableModel = (StockTableModel) watchListJPanel.getTable().getModel();
+
+      if (java.awt.EventQueue.isDispatchThread())
+      {
+         tableModel.clearAllStocks();
+         watchListJPanel.updateDynamicChart(null);
+      }
+      else
+      {
+         SwingUtilities.invokeLater(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               tableModel.clearAllStocks();
+               watchListJPanel.updateDynamicChart(null);
+            }
+         });
+      }
+
+      if (stockCodeHistoryGUI != null && stockCodeHistoryGUI.isEmpty())
+      {
+         if (stockInfoDatabase != null)
+               setStatusBar(false, getBestStatusBarMessage());
+      }
+   }
+   
+   //==============================================================
+   // Method to change the currented selected country.
+   //==============================================================
+   
+   protected void changeCountry(Country country)
+   {
+      if (country == null)
+         return;
+
+      if (jStockOptions.getCountry() == country)
+         return;
+
+      // Not in 1.0.7.9
+      //org.yccheok.jstock.engine.Utils.clearGoogleCodeDatabaseCache();
+      //org.yccheok.jstock.engine.Utils.clearAllIEXStockInfoDatabaseCaches();
+
+      /* Save and set country. */
+      
+      watchListJPanel.saveGUIOptions();
+      watchListJPanel.saveCSVWatchlist();
+      
+      portfolioManagementJPanel.saveGUIOptions();
+      portfolioManagementJPanel.saveCSVPortfolio();
+
+      jStockOptions.setCountry(country);
+      jStockOptions.addRecentCountry(country);
+      
+      marketJPanel.setCountry(jStockOptions.getCountry());
+      statusBar.setCountryIcon(country.icon, country.humanString);
+
+      // Here is the dirty trick here. We let our the 'child' panels perform
+      // cleanup/ initialization first before initStockCodeAndSymbolDatabase.
+      // This is because all child panels and stock symbol database task do
+      // interact with status bar. However, We are only most interest in stock
+      // symbol
+      // database, as it will be the most busy. Hence, we let the stock symbol
+      // database to be the last, so that its interaction will overwrite the
+      // others.
+
+      initGoogleCodeDatabaseRunnable();
+      initDatabase(true);
+      initAjaxProvider();
+      
+      initRealTimeIndexMonitor();
+      initStockHistoryMonitor();
+      // Initialize real time monitor must come before initialize real time
+      // stocks. We need to submit real time stocks to real time stock monitor.
+      // Hence, after we load real time stocks from file, real time stock
+      // monitor
+      // must be ready (initialized).
+      initRealTimeStockMonitor();
+      
+      this.watchListJPanel.initWatchlist(true);
+      
+      portfolioManagementJPanel.initPortfolio();
+      portfolioManagementJPanel.initExchangeRateMonitor();
+      portfolioManagementJPanel.initRealTimeStockMonitor();
+
+      menuBar.setSelectedCountryItem(country);
+   }
+   
+   //==============================================================
+   // Method to update the server source, PriceSource, for
+   // collecting stock quotes.
+   //==============================================================
+   
+   protected void updatePriceSource(Country country, PriceSource priceSource)
+   {
+      Factories.INSTANCE.updatePriceSource(country, priceSource);
+
+      if (realTimeStockMonitor != null)
+         realTimeStockMonitor.rebuild();
+     
+      if (realTimeIndexMonitor != null)
+         realTimeIndexMonitor.rebuild();
+
+      portfolioManagementJPanel.rebuildRealTimeStockMonitor();
+
+      refreshAllRealTimeStockMonitors();
+      refreshRealTimeIndexMonitor();
+      refreshExchangeRateMonitor();
+   }
+   
+   //==============================================================
+   // Method to display a history chart of selected stock or index.
+   // Asynchronous call. Must be called by event dispatch thread.
+   //==============================================================
+   
+   protected void displayHistoryChart(StockInfo stockInfo)
+   {
+      final StockHistoryServer stockHistoryServer = stockHistoryMonitor.getStockHistoryServer(stockInfo.code);
+      if (stockHistoryServer == null)
+      {
+         if (stockCodeHistoryGUI.add(stockInfo.code) && stockHistoryMonitor.addStockCode(stockInfo.code))
+         {
+            final String template = GUIBundle.getString("MainFrame_LookingForHistory_template");
+            final String message = MessageFormat.format(template, stockInfo.symbol,
+               stockCodeHistoryGUI.size());
+            setStatusBar(true, message);
+         }
+      }
+      else
+      {
+         ChartJDialog chartJDialog = new ChartJDialog(JStock.this, stockInfo.symbol + " (" + stockInfo.code
+                                                                   + ")", false, stockHistoryServer);
+         chartJDialog.setVisible(true);
+      }
+   }
+   
+   //==============================================================
+   // Method to display a selected stock's news in a new frame
+   // via HTML content.
+   //==============================================================
+
+   protected void displayStockNews(StockInfo stockInfo)
+   {
+      assert (SwingUtilities.isEventDispatchThread());
+      new StockNewsJFrame(this, stockInfo, stockInfo.symbol + " (" + stockInfo.code + ")");
+   }
+   
+   //==============================================================
+   // Getters
+   //==============================================================
+   
+   /**
+    * Returns the chart dialog options of this main frame.
+    * @return the chart dialog options of this main frame
+    */
+   public ChartJDialogOptions getChartJDialogOptions()
+   {
+      return chartJDialogOptions;
+   }
+   
+   public DatabaseTask getDatabaseTask()
+   {
+      return databaseTask;
+   }
+   
+   /**
+    * Returns JStock options of this main frame.
+    * @return JStock options of this main frame
+    */
+   public JStockOptions getJStockOptions()
+   {
+      return jStockOptions;
+   }
+   
+   public ImageIcon getImageIcon(String imageIcon)
    {
       return new javax.swing.ImageIcon(getClass().getResource(imageIcon));
    }
+   
+   public PortfolioManagementJPanel getPortfolioManagementJPanel()
+   {
+      return portfolioManagementJPanel;
+   }
+   
+   public RealTimeStockMonitor getRealTimeStockMonitor()
+   {
+      return realTimeStockMonitor;
+   }
+   
+   public RealTimeIndexMonitor getRealTimeIndexMonitor()
+   {
+      return realTimeIndexMonitor;
+   }
+   
+   public Component getSelectedComponent()
+   {
+      return mainTabsPane.getSelectedComponent();
+   }
+   
+   public MyJXStatusBar getStatusBar()
+   {
+      return statusBar;
+   }
+   
+   public Set<Code> getStockCodeHistoryGUI()
+   {
+      return stockCodeHistoryGUI;
+   }
+   
+   public java.util.List<Stock> getStocks()
+   {
+      final StockTableModel tableModel = (StockTableModel) watchListJPanel.getTable().getModel();
+      return tableModel.getStocks();
+   }
+   
+   public StockHistoryMonitor getStockHistoryMonitor()
+   {
+      return stockHistoryMonitor;
+   }
+   
+   public StockInfoDatabase getStockInfoDatabase()
+   {
+      return stockInfoDatabase;
+   }
+   
+   public StockNameDatabase getStockNameDatabase()
+   {
+      return stockNameDatabase;
+   }
+   
+   public UIOptions getUIOptions()
+   {
+      return uiOptions;
+   }
+   
+   public WatchListJPanel getWatchListJPanel()
+   {
+      return watchListJPanel;
+   }
+   
+   //==============================================================
+   // Setters
+   //==============================================================
+   
+   protected void setDatabaseTask(DatabaseTask databaseTask)
+   {
+      this.databaseTask = databaseTask;
+   }
+   
+   protected void setRefreshPriceInProgress(boolean refreshPriceInProgress)
+   {
+      this.refreshPriceInProgress = refreshPriceInProgress;
+   }
 
-   public void updateScanningSpeed(int speed)
+   /**
+    * Update the status bar.
+    * @param progressBar
+    *           true to make progress bar busy. Else false
+    * @param mainMessage
+    *           message on the left
+    */
+   
+   protected void setStatusBar(final boolean progressBar, final String mainMessage)
+   {
+      if (SwingUtilities.isEventDispatchThread())
+      {
+         isStatusBarBusy = progressBar;
+         statusBar.setProgressBar(progressBar);
+         statusBar.setMainMessage(mainMessage);
+      }
+      else
+      {
+         SwingUtilities.invokeLater(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               isStatusBarBusy = progressBar;
+               statusBar.setProgressBar(progressBar);
+               statusBar.setMainMessage(mainMessage);
+            }
+         });
+      }
+   }
+   
+   protected void setStockNameDatabase(StockNameDatabase stockNameDatabase)
+   {
+      this.stockNameDatabase = stockNameDatabase;
+   }
+   
+   protected void setStockInfoDatabase(StockInfoDatabase stockInfoDatabase)
+   {
+      this.stockInfoDatabase = stockInfoDatabase;
+      watchListJPanel.setStockInfoDatabase(stockInfoDatabase);
+   }
+   
+   protected void setTimestamp(long timestamp)
+   {
+      this.timestamp = timestamp;
+   }
+   
+   //==============================================================
+   // Various access methods initialize, repaint, refresh and
+   // update class processes, instances.
+   //==============================================================
+   
+   protected void initDynamicChartVisibility()
+   {
+      watchListJPanel.setDynamicChartVisible();
+   }
+   
+   protected void repaintTable()
+   {
+      Component c = getSelectedComponent();
+
+      if (c instanceof WatchListJPanel)
+         watchListJPanel.getTable().repaint();
+   }
+   
+   protected void refreshExchangeRateMonitor()
+   {
+      portfolioManagementJPanel.refreshExchangeRateMonitor();
+   }
+
+   protected void refreshAllRealTimeStockMonitors()
+   {
+      RealTimeStockMonitor _realTimeStockMonitor = realTimeStockMonitor;
+      
+      if (_realTimeStockMonitor != null)
+         _realTimeStockMonitor.refresh();
+      
+      portfolioManagementJPanel.refreshRealTimeStockMonitor();
+   }
+   
+   protected void refreshRealTimeIndexMonitor()
+   {
+      RealTimeIndexMonitor _realTimeIndexMonitor = realTimeIndexMonitor;
+      
+      if (_realTimeIndexMonitor != null)
+         _realTimeIndexMonitor.refresh();
+   }
+   
+   protected void updateScanningSpeed(int speed)
    {
       realTimeStockMonitor.setDelay(speed);
       realTimeIndexMonitor.setDelay(speed);
    }
 
-   public void updateHistoryDuration(Duration historyDuration)
+   protected void updateHistoryDuration(Duration historyDuration)
    {
       final Duration oldDuration = stockHistoryMonitor.getDuration();
 
@@ -2071,53 +2147,16 @@ public class JStock extends javax.swing.JFrame
       // valid too.
       //
       initStockHistoryMonitor();
-
    }
-
-   public void repaintTable()
-   {
-      Component c = getSelectedComponent();
-
-      if (c instanceof WatchListJPanel)
-         watchListJPanel.getTable().repaint();
-   }
-
-   public Component getSelectedComponent()
-   {
-      return mainTabsPane.getSelectedComponent();
-   }
-
-   public void initDynamicChartVisibility()
-   {
-      watchListJPanel.setDynamicChartVisible();
-   }
-
-   protected void refreshExchangeRateMonitor()
-   {
-      portfolioManagementJPanel.refreshExchangeRateMonitor();
-   }
-
-   public void refreshAllRealTimeStockMonitors()
-   {
-      RealTimeStockMonitor _realTimeStockMonitor = realTimeStockMonitor;
-      
-      if (_realTimeStockMonitor != null)
-         _realTimeStockMonitor.refresh();
-      
-      portfolioManagementJPanel.refreshRealTimeStockMonitor();
-   }
-
-   public void refreshRealTimeIndexMonitor()
-   {
-      RealTimeIndexMonitor _realTimeIndexMonitor = realTimeIndexMonitor;
-      
-      if (_realTimeIndexMonitor != null)
-         _realTimeIndexMonitor.refresh();
-   }
+   
+   //==============================================================
+   // JStock-Min main() application starting code.
+   //==============================================================
    
    /**
     * @param args the command line arguments
     */
+   
    public static void main(String args[])
    {
        /***********************************************************************
