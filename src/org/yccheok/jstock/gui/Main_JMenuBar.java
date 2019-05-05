@@ -9,7 +9,7 @@
 //
 //=================================================================
 // Copyright (C) 2019 Dana M. Proctor
-// Version 2.4 05/01/2019
+// Version 2.5 05/05/2019
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -64,6 +64,9 @@
 //             Setter.
 //         2.4 Method editRefreshStockPricesActionPerformed() Changed Reference
 //             to JStock refreshPriceInProgress to a Setter.
+//         2.5 Method fileSaveAsActionPeformed() Removed Call to jstock.saveAsCSVFile()
+//             Incorporated That Simple Code as Replacement Which Calls the WatchList
+//             JPanel saveAsCSVFile().
 //         
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -114,13 +117,14 @@ import org.yccheok.jstock.gui.portfolio.PortfolioJDialog;
 import org.yccheok.jstock.gui.watchlist.WatchlistJDialog;
 import org.yccheok.jstock.internationalization.GUIBundle;
 import org.yccheok.jstock.internationalization.MessagesBundle;
+import org.yccheok.jstock.watchlist.CSVWatchList;
 
 /**
  * The Main_JMenuBar class is used to constructed the menubar
  * for the application frame.
  * 
  * @author Dana M. Proctor
- * @version 2.4 05/01/2019
+ * @version 2.5 05/04/2019
  */
 
 public class Main_JMenuBar extends JMenuBar
@@ -786,7 +790,8 @@ public class Main_JMenuBar extends JMenuBar
             if (Utils.getFileExtension(file).equals("csv"))
             {
                if (jstock.getSelectedComponent() == jstock.getWatchListJPanel())
-                  status = jstock.saveAsCSVFile(file, false);
+                  status = WatchListJPanel.saveAsCSVFile(
+                     new CSVWatchList(jstock.getWatchListJPanel().getTable().getModel()), file, false);
                else
                   assert (false);
             }
