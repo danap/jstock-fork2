@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2009 Yan Cheng CHEOK <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.9.01 05/07/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,24 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9    07/21/2015 Original Yan Cheng, JStock Engine BrazilYahooStockServer Class.
+//         1.0.7.9.01 05/07/2019 Commented No Longer Used Method getYahooCSVBasedURL().
+//                               Methods getStocks() & getStock() Removed throws, Class Stock
+//                               NotFoundException No Longer Used. Same Methods Commented
+//                               Assignment getSecond/Third Stock Instances Since No Longer
+//                               Used.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -26,15 +47,20 @@ import java.util.regex.Pattern;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.9.01 05/07/2019
  */
 public class BrazilYahooStockServer extends AbstractYahooStockServer {
+    // In 1.0.7.9, removed a some point after.
+    /*
     @Override
     protected String getYahooCSVBasedURL() {
         return "http://download.finance.yahoo.com/d/quotes.csv?s=";
     }
+    */
 
     @Override
-    public List<Stock> getStocks(List<Code> codes) throws StockNotFoundException
+    public List<Stock> getStocks(List<Code> codes) /*throws StockNotFoundException*/
     {
         final List<Stock> tmp = super.getStocks(codes);
         final List<Stock> stocks = new ArrayList<Stock>();
@@ -62,14 +88,14 @@ public class BrazilYahooStockServer extends AbstractYahooStockServer {
                     stock.getBuyQuantity(),
                     stock.getSellPrice(),
                     stock.getSellQuantity(),
-                    stock.getSecondBuyPrice(),
-                    stock.getSecondBuyQuantity(),
-                    stock.getSecondSellPrice(),
-                    stock.getSecondSellQuantity(),
-                    stock.getThirdBuyPrice(),
-                    stock.getThirdBuyQuantity(),
-                    stock.getThirdSellPrice(),
-                    stock.getThirdSellQuantity(),
+                    //stock.getSecondBuyPrice(),
+                    //stock.getSecondBuyQuantity(),
+                    //stock.getSecondSellPrice(),
+                    //stock.getSecondSellQuantity(),
+                    //stock.getThirdBuyPrice(),
+                    //stock.getThirdBuyQuantity(),
+                    //stock.getThirdSellPrice(),
+                    //stock.getThirdSellQuantity(),
                     stock.getTimestamp()
                 );
             stocks.add(s);
@@ -78,7 +104,7 @@ public class BrazilYahooStockServer extends AbstractYahooStockServer {
     }
 
     @Override
-    public Stock getStock(Code code) throws StockNotFoundException
+    public Stock getStock(Code code) /*throws StockNotFoundException*/
     {
         final Stock tmp = super.getStock(code);
         // For Brazil Stock Market, change "Stock    Name" to "Stock Name".
@@ -104,14 +130,14 @@ public class BrazilYahooStockServer extends AbstractYahooStockServer {
                 tmp.getBuyQuantity(),
                 tmp.getSellPrice(),
                 tmp.getSellQuantity(),
-                tmp.getSecondBuyPrice(),
-                tmp.getSecondBuyQuantity(),
-                tmp.getSecondSellPrice(),
-                tmp.getSecondSellQuantity(),
-                tmp.getThirdBuyPrice(),
-                tmp.getThirdBuyQuantity(),
-                tmp.getThirdSellPrice(),
-                tmp.getThirdSellQuantity(),
+                //tmp.getSecondBuyPrice(),
+                //tmp.getSecondBuyQuantity(),
+                //tmp.getSecondSellPrice(),
+                //tmp.getSecondSellQuantity(),
+                //tmp.getThirdBuyPrice(),
+                //tmp.getThirdBuyQuantity(),
+                //tmp.getThirdSellPrice(),
+                //tmp.getThirdSellQuantity(),
                 tmp.getTimestamp()
             );
         return stock;
