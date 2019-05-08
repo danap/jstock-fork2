@@ -141,6 +141,7 @@ src/org/yccheok/jstock/gui/SQLite.java
 src/org/yccheok/jstock/gui/WatchListJPanel.java
 src/org/yccheok/jstock/engine/StockInfoDatabase.java
 src/org/yccheok/jstock/engine/StockHistoryServer.java
+src/org/yccheok/jstock/engine/YahooStockServer.java
 src/org/yccheok/jstock/engine/StockHistorySerializer.java
 src/org/yccheok/jstock/engine/ResultSetType.java
 src/org/yccheok/jstock/engine/Factories.java
@@ -184,6 +185,7 @@ src/org/yccheok/jstock/engine/StockServerFactory.java
 src/org/yccheok/jstock/engine/TernarySearchTree.java
 src/org/yccheok/jstock/engine/Intraday.java
 src/org/yccheok/jstock/engine/StockServer.java
+src/org/yccheok/jstock/engine/BrazilYahooStockServer.java
 src/org/yccheok/jstock/engine/Subject.java
 src/org/yccheok/jstock/engine/Code.java
 src/org/yccheok/jstock/engine/AjaxGoogleSearchEngineMonitor.java
