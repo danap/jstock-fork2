@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.9.01 04/13/2019
+ * Version 1.0.7.9.02 05/08/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,10 @@
 //                               1.0.7.37 Has StockNotFoundException Class Removed or Not Used.
 //                               Same StockMonitor.run() Replaced RealTimeStockMonitor.this.notify()
 //                               to Use Result Rather Than Instance stocks, Combination of stocks,
-//                               & codes. Commented getTotalScanned()
+//                               & codes. Commented getTotalScanned().
+//         1.0.7.9.02 05/08/2019 Internal Class StockMonitory.run() Placed a log.info() to Reveal
+//                               What StockServer is Being Used, Since This Was Hidden at Some
+//                               Point, 1.0.7.37.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -56,7 +59,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.9.01 04/13/2019
+ * @version 1.0.7.9.02 05/08/2019
  */
 public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, RealTimeStockMonitor.Result> {
  
@@ -323,7 +326,13 @@ public class RealTimeStockMonitor extends Subject<RealTimeStockMonitor, RealTime
                             for (StockServerFactory factory : Factories.INSTANCE.getStockServerFactories(codes.get(0)))
                             {
                                 final StockServer stockServer = factory.getStockServer();
-
+                                
+                                if (stockServer != null)
+                                   log.info("StockServer: " + stockServer.getClass().getName());
+                                else
+                                   log.info("StockServer: null");
+                                
+                                // Failed, try another one.
                                 if (stockServer == null) {
                                     continue;
                                 }
