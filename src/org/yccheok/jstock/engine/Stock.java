@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.9.01 05/13/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,22 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9    07/21/2015 Original Yan Cheng, JStock Engine Stock Class.
+//         1.0.7.9.01 05/12/2019 Not So Nice Comment on Class Design. Commented All Class/Builder
+//                               Instances second/thirdBuy/Sell & Associated Methods. Added
+//                               Static Class Methods Stock.builder(). Added Method deriveStock(Code).
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -24,12 +43,18 @@ import org.yccheok.jstock.engine.currency.Currency;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.9.01 05/13/2019
  */
 public class Stock {
     
     // Builder pattern.
     // We are using a builder pattern when face with many constructor 
     // parameters.
+    // Why? because of poor design. Stock should be an object with Code,
+    // Symbol, Name. Maybe also Board & Industry. The rest of these
+    // are attributes of a stock listing on an exchange, not a stock
+    // object. 
     public static class Builder {
         // Required parameters.
         private final Code code;
@@ -53,19 +78,21 @@ public class Stock {
         private int buyQuantity = 0;
         private double sellPrice = 0.0;
         private int sellQuantity = 0;
-        private double secondBuyPrice = 0.0;
-        private int secondBuyQuantity = 0;
-        private double secondSellPrice = 0.0;
-        private int secondSellQuantity = 0;
-        private double thirdBuyPrice = 0.0;
-        private int thirdBuyQuantity = 0;
-        private double thirdSellPrice = 0.0;
-        private int thirdSellQuantity = 0;
+        //private double secondBuyPrice = 0.0;
+        //private int secondBuyQuantity = 0;
+        //private double secondSellPrice = 0.0;
+        //private int secondSellQuantity = 0;
+        //private double thirdBuyPrice = 0.0;
+        //private int thirdBuyQuantity = 0;
+        //private double thirdSellPrice = 0.0;
+        //private int thirdSellQuantity = 0;
         // We suppose to provide a default value for calendar. However, it may
         // seem expensive. We will do it later during build.
         private long timestamp = 0;
         private volatile boolean hasTimestampInitialized = false;
 
+        // Made non-visible in 1.0.7.37. Two Stock.builder()
+        // methods appeared.
         public Builder(Code code, Symbol symbol) {
             this.code = code;
             this.symbol = symbol;
@@ -210,66 +237,82 @@ public class Stock {
         /**
          * @param secondBuyPrice the secondBuyPrice to set
          */
+        /*
         public Builder secondBuyPrice(double secondBuyPrice) {
             this.secondBuyPrice = secondBuyPrice;
             return this;
         }
+        */
 
         /**
          * @param secondBuyQuantity the secondBuyQuantity to set
          */
+        /*
         public Builder secondBuyQuantity(int secondBuyQuantity) {
             this.secondBuyQuantity = secondBuyQuantity;
             return this;
         }
+        */
 
         /**
          * @param secondSellPrice the secondSellPrice to set
          */
+        /*
         public Builder secondSellPrice(double secondSellPrice) {
             this.secondSellPrice = secondSellPrice;
             return this;
         }
+        */
 
         /**
          * @param secondSellQuantity the secondSellQuantity to set
          */
+        /*
         public Builder secondSellQuantity(int secondSellQuantity) {
             this.secondSellQuantity = secondSellQuantity;
             return this;
         }
+        */
 
         /**
          * @param thirdBuyPrice the thirdBuyPrice to set
          */
+        /*
         public Builder thirdBuyPrice(double thirdBuyPrice) {
             this.thirdBuyPrice = thirdBuyPrice;
             return this;
         }
+        */
 
         /**
          * @param thirdBuyQuantity the thirdBuyQuantity to set
          */
+        /*
         public Builder thirdBuyQuantity(int thirdBuyQuantity) {
             this.thirdBuyQuantity = thirdBuyQuantity;
             return this;
         }
+        */
 
         /**
          * @param thirdSellPrice the thirdSellPrice to set
          */
+        /*
         public Builder thirdSellPrice(double thirdSellPrice) {
             this.thirdSellPrice = thirdSellPrice;
             return this;
         }
+        */
 
         /**
          * @param thirdSellQuantity the thirdSellQuantity to set
          */
+        /*
         public Builder thirdSellQuantity(int thirdSellQuantity) {
             this.thirdSellQuantity = thirdSellQuantity;
             return this;
         }
+        */
 
         /**
          * @param timestamp the timestamp to set
@@ -311,14 +354,14 @@ public class Stock {
             builder.buyQuantity,
             builder.sellPrice,
             builder.sellQuantity,
-            builder.secondBuyPrice,
-            builder.secondBuyQuantity,
-            builder.secondSellPrice,
-            builder.secondSellQuantity,
-            builder.thirdBuyPrice,
-            builder.thirdBuyQuantity,
-            builder.thirdSellPrice,
-            builder.thirdSellQuantity,
+            //builder.secondBuyPrice,
+            //builder.secondBuyQuantity,
+            //builder.secondSellPrice,
+            //builder.secondSellQuantity,
+            //builder.thirdBuyPrice,
+            //builder.thirdBuyQuantity,
+            //builder.thirdSellPrice,
+            //builder.thirdSellQuantity,
             builder.timestamp
             );
     }
@@ -344,14 +387,14 @@ public class Stock {
         int buyQuantity,
         double sellPrice,
         int sellQuantity,
-        double secondBuyPrice,
-        int secondBuyQuantity,
-        double secondSellPrice,
-        int secondSellQuantity,
-        double thirdBuyPrice,
-        int thirdBuyQuantity,
-        double thirdSellPrice,
-        int thirdSellQuantity,
+        //double secondBuyPrice,
+        //int secondBuyQuantity,
+        //double secondSellPrice,
+        //int secondSellQuantity,
+        //double thirdBuyPrice,
+        //int thirdBuyQuantity,
+        //double thirdSellPrice,
+        //int thirdSellQuantity,
         long timestamp
                 ) 
     {
@@ -374,14 +417,14 @@ public class Stock {
         this.buyQuantity = buyQuantity;
         this.sellPrice = sellPrice;
         this.sellQuantity = sellQuantity;
-        this.secondBuyPrice = secondBuyPrice;
-        this.secondBuyQuantity = secondBuyQuantity;
-        this.secondSellPrice = secondSellPrice;
-        this.secondSellQuantity = secondSellQuantity;
-        this.thirdBuyPrice = thirdBuyPrice;
-        this.thirdBuyQuantity = thirdBuyQuantity;
-        this.thirdSellPrice = thirdSellPrice;
-        this.thirdSellQuantity = thirdSellQuantity;
+        //this.secondBuyPrice = secondBuyPrice;
+        //this.secondBuyQuantity = secondBuyQuantity;
+        //this.secondSellPrice = secondSellPrice;
+        //this.secondSellQuantity = secondSellQuantity;
+        //this.thirdBuyPrice = thirdBuyPrice;
+        //this.thirdBuyQuantity = thirdBuyQuantity;
+        //this.thirdSellPrice = thirdSellPrice;
+        //this.thirdSellQuantity = thirdSellQuantity;
         this.timestamp = timestamp;
     }
 
@@ -407,14 +450,14 @@ public class Stock {
         this.buyQuantity = stock.buyQuantity;
         this.sellPrice = stock.sellPrice;
         this.sellQuantity = stock.sellQuantity;
-        this.secondBuyPrice = stock.secondBuyPrice;
-        this.secondBuyQuantity = stock.secondBuyQuantity;
-        this.secondSellPrice = stock.secondSellPrice;
-        this.secondSellQuantity = stock.secondSellQuantity;
-        this.thirdBuyPrice = stock.thirdBuyPrice;
-        this.thirdBuyQuantity = stock.thirdBuyQuantity;
-        this.thirdSellPrice = stock.thirdSellPrice;
-        this.thirdSellQuantity = stock.thirdSellQuantity;
+        //this.secondBuyPrice = stock.secondBuyPrice;
+        //this.secondBuyQuantity = stock.secondBuyQuantity;
+        //this.secondSellPrice = stock.secondSellPrice;
+        //this.secondSellQuantity = stock.secondSellQuantity;
+        //this.thirdBuyPrice = stock.thirdBuyPrice;
+        //this.thirdBuyQuantity = stock.thirdBuyQuantity;
+        //this.thirdSellPrice = stock.thirdSellPrice;
+        //this.thirdSellQuantity = stock.thirdSellQuantity;
         this.timestamp = stock.timestamp;
     }
 
@@ -487,6 +530,7 @@ public class Stock {
         return sellQuantity;
     }
     
+    /*
     public double getSecondBuyPrice() {
         return secondBuyPrice;
     }
@@ -518,9 +562,64 @@ public class Stock {
     public int getThirdSellQuantity() {
         return thirdSellQuantity;
     }
+    */
     
     public long getTimestamp() {
         return timestamp;
+    }
+    
+    // New in 1.0.7.37
+    public static Builder builder(Code code, Symbol symbol) 
+    {
+       return new Builder(code, symbol);
+    }
+    
+    public static Builder builder(Stock stock)
+    {
+       return new Builder(stock.code, stock.symbol);
+    }
+    
+    /**
+     * Returns a clone copy of this stock with its code being modified to
+     * specified name. This stock remains unchanged, as it is designed as
+     * immutable class.
+     *
+     * @param name Specified name to be modified to
+     * @return A clone copy of this stock with its name being modified to
+     * specified name.
+     */
+    public Stock deriveStock(Code code) {
+        return new Stock(
+            code,
+            this.symbol,
+            this.name,
+            this.currency,
+            this.board,
+            this.industry,
+            this.prevPrice,
+            this.openPrice,
+            this.lastPrice,
+            this.highPrice,
+            this.lowPrice,
+            // TODO: CRITICAL LONG BUG REVISED NEEDED.
+            this.volume,
+            this.changePrice,
+            this.changePricePercentage,
+            this.lastVolume,
+            this.buyPrice,
+            this.buyQuantity,
+            this.sellPrice,
+            this.sellQuantity,
+            //this.secondBuyPrice,
+            //this.secondBuyQuantity,
+            //this.secondSellPrice,
+            //this.secondSellQuantity,
+            //this.thirdBuyPrice,
+            //this.thirdBuyQuantity,
+            //this.thirdSellPrice,
+            //this.thirdSellQuantity,
+            this.timestamp
+        );
     }
     
     /**
@@ -554,14 +653,14 @@ public class Stock {
             this.buyQuantity,
             this.sellPrice,
             this.sellQuantity,
-            this.secondBuyPrice,
-            this.secondBuyQuantity,
-            this.secondSellPrice,
-            this.secondSellQuantity,
-            this.thirdBuyPrice,
-            this.thirdBuyQuantity,
-            this.thirdSellPrice,
-            this.thirdSellQuantity,
+            //this.secondBuyPrice,
+            //this.secondBuyQuantity,
+            //this.secondSellPrice,
+            //this.secondSellQuantity,
+            //this.thirdBuyPrice,
+            //this.thirdBuyQuantity,
+            //this.thirdSellPrice,
+            //this.thirdSellQuantity,
             this.timestamp
         );
     }
@@ -597,14 +696,14 @@ public class Stock {
             this.buyQuantity,
             this.sellPrice,
             this.sellQuantity,
-            this.secondBuyPrice,
-            this.secondBuyQuantity,
-            this.secondSellPrice,
-            this.secondSellQuantity,
-            this.thirdBuyPrice,
-            this.thirdBuyQuantity,
-            this.thirdSellPrice,
-            this.thirdSellQuantity,
+            //this.secondBuyPrice,
+            //this.secondBuyQuantity,
+            //this.secondSellPrice,
+            //this.secondSellQuantity,
+            //this.thirdBuyPrice,
+            //this.thirdBuyQuantity,
+            //this.thirdSellPrice,
+            //this.thirdSellQuantity,
             this.timestamp
         );
     }
@@ -634,14 +733,14 @@ public class Stock {
     private final int buyQuantity;    
     private final double sellPrice;
     private final int sellQuantity;
-    private final double secondBuyPrice;
-    private final int secondBuyQuantity;
-    private final double secondSellPrice;
-    private final int secondSellQuantity;
-    private final double thirdBuyPrice;
-    private final int thirdBuyQuantity;
-    private final double thirdSellPrice;
-    private final int thirdSellQuantity;
+    //private final double secondBuyPrice;
+    //private final int secondBuyQuantity;
+    //private final double secondSellPrice;
+    //private final int secondSellQuantity;
+    //private final double thirdBuyPrice;
+    //private final int thirdBuyQuantity;
+    //private final double thirdSellPrice;
+    //private final int thirdSellQuantity;
     // milliseconds. As timestamp in Java system always interpreted as 
     // milliseconds. 
     private final long timestamp;
