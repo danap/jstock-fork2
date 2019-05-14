@@ -166,10 +166,12 @@ src\org\yccheok\jstock\engine\iex\batch\QuoteResponse.java
 src\org\yccheok\jstock\engine\ResultType.java
 src\org\yccheok\jstock\engine\BucketList.java
 src\org\yccheok\jstock\engine\MatchSetType.java
+src\org\yccheok\jstock\engine\Stock.java
 src\org\yccheok\jstock\engine\StockFormat.java
 src\org\yccheok\jstock\engine\Symbol.java
 src\org\yccheok\jstock\engine\AjaxYahooSearchEngine.java
 src\org\yccheok\jstock\engine\Period.java
+src\org\yccheok\jstock\engine\BrazilYahooStockHistoryServer.java
 src\org\yccheok\jstock\engine\currency\Currency.java
 src\org\yccheok\jstock\engine\currency\CurrencyPair.java
 src\org\yccheok\jstock\engine\currency\ExchangeRate.java
@@ -182,6 +184,7 @@ src\org\yccheok\jstock\engine\AjaxStockInfoSearchEngine.java
 src\org\yccheok\jstock\engine\MatchType.java
 src\org\yccheok\jstock\engine\UnitedStatesGoogleFormatCodeLookup.java
 src\org\yccheok\jstock\engine\StockServerFactory.java
+src\org\yccheok\jstock\engine\DividendServer.java
 src\org\yccheok\jstock\engine\TernarySearchTree.java
 src\org\yccheok\jstock\engine\Intraday.java
 src\org\yccheok\jstock\engine\StockServer.java
