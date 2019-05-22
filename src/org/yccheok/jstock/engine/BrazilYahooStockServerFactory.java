@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2010 Yan Cheng CHEOK <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.9.01 05/22/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,22 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9    07/21/2015 Original Yan Cheng, JStock Engine BrazilYahooStockServerFactory Class.
+//         1.0.7.9.01 05/22/2019 Commented Class Instance dividendServer & Changed stockServer
+//                               From Final, Instantiating, on Declaration. Method getDividend
+//                               Server() Returned Null.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -25,6 +44,8 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.9.01 05/22/2019
  */
 public class BrazilYahooStockServerFactory implements StockServerFactory {
 
@@ -34,6 +55,7 @@ public class BrazilYahooStockServerFactory implements StockServerFactory {
     }
     
     private BrazilYahooStockServerFactory() {
+       stockServer = new BrazilYahooStockServer();
     }
     
     public static StockServerFactory newInstance() {
@@ -77,11 +99,11 @@ public class BrazilYahooStockServerFactory implements StockServerFactory {
 
     @Override
     public DividendServer getDividendServer() {
-        return dividendServer;
+        return null;
     }
     
-    private final StockServer stockServer = new BrazilYahooStockServer(); 
-    private final DividendServer dividendServer = new YahooDividendServer();
+    private final StockServer stockServer; 
+    //private final DividendServer dividendServer = new YahooDividendServer();
     
     private static final Log log = LogFactory.getLog(BrazilYahooStockServerFactory.class);
 }
