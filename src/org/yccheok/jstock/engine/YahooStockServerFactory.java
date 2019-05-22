@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2011 Yan Cheng CHEOK <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.9.01 05/22/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,23 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9    07/21/2015 Original Yan Cheng, JStock Engine YahooStockServerFactory Class.
+//         1.0.7.9.01 05/22/2019 Commented Class Instance dividendServer & Changed stockServer
+//                               From Final, Instantiating, on Declaration. Method getDividend
+//                               Server() Returned Null. Minor Formatting Changes.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
+
 
 package org.yccheok.jstock.engine;
 
@@ -25,6 +45,8 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.9.01 05/22/2019
  */
 public class YahooStockServerFactory implements StockServerFactory {
     
@@ -34,7 +56,7 @@ public class YahooStockServerFactory implements StockServerFactory {
     }
     
     private YahooStockServerFactory() {
-        dividendServer = new YahooDividendServer();
+        stockServer = new YahooStockServer();   
     }
     
     public static StockServerFactory newInstance() {
@@ -72,7 +94,8 @@ public class YahooStockServerFactory implements StockServerFactory {
     public StockHistoryServer getStockHistoryServer(Code code, Period period) {
         try {
             return new YahooStockHistoryServer(code, period);
-        } catch (StockHistoryNotFoundException exp) {
+        }
+        catch (StockHistoryNotFoundException exp) {
             log.error(null, exp);
             return null;
         }
@@ -80,11 +103,11 @@ public class YahooStockServerFactory implements StockServerFactory {
 
     @Override
     public DividendServer getDividendServer() {
-        return dividendServer;
+        return null;
     }
     
-    private final StockServer stockServer = new YahooStockServer();
-    private final DividendServer dividendServer;
+    private StockServer stockServer;
+    //private final DividendServer dividendServer;
     
     private static final Log log = LogFactory.getLog(YahooStockServerFactory.class);
 }
