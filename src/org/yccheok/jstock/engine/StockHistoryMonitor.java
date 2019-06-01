@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 06/01/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,20 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.37    07/21/2015 Original Yan Cheng, JStock Engine StockHistoryMonitor Class.
+//         1.0.7.37.01 06/01/2019 Provided log() Output in StockHistoryRunnable.run().
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -30,6 +47,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author yccheok
+ * @version 1.0.7.37.01 06/01/2019
  */
 public class StockHistoryMonitor extends Subject<StockHistoryMonitor, StockHistoryMonitor.StockHistoryRunnable> {
     
@@ -182,13 +200,19 @@ public class StockHistoryMonitor extends Subject<StockHistoryMonitor, StockHisto
                 StockHistoryServer history = null;
 
                 if (period != null) {
+                    log.info("period: " + period.toString());
                     history = factory.getStockHistoryServer(this.code, period);
                 } else {
                     assert(duration != null);
+                    log.info("duration: " + duration.getStartDate().toString() + ":"
+                             + duration.getEndDate().toString());
                     history = factory.getStockHistoryServer(this.code, duration);
                 }
 
                 if (history != null) {
+                   
+                   log.info("historyServer: " + history.getClass().getName());
+                   
                     readerLock.lock();
 
                     try {
@@ -246,6 +270,8 @@ public class StockHistoryMonitor extends Subject<StockHistoryMonitor, StockHisto
                     // Break from loop, as we already obtain the history.
                     break;
                 }   // if (history != null)
+                else
+                   log.info("historyServer: null");     
             }   // for
             
             // We need to notify the listener. Whether the history is success or
