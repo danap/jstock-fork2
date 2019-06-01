@@ -3,7 +3,7 @@
  * Copyright (C) 2009 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.9.01 05/09/2019
+ * Version 1.0.7.9.02 06/01/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 //                               Class.
 //         1.0.7.9.01 05/09/2019 Changed extends AbstractYahooStockHistoryServer too Yahoo
 //                               StockHistoryServer2.
+//         1.0.7.9.02 06/09/2019 Changed extends to YahooStockHistoryServer.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -42,9 +43,9 @@ package org.yccheok.jstock.engine;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.9.01 05/09/2019
+ * @version 1.0.7.9.02 06/01/2019
  */
-public class BrazilYahooStockHistoryServer extends YahooStockHistoryServer2 {
+public class BrazilYahooStockHistoryServer extends YahooStockHistoryServer {
 
     public BrazilYahooStockHistoryServer(Code code) throws StockHistoryNotFoundException
     {
