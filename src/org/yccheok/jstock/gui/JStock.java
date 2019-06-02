@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.43 05/04/2019
+ * Version 1.0.7.37.44 06/02/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -264,6 +264,9 @@
 //                                Observer() Added Argument JStock.
 //         1.0.7.37.43 05/04/2019 Last Major Reorganization of Class. Sequenced Methods & Review Method
 //                                Access Privileges. Removed Class Method saveCSVFile().
+//         1.0.7.37.44 06/02/2019 Removal of Testing Code, & Commented Call to Testing in Method
+//                                initRealTimeStockMonitor(). Method displayHistoryChart() Minor
+//                                Formatting Changes & Removal of Use of JStock.this, Just this.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -344,13 +347,14 @@ import org.yccheok.jstock.gui.charting.ChartJDialogOptions;
 import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
 import org.yccheok.jstock.network.ProxyDetector;
+//import org.yccheok.jstock.test.engine.ServerFactoryTest;
 
 import com.google.api.client.auth.oauth2.Credential;
 
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.43 05/04/2019
+ * @version 1.0.7.37.44 06/02/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -358,7 +362,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.43";
+   public static final String VERSION = "1.0.7.37.44";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane mainTabsPane;
@@ -1290,13 +1294,7 @@ public class JStock extends javax.swing.JFrame
       realTimeStockMonitor.attach(realTimeStockMonitorObserver);
       
       // Testing
-      //org.yccheok.jstock.engine.YahooStockHistoryServer2 a = new org.yccheok.jstock.engine.YahooStockHistoryServer2();
-      //org.yccheok.jstock.engine.StockServerFactory a = org.yccheok.jstock.engine.YahooStockServerFactory.newInstance();
-      //org.yccheok.jstock.engine.AbstractYahooStockServer c = new org.yccheok.jstock.engine.YahooStockServer();
-      
-      org.yccheok.jstock.engine.StockServerFactory a = org.yccheok.jstock.engine.GoogleStockServerFactory.newInstance();
-      System.out.println(a.getStockServer());
-      
+      // new ServerFactoryTest();
    }
    
    //==============================================================
@@ -1890,6 +1888,7 @@ public class JStock extends javax.swing.JFrame
    protected void displayHistoryChart(StockInfo stockInfo)
    {
       final StockHistoryServer stockHistoryServer = stockHistoryMonitor.getStockHistoryServer(stockInfo.code);
+      
       if (stockHistoryServer == null)
       {
          if (stockCodeHistoryGUI.add(stockInfo.code) && stockHistoryMonitor.addStockCode(stockInfo.code))
@@ -1902,7 +1901,7 @@ public class JStock extends javax.swing.JFrame
       }
       else
       {
-         ChartJDialog chartJDialog = new ChartJDialog(JStock.this, stockInfo.symbol + " (" + stockInfo.code
+         ChartJDialog chartJDialog = new ChartJDialog(this, stockInfo.symbol + " (" + stockInfo.code
                                                                    + ")", false, stockHistoryServer);
          chartJDialog.setVisible(true);
       }
