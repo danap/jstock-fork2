@@ -139,8 +139,10 @@ src/org/yccheok/jstock/gui/GUIOptions.java
 src/org/yccheok/jstock/gui/JStock.java
 src/org/yccheok/jstock/gui/SQLite.java
 src/org/yccheok/jstock/gui/WatchListJPanel.java
+src/org/yccheok/jstock/engine/YahooStockHistoryServer.java
 src/org/yccheok/jstock/engine/StockInfoDatabase.java
 src/org/yccheok/jstock/engine/StockHistoryServer.java
+src/org/yccheok/jstock/engine/YahooStockServerFactory.java
 src/org/yccheok/jstock/engine/YahooStockServer.java
 src/org/yccheok/jstock/engine/StockHistorySerializer.java
 src/org/yccheok/jstock/engine/ResultSetType.java
@@ -178,6 +180,7 @@ src/org/yccheok/jstock/engine/currency/ExchangeRate.java
 src/org/yccheok/jstock/engine/currency/ExchangeRateMonitor.java
 src/org/yccheok/jstock/engine/SimpleDate.java
 src/org/yccheok/jstock/engine/StockEx.java
+src/org/yccheok/jstock/engine/StatementsStockHistoryServer.java
 src/org/yccheok/jstock/engine/AjaxYahooSearchEngineMonitor.java
 src/org/yccheok/jstock/engine/StockNameDatabase.java
 src/org/yccheok/jstock/engine/AjaxStockInfoSearchEngine.java
@@ -198,6 +201,7 @@ src/org/yccheok/jstock/engine/PriceSource.java
 src/org/yccheok/jstock/engine/SearchEngine.java
 src/org/yccheok/jstock/engine/RealTimeIndexMonitor.java
 src/org/yccheok/jstock/engine/StockHistoryMonitor.java
+src/org/yccheok/jstock/engine/BrazilYahooStockServerFactory.java
 src/org/yccheok/jstock/engine/RealTimeStockMonitor.java
 src/org/yccheok/jstock/engine/Country.java
 src/org/yccheok/jstock/engine/Board.java
