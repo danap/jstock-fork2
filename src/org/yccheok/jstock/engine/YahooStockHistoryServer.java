@@ -3,7 +3,7 @@
  * Copyright (C) 2009 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 06/02/2019
+ * Version 1.0.7.37.02 06/14/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,9 @@
 // Version 1.0.7.9     08/26/2018 Original Yan Cheng, JStock Engine YahooStockHistoryServer Class.
 //         1.0.7.37.01 06/02/2019 Complete Rebuild of Class to Meet JStock 1.0.7.37 Release
 //                                Changes.
+//         1.0.7.37.02 06/14/2019 Method getYahooCode() log.info() for query. Also log.info()
+//                                for initBaseOnPeriodUsingV8().
+//
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
 //                 danap@dandymadeproductions.com
@@ -55,7 +58,7 @@ import org.yccheok.jstock.engine.yahoo.quote.QuoteResponse_;
 /**
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 06/02/2019
+ * @version 1.0.7.37.02 06/14/2019
  * 
  */
 public class YahooStockHistoryServer implements StockHistoryServer
@@ -183,6 +186,7 @@ public class YahooStockHistoryServer implements StockHistoryServer
       retrofit2.Call<QuoteResponse> c;
 
       query = Utils.toYahooFormat(code);
+      log.info("query: " + query);
 
       if (Utils.needToResolveUnderlyingCode(code))
       {
@@ -199,6 +203,8 @@ public class YahooStockHistoryServer implements StockHistoryServer
                query = underlyingSymbol;
             else
                throw new IOException("Failed to Resolve Underlying Code.");
+            
+            log.info("Utils.toYahooFormat() query = underlyingSymbol: " + query);
          }
          catch (IOException e)
          {
@@ -228,6 +234,7 @@ public class YahooStockHistoryServer implements StockHistoryServer
       if (period == Period.Day1)
       {
          range = "1d";
+         log.info("Utils.getYahooFinanceChartApiV8.intradayChart(" + query + ")");
          call = Utils.getYahooFinanceChartApiV8().intradayChart(query);
       }
       else
@@ -247,6 +254,7 @@ public class YahooStockHistoryServer implements StockHistoryServer
          else
             range = "10y";
 
+         log.info("Utils.getYahooFinanceChartApiV8.dailyChartByRange(" + query + ", " + range + ")");
          call = Utils.getYahooFinanceChartApiV8().dailyChartByRange(query, range);
       }
       init(call);
