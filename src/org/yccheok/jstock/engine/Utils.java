@@ -3,7 +3,7 @@
  * Copyright (C) 2014 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 06/14/2019
+ * Version 1.0.7.37.02 06/17/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 //                                & createPriceSourceMap. Method getEmptyStock() Updated Instantiation of Stock
 //                                Arguments. Method getStocks() Commented try/catch for StockNotFoundException.
 //                                Method getStockFromCSVFile() Changed Close Call From gui.Utils to file.Utils.
+//         1.0.7.37.02 06/17/2019 Updated Methods toCountry(), & isUSStock(). Added Method toGoogleIndexSubset().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -92,7 +93,7 @@ import com.google.gson.Gson;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 06/14/2019
+ * @version 1.0.7.37.02 06/17/2019
  */
 public class Utils {
     
@@ -375,8 +376,31 @@ public class Utils {
         
         String string = code.toString();
         int index = string.lastIndexOf(".");
-        if (index == -1) {
-            if (isYahooIndexSubset(code)) {
+        if (index == -1)
+        {
+            if (isYahooIndexSubset(code) || isGoogleIndexSubset(code))
+            {
+                // Fix to convert to Yahoo code, which appears
+                // Index countries, code are stored.
+                if (isGoogleIndexSubset(code) && toGoogleIndex.containsValue(string))
+                {  
+                   Set<Entry<String, String>> googleIndex = toGoogleIndex.entrySet();
+                   Iterator<Entry<String, String>> iterator = googleIndex.iterator();
+        
+                   while (iterator.hasNext())
+                   {
+                      Entry<String, String> entry = iterator.next();
+                      String key = entry.getKey();
+                      String value = entry.getValue();
+                      
+                      if (value.equals(string))
+                      {
+                         string = key;
+                         break;
+                      }
+                   }
+                }
+                
                 Country country = indices.get(string.toUpperCase());
                 if (country == null) {
                     return Country.UnitedState;
@@ -878,13 +902,29 @@ public class Utils {
 
         return string;
     }
+    
+    private static boolean isGoogleIndexSubset(org.yccheok.jstock.engine.Code code)
+    {
+       String string;
+       int index;
+       
+       string = code.toString();
+       index = string.indexOf(":");
+       
+       if (index > 0 && index < (string.length() - 1))
+          return true;
+       else
+          return false;
+    }
 
     private static boolean isYahooIndexSubset(Code code) {
         return code.toString().startsWith("^");
     }
     
     public static boolean isUSStock(Code code) {
-        return Utils.toCountry(code) == Country.UnitedState && !Utils.isYahooCurrency(code) && !Utils.isYahooIndexSubset(code);
+        return Utils.toCountry(code) == Country.UnitedState
+               && !Utils.isYahooCurrency(code) && !Utils.isYahooIndexSubset(code)
+               && !Utils.isGoogleIndexSubset(code);
     }
     
     public static boolean isYahooCurrency(Code code) {
@@ -1393,6 +1433,7 @@ public class Utils {
         twoLetterSuffixes.put(".SW", "SWX:");
         twoLetterSuffixes.put(".VX", "VTX:");
         
+        // key matches standard?
         countries.put("BA", Country.Argentina);
         countries.put("AX", Country.Australia);
         countries.put("VI", Country.Austria);
