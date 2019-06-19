@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.03 03/28/2019
+ * Version 1.0.7.37.04 06/19/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@
 //                                Used Former in Constructor & Latter as a Conditional Check in
 //                                setScanningSpeed(). Method getPriceSource() Adding Logging for
 //                                Selected country.
+//         1.0.7.37.04 06/19/2019 Comment on iexStockInfoDBMeta.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -81,7 +82,7 @@ import org.yccheok.jstock.portfolio.DecimalPlace;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.03 03/28/2019
+ * @version 1.0.7.37.04 06/19/2019
  */
 public class JStockOptions {
     /*
@@ -407,7 +408,10 @@ public class JStockOptions {
     
     private List<Country> recentCountries = new ArrayList<>();    
 
+    // See config, and IEXStockInfoDatabaseRunnable
+    // seems to be a timestamp.
     private long iexStockInfoDBMeta = 0;
+    //private long iexStockInfoDBMeta = 1550345926535L;
     
     // Will be used by LoadFromCloudDialog.
     /*
