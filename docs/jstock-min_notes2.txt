@@ -4,10 +4,16 @@ org.yccheok.jstock.gui.trading.* (Removed None Has Source)
 org.yccheok.jstock.trading.* (Removed None Has Source)
 
 org.yccheok.jstock.engine.yahoo.*
-org.yccheok.jstock.engine.DispType;
+org.yccheok.jstock.engine.DispType; (MatchType & ResultType?)
 org.yccheok.jstock.engine.EnumMapInstanceCreator
-org.yccheok.jstock.engine.GoogleCodeDatabaseRunnable
+
+(Removed, See. JStock.initGoogleCodeDatabaseRunnable())
+x org.yccheok.jstock.engine.GoogleCodeDatabaseRunnable
+
+(Believe this downloads stock_info.db in coordination
+ with JStock.initGoogle/IEXCodeDatabaseRunnable)
 org.yccheok.jstock.engine.GoggleCodeSQLiteOpenHelper
+
 org.yccheok.jstock.engine.IEX*
 org.yccheok.jstock.engine.Intraday
 org.yccheok.jstock.engine.YahooFinanceApi
@@ -33,7 +39,7 @@ Manual Updates: (Git Repository)
 ** org.yccheok.jstock.engine.Country
 ===============
 
-xx Replace: org.yccheok.jstock.engine.AbstractYahooStockHistoryServer
+xx Replace: org.yccheok.jstock.engine.AbstractYahooStockHistoryServer (Removed in JStock-Min2 No Errors, Runs.)
 xx Replace: org.yccheok.jstock.engine.AbstractYahooStockServer
 
 xx Replace: org.yccheok.jstock.engine.BrazilYahooStockServer
@@ -127,29 +133,42 @@ Symbol
 TSTSearchEngine
 UnitedStatesGoogleFormatCodeLookup
 
-Modified Classes: (See docs/rmObjects Removed Classes/Libraries)
+==============
+***Modified Classes: (See docs/rmObjects Removed Classes/Libraries)
+
+org.yccheok.jstock.data.gui*.properties
 
 org.yccheok.jstock.file.Statements
+org.yccheok.jstock.file.UserDataFile
 
 org.yccheok.jstock.gui.AboutJDialog
 org.yccheok.jstock.gui.AutoCompleteJComboBox
-org.yccheok.jstock.gui.IndicatorScannerJPanel
 org.yccheok.jstock.gui.JStock
+org.yccheok.jstock.gui.JStockOptions
+org.yccheok.jstock.gui.MarketJpanel
+org.yccheok.jstock.gui.MyJXStatusBar
+org.yccheok.jstock.gui.OptionGUIJPanel
+org.yccheok.jstock.gui.OptionsJPanel
+org.yccheok.jstock.gui.OptionsNetworkJPanel
+org.yccheok.jstock.gui.OptionsSellAdvisorJPanel
 org.yccheok.jstock.gui.PortfolioManagementJPanel
 org.yccheok.jstock.gui.StockJDialog
-org.yccheok.jstock.gui.StockOptions
 org.yccheok.jstock.gui.Utils
 
 org.yccheok.jstock.gui.charting.ChartJDialog
 
 org.yccheok.jstock.network.Utils
 
+org.yccheok.jstock.watchlist.CSVWatchList
+org.yccheok.jstock.watchlist.Utils
+
 Added Classes:
 
 org.yccheok.jstock.gui.WatchListJPanel
 org.yccheok.jstock.gui.Main_JMenuBar
 org.yccheok.jstock.gui.DatabaseTask (Extracted From JStock)
-org.yccheok.jstock.gui.LatestNewsTask (Extracted From JStock)
+x org.yccheok.jstock.gui.LatestNewsTask (Extracted From JStock) (Removed, UpdateCode)
+org.yccheok.jstocl.watchlist.CSVWatchList (Extracted From JStock)
 
 
 
