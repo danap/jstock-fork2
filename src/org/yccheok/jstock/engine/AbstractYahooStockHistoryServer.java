@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 06/24/2019
+ * Version 1.0.7.37.02 06/24/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
 //         1.0.7.37.01 06/24/2019 Method getStocks() Removed tryCatch for Assignment of symbol,
 //                                name, board, & industry, Conditional Not Null, & Changed stock
 //                                Instance to s. Same Method Updated Instantiation of stock Arguments.
+//         1.0.7.37.02 06/24/2019 Note This Class Does Not Appear to be Used. Should Probably Just
+//                                be Removed.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -52,7 +54,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 06/24/2019
+ * @version 1.0.7.37.02 06/24/2019
  */
 public abstract class AbstractYahooStockHistoryServer implements StockHistoryServer {        
     // Use ThreadLocal to ensure thread safety.
