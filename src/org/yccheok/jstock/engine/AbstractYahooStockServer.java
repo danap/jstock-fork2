@@ -3,7 +3,7 @@
  * Copyright (C) 2012 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 06/23/2019
+ * Version 1.0.7.37.02 06/24/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 //                                _getStock() & _getStocks() to Meet 1.0.7.37 Release Stock Server
 //                                Requirements. Added Methods getStocks(String), & Normalized. Added
 //                                Instances log & assertionDisabled.
+//         1.0.7.37.02 06/24/2019 Method getStocks() Additional And Conditional for !currencyText.isEmpty().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -58,7 +59,7 @@ import org.yccheok.jstock.engine.yahoo.quote.Result;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 06/23/2019
+ * @version 1.0.7.37.02 06/24/2019
  */
 public abstract class AbstractYahooStockServer implements StockServer {
     //protected abstract String getYahooCSVBasedURL();
@@ -298,7 +299,7 @@ public abstract class AbstractYahooStockServer implements StockServer {
             currency = null;
             currencyText = result.getCurrency();
             
-            if (currencyText != null)
+            if (currencyText != null && !currencyText.isEmpty())
             {
                currencyText = currencyText.trim();
                
