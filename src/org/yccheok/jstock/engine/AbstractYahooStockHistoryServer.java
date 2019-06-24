@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 06/24/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,23 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9     08/26/2018 Original Yan Cheng, JStock Engine AbstractYahooStockHistoryServer
+//                                Class.
+//         1.0.7.37.01 06/24/2019 Method getStocks() Removed tryCatch for Assignment of symbol,
+//                                name, board, & industry, Conditional Not Null, & Changed stock
+//                                Instance to s. Same Method Updated Instantiation of stock Arguments.
+//
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -31,6 +51,8 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 06/24/2019
  */
 public abstract class AbstractYahooStockHistoryServer implements StockHistoryServer {        
     // Use ThreadLocal to ensure thread safety.
@@ -112,15 +134,14 @@ public abstract class AbstractYahooStockHistoryServer implements StockHistorySer
         Board board = Board.Unknown;
         Industry industry = Industry.Unknown;
 
-        try {
-            Stock stock = getStockServer().getStock(code);
-            symbol = stock.symbol;
-            name = stock.getName();
-            board = stock.getBoard();
-            industry = stock.getIndustry();
-        }
-        catch (StockNotFoundException exp) {
-            log.error(null, exp);
+        Stock s = getStockServer().getStock(code);
+            
+        if (s != null)
+        {
+            symbol = s.symbol;
+            name = s.getName();
+            board = s.getBoard();
+            industry = s.getIndustry();
         }
 
         double previousClosePrice = Double.MAX_VALUE;
@@ -188,14 +209,14 @@ public abstract class AbstractYahooStockHistoryServer implements StockHistorySer
                     0,
                     0.0,
                     0,
-                    0.0,
-                    0,
-                    0.0,
-                    0,
-                    0.0,
-                    0,
-                    0.0,
-                    0,
+                    //0.0,
+                    //0,
+                    //0.0,
+                    //0,
+                    //0.0,
+                    //0,
+                    //0.0,
+                    //0,
                     timestamp
                     );
 
