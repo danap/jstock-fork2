@@ -197,6 +197,7 @@ src\org\yccheok\jstock\engine\Code.java
 src\org\yccheok\jstock\engine\AjaxGoogleSearchEngineMonitor.java
 src\org\yccheok\jstock\engine\AjaxGoogleSearchEngine.java
 src\org\yccheok\jstock\engine\PinyinTSTSearchEngine.java
+src\org\yccheok\jstock\engine\AbstractYahooStockServer.java
 src\org\yccheok\jstock\engine\PriceSource.java
 src\org\yccheok\jstock\engine\SearchEngine.java
 src\org\yccheok\jstock\engine\RealTimeIndexMonitor.java
