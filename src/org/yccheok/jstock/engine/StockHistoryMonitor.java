@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 06/01/2019
+ * Version 1.0.7.37.02 06/27/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 //
 // Version 1.0.7.37    07/21/2015 Original Yan Cheng, JStock Engine StockHistoryMonitor Class.
 //         1.0.7.37.01 06/01/2019 Provided log() Output in StockHistoryRunnable.run().
+//         1.0.7.37.02 06/27/2019 Inner Class StockHistoryRunnable.run() Updated log.info().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -47,7 +48,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author yccheok
- * @version 1.0.7.37.01 06/01/2019
+ * @version 1.0.7.37.02 06/27/2019
  */
 public class StockHistoryMonitor extends Subject<StockHistoryMonitor, StockHistoryMonitor.StockHistoryRunnable> {
     
@@ -211,7 +212,7 @@ public class StockHistoryMonitor extends Subject<StockHistoryMonitor, StockHisto
 
                 if (history != null) {
                    
-                   log.info("historyServer: " + history.getClass().getName());
+                   log.info("historyServer: " + history.getClass().getSimpleName());
                    
                     readerLock.lock();
 
@@ -271,7 +272,8 @@ public class StockHistoryMonitor extends Subject<StockHistoryMonitor, StockHisto
                     break;
                 }   // if (history != null)
                 else
-                   log.info("historyServer: null");     
+                   log.info("historyServer: " + factory.getClass().getSimpleName() +
+                            ".getStockHistoryServer() = NULL");     
             }   // for
             
             // We need to notify the listener. Whether the history is success or
