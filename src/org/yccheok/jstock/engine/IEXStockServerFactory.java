@@ -2,7 +2,7 @@
  * JStock - Free Stock Market Software
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.01 06/27/2019
+ * Version 1.0.7.37.02 06/30/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@
 // also be included with the original copyright author.
 //=================================================================
 //
-// Version 1.0.7.37 06/27/2019 Original JStock Engine IEXStockServerFactory Class.
+// Version 1.0.7.37.01 06/27/2019 Original JStock Engine IEXStockServerFactory Class.
+//         1.0.7.37.02 06/30/2019 Corrected log Creation to this.     
 //                                
 //-----------------------------------------------------------------
 //                 danap@dandymadeproductions.com
@@ -39,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Dana M. Proctor
- * @version 1.0.7.37.01 06/27/2019
+ * @version 1.0.7.37.02 06/30/2019
  */
 public class IEXStockServerFactory implements StockServerFactory {
     
@@ -104,5 +105,5 @@ public class IEXStockServerFactory implements StockServerFactory {
     private IEXStockServer iexStockServer;
     private IEXDividendServer iexDividendServer;
     
-    private static final Log log = LogFactory.getLog(YahooStockServerFactory.class);
+    private static final Log log = LogFactory.getLog(IEXStockServerFactory.class);
 }
