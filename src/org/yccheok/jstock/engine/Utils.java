@@ -3,7 +3,7 @@
  * Copyright (C) 2014 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.02 06/17/2019
+ * Version 1.0.7.37.03 07/01/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,18 @@
 //                                Arguments. Method getStocks() Commented try/catch for StockNotFoundException.
 //                                Method getStockFromCSVFile() Changed Close Call From gui.Utils to file.Utils.
 //         1.0.7.37.02 06/17/2019 Updated Methods toCountry(), & isUSStock(). Added Method toGoogleIndexSubset().
+//         1.0.7.37.03 07/01/2019 Organized Imports. Cleaned Up getYahooFinanceApi/ChartApiV8() & getIEXApi().
+//                                Added Public Method getZeroPriceCodes() With Four Arguments. Commented Three
+//                                Argument getZeroPriceCodes(). Modified getStocks() to Use Four Argument
+//                                getZeroPriceCodes() & Check getStocksCallback for Null. Essentially Removed
+//                                Use of Collecting Proxy Host via Properties in setHttpClientProxyFromSystem
+//                                Properties(). Corrected replaceAll() in toYahooFormat(). Method isIEXUSClass
+//                                Share() Corrected Use of replacedCodeString to replacedCodeSubString. Rebuilt
+//                                toGoogleFormat(). Method toGoogleIndex() Correct to Return Null. Removed
+//                                toNonYahooFormat() & Added isGoogleCodeDatabaseRequired(), toYahooSuffix(),
+//                                getGoogleSupportedExchanges(). Method getTimeZone() Used Local TimeZone for
+//                                Comparison betterTimeZones Rawoffset. Added Entries in betterTimeZones & local
+//                                TimeZones for Czech & Hungary.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -76,15 +88,19 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.httpclient.HostConfiguration;
+//import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.yccheok.jstock.engine.Country;
+import org.yccheok.jstock.engine.Stock;
 import org.yccheok.jstock.file.Statements;
 import org.yccheok.jstock.gui.Constants;
 import org.yccheok.jstock.gui.JStock;
 import org.yccheok.jstock.gui.JStockOptions;
 
+import retrofit2.Retrofit.Builder;
+import retrofit2.converter.gson.GsonConverterFactory;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.gson.Gson;
@@ -93,7 +109,7 @@ import com.google.gson.Gson;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.02 06/17/2019
+ * @version 1.0.7.37.03 07/01/2019
  */
 public class Utils {
     
@@ -115,37 +131,6 @@ public class Utils {
     
     public static org.yccheok.jstock.engine.YahooFinanceApi getYahooFinanceApi()
     {
-       /* Works
-       Proxy proxy;
-       okhttp3.OkHttpClient client;
-       retrofit2.Retrofit.Builder builder;
-       JStockOptions jStockOptions;
-       String proxyServer;
-       int proxyPort;
-       retrofit2.Retrofit retrofit;
-       YahooFinanceApi yahooFinanceApi;
-       
-       builder = new retrofit2.Retrofit.Builder();
-       builder.baseUrl(org.yccheok.jstock.network.Utils.getURL(
-          org.yccheok.jstock.network.Utils.Type.YAHOO_FINANCE_API));
-       builder.addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create());
-       
-       jStockOptions = JStock.instance().getJStockOptions();
-       proxyServer = jStockOptions.getProxyServer();
-       proxyPort = jStockOptions.getProxyPort();
-       
-       if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(proxyServer)
-           && isValidPortNumber(proxyPort))
-       {
-          proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyServer, proxyPort));
-          client = new okhttp3.OkHttpClient.Builder().proxy(proxy).build();
-          builder.client(client);
-       }
-       
-       retrofit = builder.build();
-       yahooFinanceApi = retrofit.create(YahooFinanceApi.class);
-       */
-       
        YahooFinanceApi yahooFinanceApi;
        yahooFinanceApi = (getRetroFit(
           org.yccheok.jstock.network.Utils.Type.YAHOO_FINANCE_API)).create(YahooFinanceApi.class);
@@ -155,18 +140,6 @@ public class Utils {
     // Does not use proxy, routed to getRetroFit() which does.
     public static org.yccheok.jstock.engine.YahooFinanceApiV8 getYahooFinanceChartApiV8()
     {
-       /* Works, but no proxy.
-       okhttp3.OkHttpClient.Builder builder;
-       retrofit2.Retrofit retrofit;
-       YahooFinanceApiV8 yahooFinanceApiV8;
-       
-       builder = new okhttp3.OkHttpClient.Builder();
-       retrofit = (new retrofit2.Retrofit.Builder().baseUrl(org.yccheok.jstock.network.Utils.getURL(
-          org.yccheok.jstock.network.Utils.Type.YAHOO_FINANCE_CHART_API_V8)).addConverterFactory(
-             retrofit2.converter.gson.GsonConverterFactory.create())).build();
-       yahooFinanceApiV8 = retrofit.create(YahooFinanceApiV8.class);
-       */
-       
        YahooFinanceApiV8 yahooFinanceApiV8;
        yahooFinanceApiV8 = (getRetroFit(
           org.yccheok.jstock.network.Utils.Type.YAHOO_FINANCE_CHART_API_V8)).create(YahooFinanceApiV8.class);
@@ -174,20 +147,9 @@ public class Utils {
     }
     
     public static org.yccheok.jstock.engine.IEXApi getIEXApi()
-    {
-       
-       okhttp3.OkHttpClient.Builder builder;
-       retrofit2.Retrofit retrofit;
+    {  
        IEXApi iexApi;
-       
-       builder = new okhttp3.OkHttpClient.Builder();
-       retrofit = (new retrofit2.Retrofit.Builder().baseUrl(org.yccheok.jstock.network.Utils.getURL(
-          org.yccheok.jstock.network.Utils.Type.IEX_API)).addConverterFactory(
-             retrofit2.converter.gson.GsonConverterFactory.create())).build();
-       iexApi = retrofit.create(IEXApi.class);
-       
-       //IEXApi iexApi;
-       //iexApi = (getRetroFit(org.yccheok.jstock.network.Utils.Type.IEX_API)).create(IEXApi.class);
+       iexApi = (getRetroFit(org.yccheok.jstock.network.Utils.Type.IEX_API)).create(IEXApi.class);
        return iexApi;
     }
     
@@ -196,7 +158,7 @@ public class Utils {
     {
        Proxy proxy;
        okhttp3.OkHttpClient client;
-       retrofit2.Retrofit.Builder builder;
+       Builder builder;
        JStockOptions jStockOptions;
        String proxyServer;
        int proxyPort;
@@ -204,7 +166,7 @@ public class Utils {
        
        builder = new retrofit2.Retrofit.Builder();
        builder.baseUrl(org.yccheok.jstock.network.Utils.getURL(type));
-       builder.addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create());
+       builder.addConverterFactory(GsonConverterFactory.create());
        
        jStockOptions = JStock.instance().getJStockOptions();
        proxyServer = jStockOptions.getProxyServer();
@@ -217,6 +179,14 @@ public class Utils {
           client = new okhttp3.OkHttpClient.Builder().proxy(proxy).build();
           builder.client(client);
        }
+       // The GUI Network Options Panel for Proxy, Needs Fixed.
+       /*
+       else
+       {
+          client = new okhttp3.OkHttpClient.Builder().build();
+          builder.client(client);
+       }
+       */
        
        retrofit = builder.build();
        return retrofit;
@@ -285,6 +255,35 @@ public class Utils {
         return null;
     }
     
+    public static List<Code> getZeroPriceCodes(List<Code> inputs, List<Stock> outputs, List<Stock> nonZeroPriceStocks, Set<Code> nonZeroPriceCodes)
+    {
+       List<Code> zeroPriceCodes;
+       
+       assert(inputs != null);
+       assert(outputs != null);
+       assert(nonZeroPriceStocks != null);
+       assert(nonZeroPriceCodes != null);
+       
+       for (Stock stock : outputs)
+       {
+          if (nonZeroPriceCodes.contains(stock.code))
+             continue;
+          
+          if (stock.getLastPrice() > 0.0 || stock.getOpenPrice() > 0.0)
+          {
+             nonZeroPriceCodes.add(stock.code);
+             nonZeroPriceStocks.add(stock);
+          }
+       }
+       zeroPriceCodes = new ArrayList<Code>();
+       
+       for (Code code : inputs)
+          if (!nonZeroPriceCodes.contains(code))
+             zeroPriceCodes.add(code);
+       
+       return zeroPriceCodes;
+    }
+    /*
     private static List<Code> getZeroPriceCodes(List<Stock> stocks, List<Stock> nonZeroPriceStocks, Set<Code> nonZeroPriceCodes) {
         assert(stocks != null);
         assert(nonZeroPriceStocks != null);
@@ -315,7 +314,7 @@ public class Utils {
         
         return zeroPriceCodes;
     }
-
+    */
     public static List<Stock> getStocks(List<Code> codes, GetStocksCallback getStockCallback) {
         final List<Stock> s = new ArrayList<>();
         final Set<Code> nonZeroPriceCodes = new HashSet<>();        
@@ -341,23 +340,19 @@ public class Utils {
                 }
                 
                 List<Stock> tmpStocks = null;
-                //try {
-                    tmpStocks = stockServer.getStocks(zeroPriceCodes);
-                //} catch (StockNotFoundException exp) {
-                //    log.error("" + zeroPriceCodes, exp);
-                //    // Try with another server.
-                //    continue;
-                //}
-
-                zeroPriceCodes = getZeroPriceCodes(tmpStocks, stocks, nonZeroPriceCodes);
+                tmpStocks = stockServer.getStocks(zeroPriceCodes);
+                zeroPriceCodes = getZeroPriceCodes(zeroPriceCodes, tmpStocks, stocks, nonZeroPriceCodes);
                 if (zeroPriceCodes.isEmpty()) {
                     break;
                 }
             }   /* for (StockServerFactory factory : Factories.INSTANCE.getStockServerFactories(codes.get(0))) */
             
             // Avoid multiple empty stocks callback.
-            if (!stocks.isEmpty()) {
-                getStockCallback.update(stocks);
+            if (!stocks.isEmpty())
+            {
+                if (getStockCallback != null)
+                   getStockCallback.update(stocks);
+                
                 s.addAll(stocks);
             }
         }
@@ -365,7 +360,8 @@ public class Utils {
         // Even the final result is empty, ensure we trigger callback at least
         // once.
         if (s.isEmpty()) {
-            getStockCallback.update(s);
+           if (getStockCallback != null) 
+              getStockCallback.update(s);
         }
         
         return s;
@@ -479,7 +475,10 @@ public class Utils {
      *
      * @param httpClient HttpClient to be initialized
      */
+    
     public static void setHttpClientProxyFromSystemProperties(HttpClient httpClient) {
+        httpClient.getHostConfiguration().setProxyHost(null);
+        /*
         final String httpproxyHost = System.getProperties().getProperty("http.proxyHost");
         final String httpproxyPort = System.getProperties().getProperty("http.proxyPort");
         
@@ -504,7 +503,8 @@ public class Utils {
                 hostConfiguration.setProxyHost(null);
             }
         }
-    } 
+        */
+    }
     
     // Refer to http://www.exampledepot.com/egs/java.util/CompDates.html
     public static long getDifferenceInDays(long timeInMillis0, long timeInMillis1) {
@@ -734,7 +734,6 @@ public class Utils {
        return Code.newInstance(toYahooFormat(code));
     }
     
-    // Needs finished Checked.
     public static java.lang.String toYahooFormat(Code code)
     {
        String codeString;
@@ -749,28 +748,25 @@ public class Utils {
           if (Character.isDigit(codeString.charAt(0)))
           {
              if (isIEXUSClassShare(code))
-                return codeString.replaceAll("\\.", "-");
+                return codeString.replaceAll(".", "-");
              else
                 return new StringBuilder(codeString + "O").toString();
           }
           else
              return new StringBuilder(codeString + "O").toString();
-             
        }
        else
        {
           if (isIEXUSClassShare(code))
-             return codeString.replaceAll("\\.", "-");
+             return codeString.replaceAll(".", "-");
           
           if (codeString.endsWith("*"))
              codeString = codeString.substring(0, codeString.length() - 1);
              
-         //return codeString.replaceAll("(\\S+-)(\\S?$)", "$1P$2");
-         return codeString.replaceAll("(\\S+-)", "(\\S?$)");     
+         return codeString.replaceAll("(\\S+-)(\\S?$)", "$1P$2"); 
        }
     }
     
-    // Needs finished, checked.
     private static boolean isIEXUSClassShare(Code code)
     {
        String codeString;
@@ -785,23 +781,23 @@ public class Utils {
        if (beginIndex < 0)
           return false;
        
-       replacedCodeString = codeString.substring(beginIndex).replaceAll("-", ".");
+       replacedCodeSubString = codeString.substring(beginIndex).replaceAll("-", ".");
        
-       if (replacedCodeString.equals(".A") || replacedCodeString.equals(".B")
-           || replacedCodeString.equals(".C"))
+       if (replacedCodeSubString.equals(".A") || replacedCodeSubString.equals(".B")
+           || replacedCodeSubString.equals(".C"))
        {
-          replacedCodeString = codeString.substring(beginIndex).replaceAll("-", ".");
+          replacedCodeString = codeString.replaceAll("-", ".");
           result = iexUSClassShareCache.get(replacedCodeString);
           
-          if (result == null)
-             return false;
+          if (result != null)
+             return result.booleanValue();
           
           result = IEXStockInfoSQLiteOpenHelper.INSTANCE.find(replacedCodeString);
           
           if (result == null)
              return false;
           
-          if (iexUSClassShareCache.size() <= IEX_US_CLASS_SHARE_CACHE_OPTIMAL_SIZE)
+          if (iexUSClassShareCache.size() < IEX_US_CLASS_SHARE_CACHE_OPTIMAL_SIZE)
              iexUSClassShareCache.put(replacedCodeString, result);
           
           return result.booleanValue(); 
@@ -815,15 +811,13 @@ public class Utils {
        return Code.newInstance(toIEXFormat(code));
     }
     
-    // Needs finished, checked.
     public static java.lang.String toIEXFormat(org.yccheok.jstock.engine.Code code)
     {
        String originalCodeString;
        String replacedCodeString;
        
        originalCodeString = code.toString();
-       replacedCodeString = originalCodeString.replaceAll("(\\S+-)P(\\S?$)", "$1$2");
-       //replacedCodeString = originalCodeString.replaceAll("(\\S+-)P", "(\\S?$)");
+       replacedCodeString = originalCodeString.replaceAll("(\\S+-)P(\\S?$)", "$1$2"); //?
        
        if (!originalCodeString.equals(replacedCodeString))
           return replacedCodeString;
@@ -835,7 +829,6 @@ public class Utils {
              return originalCodeString;
        }  
     }
-    
     
     public static boolean needToResolveUnderlyingCode(Code code)
     {
@@ -851,18 +844,52 @@ public class Utils {
      * @param code the code
      * @return code in Google's format
      */
-    public static String toGoogleFormat(Code code) {
-        if (isYahooIndexSubset(code)) {
-            return toGoogleIndex(code);
-        } else if (isYahooCurrency(code)) {
+    public static String toGoogleFormat(Code code)
+    {
+        Long l;
+        String googleFormat;
+        Country country;
+         
+        String s = Utils.toGoogleIndex(code);
+        
+        if (s != null)
+           return s;
+        
+        if (isYahooCurrency(code)) {
             return toGoogleCurrency(code);
         }
 
         String string = code.toString().trim().toUpperCase();
-
+        country = Utils.toCountry(code);
+        
+        // new
+        if (Utils.isGoogleCodeDatabaseRequired(country))
+        {
+           googleFormat = Utils.googleCodeDatabaseCache.get(string);
+           
+           if (googleFormat != null)
+              return googleFormat;
+           
+           l = JStock.instance().getJStockOptions().getGoogleCodeDatabaseMetaTimestamp(country);
+           
+           if (l != null && l.longValue() > 0)
+           {
+              googleFormat = org.yccheok.jstock.engine.GoogleCodeSQLiteOpenHelper.INSTANCE.find(country, string);
+              
+              if (googleFormat != null)    
+              {
+                 if (googleCodeDatabaseCache.size() < GOOGLE_CODE_DATABASE_CACHE_OPTIMAL_SIZE)
+                    googleCodeDatabaseCache.put(string, googleFormat);
+                 
+                 return googleFormat;
+              }
+           }
+        }
+        
+        
         // WTF?! Handle case for RDS-B (Yahoo Finance) & RDS.B (Google Finance)
         if (toCountry(code) == Country.UnitedState) {
-            String googleFormat = UnitedStatesGoogleFormatCodeLookup.INSTANCE.get(code);
+            googleFormat = UnitedStatesGoogleFormatCodeLookup.INSTANCE.get(code);
             if (googleFormat != null) {
                 return googleFormat;
             }
@@ -894,7 +921,7 @@ public class Utils {
             // difficulty in converting "TATACHEM.BO" (Yahoo Finance) to 
             // "BOM:500770" (Google Finance)
             string = string.substring(0, string_length - ".NS".length());
-            String googleFormat = toGoogleFormatThroughAutoComplete(string, "NSE");
+            googleFormat = toGoogleFormatThroughAutoComplete(string, "NSE");
             if (googleFormat != null) {
                 return "NSE:" + googleFormat;
             }
@@ -937,7 +964,7 @@ public class Utils {
         if (googleIndex != null) {
             return googleIndex;
         }
-        return string;
+        return null;
     }
     
     private static String toGoogleCurrency(Code code) {
@@ -989,21 +1016,12 @@ public class Utils {
         return null;
     }
     
-    /**
-     * Returns code in non Yahoo! format, by stripping off ".KL" suffix.
-     * 
-     * @param code the code
-     * @return code in non Yahoo! format, by stripping off ".KL" suffix.
-     */
-    public static Code toNonYahooFormat(Code code)
+    public static boolean isGoogleCodeDatabaseRequired(org.yccheok.jstock.engine.Country country)
     {
-        final String tmp = code.toString();
-        final String TMP = tmp.toUpperCase();
-        int endIndex = TMP.lastIndexOf(".KL");
-        if (endIndex < 0) {
-            return code;
-        }
-        return Code.newInstance(tmp.substring(0, endIndex));
+       if (country == Country.Malaysia)
+          return true;
+       else
+          return false;
     }
     
     /**
@@ -1268,8 +1286,15 @@ public class Utils {
         return set;
     }
     
-    //public static java.lang.String toYahooSuffix(java.lang.String googleExch);
-    //public static java.util.List getGoogleSupportedExchs();
+    public static java.lang.String toYahooSuffix(java.lang.String googleExch)
+    {
+       return googleExchToYahooSuffix.get(googleExch);
+    }
+    
+    public static java.util.List getGoogleSupportedExchs()
+    {
+       return Collections.unmodifiableList(googleSupportedExchs);
+    }
     
     public static void clearGoogleCodeDatabaseCache()
     {
@@ -1281,7 +1306,7 @@ public class Utils {
        iexUSClassShareCache.clear();
     }
     
-    // Needs finished, checked.
+    // r-op? not defined.
     public static TimeZone getTimeZone(Country country)
     {
        TimeZone timeZone;
@@ -1292,7 +1317,7 @@ public class Utils {
        
        assert (betterTimeZone != null);
        
-       if (betterTimeZone.getRawOffset() == 0L)
+       if (betterTimeZone.getRawOffset() == TimeZone.getDefault().getRawOffset()) //r-op?
           return betterTimeZone;
        else
        {
@@ -1599,11 +1624,13 @@ public class Utils {
         betterLocalTimeZones.put(Country.Brazil, TimeZone.getTimeZone("America/Sao_Paulo"));
         betterLocalTimeZones.put(Country.Canada, TimeZone.getTimeZone("America/Montreal"));
         betterLocalTimeZones.put(Country.China, TimeZone.getTimeZone("Asia/Shanghai"));
+        betterLocalTimeZones.put(Country.Czech, TimeZone.getTimeZone("Europe/Prague"));
         betterLocalTimeZones.put(Country.Denmark, TimeZone.getTimeZone("Europe/Copenhagen"));
         betterLocalTimeZones.put(Country.Finland, TimeZone.getTimeZone("Europe/Helsinki"));
         betterLocalTimeZones.put(Country.France, TimeZone.getTimeZone("Europe/Paris"));
         betterLocalTimeZones.put(Country.Germany, TimeZone.getTimeZone("Europe/Berlin"));
         betterLocalTimeZones.put(Country.HongKong, TimeZone.getTimeZone("Asia/Hong_Kong"));
+        betterLocalTimeZones.put(Country.Hungary, TimeZone.getTimeZone("Europe/Budapest"));
         betterLocalTimeZones.put(Country.India, TimeZone.getTimeZone("Asia/Calcutta"));  
         betterLocalTimeZones.put(Country.Indonesia, TimeZone.getTimeZone("Asia/Jakarta"));
         betterLocalTimeZones.put(Country.Israel, TimeZone.getTimeZone("Asia/Jerusalem"));
@@ -1636,11 +1663,13 @@ public class Utils {
         localTimeZones.put(Country.Brazil, TimeZone.getTimeZone("GMT-3"));
         localTimeZones.put(Country.Canada, TimeZone.getTimeZone("GMT-5"));
         localTimeZones.put(Country.China, TimeZone.getTimeZone("GMT+8"));
+        localTimeZones.put(Country.Czech, TimeZone.getTimeZone("GMT+1"));
         localTimeZones.put(Country.Denmark, TimeZone.getTimeZone("GMT+1"));
         localTimeZones.put(Country.Finland, TimeZone.getTimeZone("GMT+2"));
         localTimeZones.put(Country.France, TimeZone.getTimeZone("GMT+1"));
         localTimeZones.put(Country.Germany, TimeZone.getTimeZone("GMT+1"));
         localTimeZones.put(Country.HongKong, TimeZone.getTimeZone("GMT+8"));
+        localTimeZones.put(Country.Hungary, TimeZone.getTimeZone("GMT+1"));
         localTimeZones.put(Country.India, TimeZone.getTimeZone("GMT+5:30"));
         localTimeZones.put(Country.Indonesia, TimeZone.getTimeZone("GMT+7"));
         localTimeZones.put(Country.Israel, TimeZone.getTimeZone("GMT+2"));
