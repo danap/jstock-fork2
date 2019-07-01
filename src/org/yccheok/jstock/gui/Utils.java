@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.09 04/01/2019
+ * Version 1.0.7.37.10 07/01/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@
 //         1.0.7.37.08 03/17/2019 Minor Formatting Changes, On Imports. Added Class Instance
 //                                setUIManagerFont().
 //         1.0.7.37.09 04/01/2019 Changed Manipulation of getSupportedStockMarketCountries().
+//         1.0.7.37.10 07/01/2019 Method downloadAsString() Closed Scanner s.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -196,7 +197,7 @@ import org.yccheok.jstock.watchlist.WatchlistInfo;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.09 04/01/2019
+ * @version 1.0.7.37.10 07/01/2019
  * 
  */
 public class Utils {
@@ -2406,10 +2407,13 @@ public class Utils {
             inputStreamAndMethod.method.releaseConnection();
             return null;
         }
+        java.util.Scanner s = null;
         try {
-            java.util.Scanner s = new java.util.Scanner(inputStreamAndMethod.inputStream, "UTF-8").useDelimiter("\\A");
+            s = new java.util.Scanner(inputStreamAndMethod.inputStream, "UTF-8").useDelimiter("\\A");
             return s.hasNext() ? s.next() : null;        
         } finally {
+            if (s != null)
+               s.close();
             org.yccheok.jstock.file.Utils.close(inputStreamAndMethod.inputStream);
             inputStreamAndMethod.method.releaseConnection();
         }
