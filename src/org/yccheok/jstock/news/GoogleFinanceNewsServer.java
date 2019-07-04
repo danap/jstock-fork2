@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 06/02/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock News GoogleFinanceNewsServer Class.
+//         1.0.7.37.01 Method googleFinanceNewsFeedUrl() Changed Use of Code for Query to Symbol,
+//                     the Name of the Company.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.news;
 
@@ -36,7 +54,11 @@ import org.apache.commons.logging.LogFactory;
 
 import org.yccheok.jstock.engine.StockInfo;
 
-
+/**
+ * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 07/04/2019
+ */
 public class GoogleFinanceNewsServer implements NewsServer {
 
     @Override
@@ -89,11 +111,14 @@ public class GoogleFinanceNewsServer implements NewsServer {
     private String googleFinanceNewsFeedUrl(StockInfo stockInfo) {
         // https://www.google.com/finance/company_news?q=NYSE:SAN&output=rss
         
-        final String googleFormat = org.yccheok.jstock.engine.Utils.toGoogleFormat(stockInfo.code);
+        //final String googleFormat = org.yccheok.jstock.engine.Utils.toGoogleFormat(stockInfo.code);
+        final String googleFormat = stockInfo.symbol.toString();
         
         try {
             String query = java.net.URLEncoder.encode(googleFormat, "UTF-8");
             String url = "https://www.google.com/finance/company_news?output=rss&q=" + query;
+            //String url = "https://duckduckgo.com/?output=rss&q=" + query;
+            //String url = "https://duckduckgo.com/?q=" + query;
             return url;
         } catch (UnsupportedEncodingException ex) {
             log.error(null, ex);
