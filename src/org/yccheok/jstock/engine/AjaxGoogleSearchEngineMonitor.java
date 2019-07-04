@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2013 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 07/04/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,24 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.37    08/26/2018 Original Yan Cheng, JStock Engine AjaxGoogleSearchEngineMonitor
+//                                Class.
+//         1.0.7.37.01 07/04/2019 Comment Class Instance exchs & Method setExchs(). Inner Class
+//                                SearchTask Method run() Added Instances exchs & exchSet & Used
+//                                Instead of queries. Used Utils.getGoogleSupportedExchs() to
+//                                Populate exchs & exchSet.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -35,6 +56,8 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 07/04/2019
  */
 public class AjaxGoogleSearchEngineMonitor extends Subject<AjaxGoogleSearchEngineMonitor, MatchSetType> {
     /**
@@ -80,22 +103,35 @@ public class AjaxGoogleSearchEngineMonitor extends Subject<AjaxGoogleSearchEngin
         @Override
         public void run() {
             String string;
+            List<String> exchs = Utils.getGoogleSupportedExchs();
+            Set<String> exchSet = new HashSet<String>(exchs);
             while (!executor.isShutdown()) {
                 try {
                     string = blockingQueue.take();
                     
+                    /*
                     List<String> queries = new ArrayList<>();
                     queries.add(string);
                     
                     Set<String> exchSet = new HashSet<>();
                     Set<String> codeSet = new HashSet<>();
-                    List<MatchType> matchTypes = new ArrayList<>();
+                    */
                     
+                    List<MatchType> matchTypes = new ArrayList<>();
+                    List<MatchType> results = searchEngine.searchAll(string);
+                    
+                    for (MatchType matchType : results)
+                       if (exchSet.contains(matchType) == false)
+                          matchTypes.add(matchType);
+                    
+                    /*
                     for (String exch : exchs) {
                         queries.add(exch + ":" + string);
                         exchSet.add(exch);
                     }
+                    */
                     
+                    /*
                     for (String query : queries) {
                         List<MatchType> results = searchEngine.searchAll(query);
                         for (MatchType matchType : results) {
@@ -112,6 +148,7 @@ public class AjaxGoogleSearchEngineMonitor extends Subject<AjaxGoogleSearchEngin
                             matchTypes.add(matchType);
                         }
                     }
+                    */
                     
                     // Sorting.
                     java.util.Collections.sort(matchTypes, new Comparator<MatchType>() {
@@ -133,11 +170,13 @@ public class AjaxGoogleSearchEngineMonitor extends Subject<AjaxGoogleSearchEngin
         }
     }
     
+    /*
     public void setExchs(List<String> exchs) {
         this.exchs = exchs;
     }
+    */
     
-    private List<String> exchs;
+    //private List<String> exchs;
     
     private final SearchEngine<MatchType> searchEngine = new AjaxGoogleSearchEngine();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
