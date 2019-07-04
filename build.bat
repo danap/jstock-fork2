@@ -1,3 +1,3 @@
-jar cvfm JStock-Min.jar jstock-min.mf -C bin/ org
-jar uvf JStock-Min.jar -C bin/ assets
-jar uvf JStock-Min.jar -C bin/ images
+jar cvfm JStock-Min2.jar jstock-min2.mf -C bin/ org
+jar uvf JStock-Min2.jar -C bin/ assets
+jar uvf JStock-Min2.jar -C bin/ images
