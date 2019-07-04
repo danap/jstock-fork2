@@ -1,6 +1,9 @@
 /*
  * JStock - Free Stock Market Software
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
+ * Copyright (C) 2019 Dana Proctor
+ * 
+ * Version 1.0.7.37.01 07/04/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+//=================================================================
+// Revision History
+// Changes to the code should be documented here and reflected
+// in the present version number. Author information should
+// also be included with the original copyright author.
+//=================================================================
+//
+// Version 1.0.7.9     08/26/2018 Original Yan Cheng, JStock Engine AjaxStockInfoSearchEngine Class.
+//         1.0.7.37.01 07/04/2019 Method searchAll() Used toUpperCase() on prefix Before Code.newInstance().
+//                                Method isSupported() Just Returned True.
+//                                
+//-----------------------------------------------------------------
+//                 yccheok@yahoo.com
+//                 danap@dandymadeproductions.com
+//=================================================================
 
 package org.yccheok.jstock.engine;
 
@@ -26,12 +44,14 @@ import org.yccheok.jstock.gui.JStock;
 /**
  *
  * @author yccheok
+ * @author Dana M. Proctor
+ * @version 1.0.7.37.01 07/04/2019
  */
 public class AjaxStockInfoSearchEngine implements SearchEngine<StockInfo> {    
 
     @Override
     public List<StockInfo> searchAll(String prefix) {
-        Code code = Code.newInstance(prefix);
+        Code code = Code.newInstance(prefix.toUpperCase());
         Country country = Utils.toCountry(code);
         boolean searchRequired = false;
         
@@ -97,6 +117,7 @@ public class AjaxStockInfoSearchEngine implements SearchEngine<StockInfo> {
     private boolean isSupported(Country country) {
         // Since UnitedState doesn't have stock code suffix, we do not want to
         // trigger search action, if user doesn't type "... .XX"
-        return !(country == Country.UnitedState);
+        //return !(country == Country.UnitedState);
+       return true;
     }
 }
