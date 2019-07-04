@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.44 06/02/2019
+ * Version 1.0.7.37.45 07/04/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -267,6 +267,9 @@
 //         1.0.7.37.44 06/02/2019 Removal of Testing Code, & Commented Call to Testing in Method
 //                                initRealTimeStockMonitor(). Method displayHistoryChart() Minor
 //                                Formatting Changes & Removal of Use of JStock.this, Just this.
+//         1.0.7.37.45 07/04/2019 Organized Imports. Method initStockInfoDatabase() Corrected log.info()
+//                                Comment on json.isEmpty(). Uncommented Code for Method initGoogleCode
+//                                DatabaseRunnable().
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -323,6 +326,7 @@ import org.yccheok.jstock.engine.Code;
 import org.yccheok.jstock.engine.Country;
 import org.yccheok.jstock.engine.Duration;
 import org.yccheok.jstock.engine.Factories;
+import org.yccheok.jstock.engine.GoogleCodeDatabaseRunnable;
 import org.yccheok.jstock.engine.Index;
 import org.yccheok.jstock.engine.Market;
 import org.yccheok.jstock.engine.Pair;
@@ -347,7 +351,6 @@ import org.yccheok.jstock.gui.charting.ChartJDialogOptions;
 import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
 import org.yccheok.jstock.network.ProxyDetector;
-//import org.yccheok.jstock.test.engine.ServerFactoryTest;
 
 import com.google.api.client.auth.oauth2.Credential;
 
@@ -988,9 +991,9 @@ public class JStock extends javax.swing.JFrame
             final String json = Utils.downloadAsString(location);
             
             if (json.isEmpty())
-               log.info("JStock initStockInfoDatabase() Download:stock-info-database-meta.json EMPTY");
+               log.info("JStock initStockInfoDatabaseMeta() Download:stock-info-database-meta.json EMPTY");
             else
-               log.info("JStock initStockInfoDatabase() Download:stock-info-database-meta.json SUCCESSFUL");
+               log.info("JStock initStockInfoDatabaseMeta() Download:stock-info-database-meta.json SUCCESSFUL");
                
             
             final Map<Country, Long> latestStockInfoDatabaseMeta = Utils.loadStockInfoDatabaseMeta(json);
@@ -1106,14 +1109,12 @@ public class JStock extends javax.swing.JFrame
    
    private void initGoogleCodeDatabaseRunnable()
    { 
-      /*
+      
       final Country country = jStockOptions.getCountry();
 
       if (org.yccheok.jstock.engine.Utils.isGoogleCodeDatabaseRequired(country))
-      {
           singleThreadExecutor.submit(new GoogleCodeDatabaseRunnable(country));
-      }
-      */ 
+      
    }
    
    //==============================================================
