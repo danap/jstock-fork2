@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.45 07/04/2019
+ * Version 1.0.7.37.46 07/07/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -270,6 +270,9 @@
 //         1.0.7.37.45 07/04/2019 Organized Imports. Method initStockInfoDatabase() Corrected log.info()
 //                                Comment on json.isEmpty(). Uncommented Code for Method initGoogleCode
 //                                DatabaseRunnable().
+//         1.0.7.37.46 07/07/2019 Organized Imports. Method init() setTitle() For Frame to Reflect
+//                                Application, JStock-Min2. Updated VERSION to Indicate Release
+//                                Version, & Associated JStock Bases, Version 1.0.7.37.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -352,12 +355,10 @@ import org.yccheok.jstock.gui.news.StockNewsJFrame;
 import org.yccheok.jstock.internationalization.GUIBundle;
 import org.yccheok.jstock.network.ProxyDetector;
 
-import com.google.api.client.auth.oauth2.Credential;
-
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.44 06/02/2019
+ * @version 1.0.7.37.46 07/07/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -365,7 +366,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.44";
+   public static final String VERSION = "1.0.7.37.46-rev37";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane mainTabsPane;
@@ -533,7 +534,8 @@ public class JStock extends javax.swing.JFrame
       bundle = ResourceBundle.getBundle("org/yccheok/jstock/data/gui");
       
       // Setup Frame Aspects
-      setTitle(bundle.getString("MainFrame_Application_Title"));
+      //setTitle(bundle.getString("MainFrame_Application_Title"));
+      setTitle("JStock-Min2 - Free Stock Market Software");
       setIconImage(new ImageIcon(getClass().getResource("/images/128x128/chart.png")).getImage());
       setSize(new java.awt.Dimension(800, 600));
       setLocationRelativeTo(null); // Centers
