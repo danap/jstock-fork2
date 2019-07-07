@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.10 07/01/2019
+ * Version 1.0.7.37.11 07/07/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,8 @@
 //                                setUIManagerFont().
 //         1.0.7.37.09 04/01/2019 Changed Manipulation of getSupportedStockMarketCountries().
 //         1.0.7.37.10 07/01/2019 Method downloadAsString() Closed Scanner s.
+//         1.0.7.37.11 07/07/2019 Method toEmailIfPossible() Commented & Just Returned Argument.
+//                                Commented Unused Imports.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -56,9 +58,9 @@
 package org.yccheok.jstock.gui;
 
 //import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.http.FileContent;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpResponse;
+//import com.google.api.client.http.FileContent;
+//import com.google.api.client.http.GenericUrl;
+//import com.google.api.client.http.HttpResponse;
 //import com.google.api.services.drive.Drive;
 //import com.google.api.services.drive.Drive.Files;
 //import com.google.api.services.drive.model.FileList;
@@ -130,7 +132,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
+//import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -197,7 +199,7 @@ import org.yccheok.jstock.watchlist.WatchlistInfo;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.10 07/01/2019
+ * @version 1.0.7.37.11 07/07/2019
  * 
  */
 public class Utils {
@@ -2346,6 +2348,7 @@ public class Utils {
      * GMail. Returns null if conversion is not possible
      */
     public static String toEmailIfPossible(String username) {
+        /*
         if (false == org.apache.commons.validator.EmailValidator.getInstance().isValid(username)) {
             // The default email is gmail.
             username = username + "@gmail.com";
@@ -2353,6 +2356,7 @@ public class Utils {
                 return null;
             }
         }
+        */
         return username;
     }
     
