@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.11 07/07/2019
+ * Version 1.0.7.37.12 07/07/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@
 //         1.0.7.37.10 07/01/2019 Method downloadAsString() Closed Scanner s.
 //         1.0.7.37.11 07/07/2019 Method toEmailIfPossible() Commented & Just Returned Argument.
 //                                Commented Unused Imports.
+//         1.0.7.37.12 07/07/2019 Method getGoogleServerTimestamp() Returned 0.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -199,7 +200,7 @@ import org.yccheok.jstock.watchlist.WatchlistInfo;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.11 07/07/2019
+ * @version 1.0.7.37.12 07/07/2019
  * 
  */
 public class Utils {
@@ -444,6 +445,7 @@ public class Utils {
     // Get timestamp (in ms) information from Google server. Returns 0 if
     // invalid.
     public static long getGoogleServerTimestamp() {
+        /*
         final String _time = org.yccheok.jstock.gui.Utils.getUUIDValue(org.yccheok.jstock.network.Utils.getURL(Type.GET_TIME), "time");
         if (_time == null) {
             return 0;
@@ -454,6 +456,7 @@ public class Utils {
         } catch (NumberFormatException exp) {
             log.error(null, exp);
         }
+        */
         return 0;
     }
 
