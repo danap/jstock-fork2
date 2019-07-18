@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.04 06/19/2019
+ * Version 1.0.7.39.01 07/17/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@
 //                                setScanningSpeed(). Method getPriceSource() Adding Logging for
 //                                Selected country.
 //         1.0.7.37.04 06/19/2019 Comment on iexStockInfoDBMeta.
+//         1.0.7.39.01 07/17/2019 Added Method isPreferLongNames().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -82,7 +83,7 @@ import org.yccheok.jstock.portfolio.DecimalPlace;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.04 06/19/2019
+ * @version 1.0.7.39.01 07/17/2019
  */
 public class JStockOptions {
     /*
@@ -1520,6 +1521,10 @@ public class JStockOptions {
     public void setLocalCurrencyCountry(Country country, Country localCurrencyCountry) {
         this.localCurrencyCountries.put(country, localCurrencyCountry);
     }
+    
+    public boolean isPreferLongName(Country country) {
+       return false;
+   }
 
 
     /**
