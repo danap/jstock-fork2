@@ -3,7 +3,7 @@
  * Copyright (C) 2012 Yan Cheng CHEOK <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.02 06/24/2019
+ * Version 1.0.7.39.01 07/17/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 //                                Requirements. Added Methods getStocks(String), & Normalized. Added
 //                                Instances log & assertionDisabled.
 //         1.0.7.37.02 06/24/2019 Method getStocks() Additional And Conditional for !currencyText.isEmpty().
+//         1.0.7.39.01 07/17/2019 Method getStocks() Implemented JStockOptions isPreferLongName().
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -48,18 +49,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.yccheok.jstock.engine.currency.Currency;
 import org.yccheok.jstock.engine.yahoo.quote.QuoteResponse;
 import org.yccheok.jstock.engine.yahoo.quote.QuoteResponse_;
 import org.yccheok.jstock.engine.yahoo.quote.Result;
+import org.yccheok.jstock.gui.JStock;
+import org.yccheok.jstock.gui.JStockOptions;
 
 /**
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.02 06/24/2019
+ * @version 1.0.7.39.01 07/17/2019
  */
 public abstract class AbstractYahooStockServer implements StockServer {
     //protected abstract String getYahooCSVBasedURL();
@@ -242,6 +246,7 @@ public abstract class AbstractYahooStockServer implements StockServer {
     {
        // Method Instances
        Symbol symbol;
+       JStockOptions jStockOptions;
        Code code;
        String name;
        Currency currency;
@@ -279,17 +284,31 @@ public abstract class AbstractYahooStockServer implements StockServer {
           quoteResponse = call.execute().body();
           quoteResponse_ = quoteResponse.getQuoteResponse();
           results = quoteResponse_.getResult();
+          
+          jStockOptions = JStock.instance().getJStockOptions();
          
          for (Result result : results)
          {
             code = Code.newInstance(result.getSymbol());
             
-            if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(result.getShortName()))
-               symbol = Symbol.newInstance(result.getShortName());
-            else if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(result.getLongName()))
-               symbol = Symbol.newInstance(result.getLongName());
+            if (jStockOptions.isPreferLongName(jStockOptions.getCountry()))
+            {
+            	if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(result.getLongName()))
+                    symbol = Symbol.newInstance(StringEscapeUtils.unescapeHtml(result.getLongName()));
+            	else if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(result.getShortName()))
+                    symbol = Symbol.newInstance(result.getShortName());
+                else
+                    symbol = Symbol.newInstance(code.toString());
+            }
             else
-               symbol = Symbol.newInstance(code.toString());
+            {
+            	if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(result.getShortName()))
+                    symbol = Symbol.newInstance(result.getShortName());
+                else if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(result.getLongName()))
+                    symbol = Symbol.newInstance(StringEscapeUtils.unescapeHtml(result.getLongName()));
+                else
+                    symbol = Symbol.newInstance(code.toString());
+            }
             
             if (!org.yccheok.jstock.gui.Utils.isNullOrEmpty(result.getLongName()))
                name = result.getLongName();
