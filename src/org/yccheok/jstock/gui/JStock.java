@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.46 07/07/2019
+ * Version 1.0.7.39.01 07/18/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -273,6 +273,7 @@
 //         1.0.7.37.46 07/07/2019 Organized Imports. Method init() setTitle() For Frame to Reflect
 //                                Application, JStock-Min2. Updated VERSION to Indicate Release
 //                                Version, & Associated JStock Bases, Version 1.0.7.37.
+//         1.0.7.39.01 07/18/2019 Updated VERSION to Reflect Release. Completed for JStock v1.0.7.39.
 //                                
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -358,7 +359,7 @@ import org.yccheok.jstock.network.ProxyDetector;
 /**
  * @author doraemon
  * @author Dana M. Proctor
- * @version 1.0.7.37.46 07/07/2019
+ * @version 1.0.7.39.01 07/18/2019
  */
 
 public class JStock extends javax.swing.JFrame
@@ -366,7 +367,7 @@ public class JStock extends javax.swing.JFrame
    // Class Instances
    private static final long serialVersionUID = 3554990056522905135L;
    
-   public static final String VERSION = "1.0.7.37.46-rev37";
+   public static final String VERSION = "1.0.7.39.01";
    
    private Main_JMenuBar menuBar;
    private JTabbedPane mainTabsPane;
