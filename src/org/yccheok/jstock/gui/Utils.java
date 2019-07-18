@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Yan Cheng Cheok <yccheok@yahoo.com>
  * Copyright (C) 2019 Dana Proctor
  * 
- * Version 1.0.7.37.12 07/07/2019
+ * Version 1.0.7.39.01 07/18/2019
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,8 @@
 //         1.0.7.37.11 07/07/2019 Method toEmailIfPossible() Commented & Just Returned Argument.
 //                                Commented Unused Imports.
 //         1.0.7.37.12 07/07/2019 Method getGoogleServerTimestamp() Returned 0.
+//         1.0.7.39.01 07/18/2019 Method getUserDataDirectory() Changed to Reference User Directory
+//                                jstock-min2.
 //
 //-----------------------------------------------------------------
 //                 yccheok@yahoo.com
@@ -200,7 +202,7 @@ import org.yccheok.jstock.watchlist.WatchlistInfo;
  *
  * @author yccheok
  * @author Dana M. Proctor
- * @version 1.0.7.37.12 07/07/2019
+ * @version 1.0.7.39.01 07/18/2019
  * 
  */
 public class Utils {
@@ -930,7 +932,7 @@ public class Utils {
      * @return user data directory
      */
     public static String getUserDataDirectory() {
-        return System.getProperty("user.home") + File.separator + ".jstock-min" + File.separator + getApplicationVersionString() + File.separator;
+        return System.getProperty("user.home") + File.separator + ".jstock-min2" + File.separator + getApplicationVersionString() + File.separator;
     }
 
     /**
